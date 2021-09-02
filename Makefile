@@ -7,4 +7,4 @@ test: occ
 
 .PHONY: clean
 clean:
-	rm -f occ
+	rm -f occ tmp*
