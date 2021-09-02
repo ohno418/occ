@@ -15,8 +15,13 @@ assert() {
   fi
 }
 
+assert "7" "7"
 assert "42" "42"
 assert "123" "123"
+# assert "2+3" "5"
+# assert "2  +3" "5"
+# assert "  2 +  3 " "5"
+# assert "2+13" "15"
 
 echo OK
 exit 0
