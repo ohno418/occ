@@ -1,4 +1,4 @@
-occ:
+occ: occ.c
 	gcc -o occ occ.c
 
 .PHONY: test
