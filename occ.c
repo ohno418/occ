@@ -9,7 +9,7 @@
  * tokenize
  */
 typedef enum TokenKind {
-  TK_NUM,  // number
+  TK_NUM,   // number
   TK_PUNCT, // punctuator
   TK_EOF,
 } TokenKind;
@@ -64,8 +64,8 @@ Token *tokenize(char *input) {
       continue;
     }
 
-    // +
-    if (*p == '+') {
+    // puctuator
+    if (*p == '+' || *p == '-') {
       Token *tok = calloc(1, sizeof(Token));
       tok->kind = TK_PUNCT;
       tok->loc = p;
@@ -95,6 +95,7 @@ Token *tokenize(char *input) {
 typedef enum NodeKind {
   ND_NUM, // number
   ND_ADD, // +
+  ND_SUB, // -
 } NodeKind;
 
 typedef struct Node Node;
@@ -121,15 +122,35 @@ Node *new_add_node(Node *lhs, Node *rhs, Token *tok) {
   return node;
 }
 
+Node *new_sub_node(Node *lhs, Node *rhs, Token *tok) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_SUB;
+  node->tok = tok;
+  node->lhs = lhs;
+  node->rhs = rhs;
+  return node;
+}
+
 Node *add(Token *tok, Token **rest);
 Node *num(Token *tok, Token **rest);
 
-// add = num ("+" add)*
+// add = num ("+" num | "-" num)*
 Node *add(Token *tok, Token **rest) {
   Node *node = num(tok, &tok);
 
-  if (equal(tok, "+"))
-    node = new_add_node(node, add(tok->next, &tok), tok);
+  for (;;) {
+    if (equal(tok, "+")) {
+      node = new_add_node(node, num(tok->next, &tok), tok);
+      continue;
+    }
+
+    if (equal(tok, "-")) {
+      node = new_sub_node(node, num(tok->next, &tok), tok);
+      continue;
+    }
+
+    break;
+  }
 
   *rest = tok;
   return node;
@@ -169,6 +190,14 @@ void gen_expr(Node *node) {
     printf("    pop rax\n");
     printf("    pop rdi\n");
     printf("    add rax, rdi\n");
+    printf("    push rax\n");
+    break;
+  case ND_SUB:
+    gen_expr(node->lhs);
+    gen_expr(node->rhs);
+    printf("    pop rdi\n");
+    printf("    pop rax\n");
+    printf("    sub rax, rdi\n");
     printf("    push rax\n");
     break;
   default:
