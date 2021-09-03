@@ -1,5 +1,9 @@
-occ: occ.c
-	gcc -o occ occ.c
+OBJS=occ.o tokenize.o parse.o codegen.o
+
+occ: $(OBJS)
+	$(CC) -o occ $(OBJS)
+
+$(OBJS): occ.h
 
 .PHONY: test
 test: occ
@@ -7,4 +11,4 @@ test: occ
 
 .PHONY: clean
 clean:
-	rm -f occ tmp*
+	rm -f occ $(OBJS) tmp*
