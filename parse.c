@@ -77,5 +77,12 @@ Node *num(Token *tok, Token **rest) {
 }
 
 Node *parse(Token *tok) {
-  return add(tok, &tok);
+  Node *node = add(tok, &tok);
+
+  if (tok->kind != TK_EOF) {
+    fprintf(stderr, "extra token: %s\n", tok->loc);
+    exit(1);
+  }
+
+  return node;
 }
