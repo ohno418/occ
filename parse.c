@@ -4,6 +4,7 @@ _Bool equal(Token *tok, char *str) {
   return tok->len == strlen(str) && strncmp(tok->loc, str, tok->len) == 0;
 }
 
+// TODO: Refactor. Put `new_binary_node`.
 Node *new_add_node(Node *lhs, Node *rhs, Token *tok) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_ADD;
@@ -25,6 +26,15 @@ Node *new_sub_node(Node *lhs, Node *rhs, Token *tok) {
 Node *new_mul_node(Node *lhs, Node *rhs, Token *tok) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_MUL;
+  node->tok = tok;
+  node->lhs = lhs;
+  node->rhs = rhs;
+  return node;
+}
+
+Node *new_div_node(Node *lhs, Node *rhs, Token *tok) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_DIV;
   node->tok = tok;
   node->lhs = lhs;
   node->rhs = rhs;
@@ -57,13 +67,18 @@ Node *add(Token *tok, Token **rest) {
   return node;
 }
 
-// mul = num ("*" num)*
+// mul = num ("*" num | "/" num)*
 Node *mul(Token *tok, Token **rest) {
   Node *node = num(tok, &tok);
 
   for (;;) {
     if (equal(tok, "*")) {
       node = new_mul_node(node, num(tok->next, &tok), tok);
+      continue;
+    }
+
+    if (equal(tok, "/")) {
+      node = new_div_node(node, num(tok->next, &tok), tok);
       continue;
     }
 

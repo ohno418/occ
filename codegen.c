@@ -30,6 +30,15 @@ void gen_expr(Node *node) {
     printf("    imul rax, rdi\n");
     printf("    push rax\n");
     break;
+  case ND_DIV:
+    gen_expr(node->lhs);
+    gen_expr(node->rhs);
+    printf("    pop rdi\n");
+    printf("    pop rax\n");
+    printf("    cqo\n");
+    printf("    idiv rdi\n");
+    printf("    push rax\n");
+    break;
   default:
     fprintf(stderr, "unknown kind of node: %d\n", node->kind);
     exit(1);
