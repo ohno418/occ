@@ -4,37 +4,9 @@ _Bool equal(Token *tok, char *str) {
   return tok->len == strlen(str) && strncmp(tok->loc, str, tok->len) == 0;
 }
 
-// TODO: Refactor. Put `new_binary_node`.
-Node *new_add_node(Node *lhs, Node *rhs, Token *tok) {
+Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
   Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_ADD;
-  node->tok = tok;
-  node->lhs = lhs;
-  node->rhs = rhs;
-  return node;
-}
-
-Node *new_sub_node(Node *lhs, Node *rhs, Token *tok) {
-  Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_SUB;
-  node->tok = tok;
-  node->lhs = lhs;
-  node->rhs = rhs;
-  return node;
-}
-
-Node *new_mul_node(Node *lhs, Node *rhs, Token *tok) {
-  Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_MUL;
-  node->tok = tok;
-  node->lhs = lhs;
-  node->rhs = rhs;
-  return node;
-}
-
-Node *new_div_node(Node *lhs, Node *rhs, Token *tok) {
-  Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_DIV;
+  node->kind = kind;
   node->tok = tok;
   node->lhs = lhs;
   node->rhs = rhs;
@@ -51,12 +23,12 @@ Node *add(Token *tok, Token **rest) {
 
   for (;;) {
     if (equal(tok, "+")) {
-      node = new_add_node(node, mul(tok->next, &tok), tok);
+      node = new_binary_node(ND_ADD, node, mul(tok->next, &tok), tok);
       continue;
     }
 
     if (equal(tok, "-")) {
-      node = new_sub_node(node, mul(tok->next, &tok), tok);
+      node = new_binary_node(ND_SUB, node, mul(tok->next, &tok), tok);
       continue;
     }
 
@@ -73,12 +45,12 @@ Node *mul(Token *tok, Token **rest) {
 
   for (;;) {
     if (equal(tok, "*")) {
-      node = new_mul_node(node, num(tok->next, &tok), tok);
+      node = new_binary_node(ND_MUL, node, num(tok->next, &tok), tok);
       continue;
     }
 
     if (equal(tok, "/")) {
-      node = new_div_node(node, num(tok->next, &tok), tok);
+      node = new_binary_node(ND_DIV, node, num(tok->next, &tok), tok);
       continue;
     }
 
