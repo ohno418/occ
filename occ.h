@@ -25,7 +25,7 @@ struct Token {
 Token *tokenize(char *input);
 
 /**
- * parse
+ * parse.c
  */
 typedef enum NodeKind {
   ND_NUM, // number
@@ -47,6 +47,6 @@ struct Node {
 Node *parse(Token *tok);
 
 /**
- * codegen
+ * codegen.c
  */
 void codegen(Node *node);
