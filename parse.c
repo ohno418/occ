@@ -99,13 +99,25 @@ Node *stmt(Token *tok, Token **rest) {
   return node;
 }
 
-// stmt*
+// "main" "(" ")" "{" stmt* "}"
 Node *parse(Token *tok) {
+  if (!(equal(tok, "main") && equal(tok->next, "(") &&
+      equal(tok->next->next, ")") && equal(tok->next->next->next, "{"))) {
+    fprintf(stderr, "main function required: %s\n", tok->loc);
+    exit(1);
+  }
+  tok = tok->next->next->next->next;
+
   Node head;
   Node *cur = &head;
 
-  for (; tok->kind != TK_EOF;)
+  for (; !equal(tok, "}");)
     cur = cur->next = stmt(tok, &tok);
+
+  if (tok->next->kind != TK_EOF) {
+    fprintf(stderr, "extra token\n");
+    exit(1);
+  }
 
   return head.next;
 }

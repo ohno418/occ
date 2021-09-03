@@ -20,7 +20,7 @@ Token *tokenize(char *input) {
   Token head = {};
   Token *cur = &head;;
 
-  for (; *p != '\0';) {
+  for (; *p;) {
     // skip spaces
     if (*p == ' ') {
       p++;
@@ -28,18 +28,26 @@ Token *tokenize(char *input) {
     }
 
     // keyword / identifier
-    if (strncmp(p, "return ", 7) == 0) {
+    if (isalpha(*p)) {
+      char *start = p;
+      for (; isalpha(*p); p++);
+
       Token *tok = calloc(1, sizeof(Token));
-      tok->kind = TK_KW;
-      tok->loc = p;
-      tok->len = 6;
+      tok->kind = TK_IDENT;
+      tok->loc = start;
+      tok->len = p - start;
+
+      // keyword
+      if (equal(tok, "return"))
+        tok->kind = TK_KW;
+
       cur = cur->next = tok;
-      p = p + tok->len;
       continue;
     }
 
     // puctuator
     if (*p == '+' || *p == '-' || *p == '*' || *p == '/' ||
+        *p == '(' || *p == ')' || *p == '{' || *p == '}' ||
         *p == ';') {
       Token *tok = calloc(1, sizeof(Token));
       tok->kind = TK_PUNCT;

@@ -11,6 +11,7 @@
 typedef enum TokenKind {
   TK_NUM,   // number
   TK_PUNCT, // punctuator
+  TK_IDENT, // identifier
   TK_KW,    // keyword
   TK_EOF,
 } TokenKind;
@@ -54,6 +55,8 @@ struct Node {
   Node *lhs;  // left-hand
   Node *rhs;  // right-hand
 };
+
+_Bool equal(Token *tok, char *str);
 
 Node *parse(Token *tok);
 
