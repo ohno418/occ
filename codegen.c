@@ -51,6 +51,11 @@ void gen_stmt(Node *node) {
     gen_expr(node->lhs);
     printf("    pop rax\n");
     break;
+  case ND_RETURN:
+    gen_expr(node->lhs);
+    printf("    pop rax\n");
+    printf("    jmp .Lend\n");
+    break;
   default:
     fprintf(stderr, "unknown kind of statement node: %d\n", node->kind);
     exit(1);
@@ -65,5 +70,6 @@ void codegen(Node *node) {
   for (Node *n = node; n; n = n->next)
     gen_stmt(n);
 
+  printf(".Lend:\n");
   printf("    ret\n");
 }

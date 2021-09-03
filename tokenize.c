@@ -27,18 +27,14 @@ Token *tokenize(char *input) {
       continue;
     }
 
-    // number
-    if (isdigit(*p)) {
-      char *start = p;
-
-      p++;
-      for (; isdigit(*p); p++);
-
+    // keyword / identifier
+    if (strncmp(p, "return ", 7) == 0) {
       Token *tok = calloc(1, sizeof(Token));
-      tok->kind = TK_NUM;
-      tok->loc = start;
-      tok->len = p - start;
+      tok->kind = TK_KW;
+      tok->loc = p;
+      tok->len = 6;
       cur = cur->next = tok;
+      p = p + tok->len;
       continue;
     }
 
@@ -51,6 +47,21 @@ Token *tokenize(char *input) {
       tok->len = 1;
       cur = cur->next = tok;
       p++;
+      continue;
+    }
+
+    // number
+    if (isdigit(*p)) {
+      char *start = p;
+
+      p++;
+      for (; isdigit(*p); p++);
+
+      Token *tok = calloc(1, sizeof(Token));
+      tok->kind = TK_NUM;
+      tok->loc = start;
+      tok->len = p - start;
+      cur = cur->next = tok;
       continue;
     }
 

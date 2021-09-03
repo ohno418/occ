@@ -11,6 +11,7 @@
 typedef enum TokenKind {
   TK_NUM,   // number
   TK_PUNCT, // punctuator
+  TK_KW,    // keyword
   TK_EOF,
 } TokenKind;
 
@@ -28,15 +29,17 @@ Token *tokenize(char *input);
  * parse.c
  */
 typedef enum NodeKind {
-  ND_STMT, // statement
-           //   - lhs:  body
-           //   - next: next statement
+  // statements
+  //   - lhs:  body
+  //   - next: next statement
+  ND_STMT,
+  ND_RETURN, // return
 
-  ND_NUM,  // number
-  ND_ADD,  // +
-  ND_SUB,  // -
-  ND_MUL,  // *
-  ND_DIV,  // /
+  ND_NUM,    // number
+  ND_ADD,    // +
+  ND_SUB,    // -
+  ND_MUL,    // *
+  ND_DIV,    // /
 } NodeKind;
 
 typedef struct Node Node;

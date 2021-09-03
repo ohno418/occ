@@ -76,10 +76,17 @@ Node *num(Token *tok, Token **rest) {
   return node;
 }
 
-// stmt = add ";"
+// stmt = "return" add ";"
+//      | add ";"
 Node *stmt(Token *tok, Token **rest) {
+  NodeKind kind = ND_STMT;
+  if (equal(tok, "return")) {
+    kind = ND_RETURN;
+    tok = tok->next;
+  }
+
   Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_STMT;
+  node->kind = kind;
   node->tok = tok;
   node->lhs = add(tok, &tok);
 
