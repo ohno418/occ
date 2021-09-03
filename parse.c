@@ -22,21 +22,48 @@ Node *new_sub_node(Node *lhs, Node *rhs, Token *tok) {
   return node;
 }
 
+Node *new_mul_node(Node *lhs, Node *rhs, Token *tok) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_MUL;
+  node->tok = tok;
+  node->lhs = lhs;
+  node->rhs = rhs;
+  return node;
+}
+
 Node *add(Token *tok, Token **rest);
+Node *mul(Token *tok, Token **rest);
 Node *num(Token *tok, Token **rest);
 
-// add = num ("+" num | "-" num)*
+// add = mul ("+" mul | "-" mul)*
 Node *add(Token *tok, Token **rest) {
-  Node *node = num(tok, &tok);
+  Node *node = mul(tok, &tok);
 
   for (;;) {
     if (equal(tok, "+")) {
-      node = new_add_node(node, num(tok->next, &tok), tok);
+      node = new_add_node(node, mul(tok->next, &tok), tok);
       continue;
     }
 
     if (equal(tok, "-")) {
-      node = new_sub_node(node, num(tok->next, &tok), tok);
+      node = new_sub_node(node, mul(tok->next, &tok), tok);
+      continue;
+    }
+
+    break;
+  }
+
+  *rest = tok;
+  return node;
+}
+
+// mul = num ("*" num)*
+Node *mul(Token *tok, Token **rest) {
+  Node *node = num(tok, &tok);
+
+  for (;;) {
+    if (equal(tok, "*")) {
+      node = new_mul_node(node, num(tok->next, &tok), tok);
       continue;
     }
 
