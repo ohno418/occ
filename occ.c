@@ -124,14 +124,12 @@ Node *new_add_node(Node *lhs, Node *rhs, Token *tok) {
 Node *add(Token *tok, Token **rest);
 Node *num(Token *tok, Token **rest);
 
-// add = num ("+" num)*
+// add = num ("+" add)*
 Node *add(Token *tok, Token **rest) {
   Node *node = num(tok, &tok);
 
-  if (equal(tok, "+")) {
-    node = new_add_node(node, num(tok->next, &tok), tok);
-    tok = tok->next;
-  }
+  if (equal(tok, "+"))
+    node = new_add_node(node, add(tok->next, &tok), tok);
 
   *rest = tok;
   return node;

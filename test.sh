@@ -22,7 +22,7 @@ assert "2+3" "5"
 assert "2  +3" "5"
 assert "  2 +  3 " "5"
 assert "2+13" "15"
-# assert "2+13+3" "18"
+assert "3+14 +3 +4" "24"
 
 echo OK
 exit 0
