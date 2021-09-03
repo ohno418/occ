@@ -76,13 +76,29 @@ Node *num(Token *tok, Token **rest) {
   return node;
 }
 
-Node *parse(Token *tok) {
-  Node *node = add(tok, &tok);
+// stmt = add ";"
+Node *stmt(Token *tok, Token **rest) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_STMT;
+  node->tok = tok;
+  node->lhs = add(tok, &tok);
 
-  if (tok->kind != TK_EOF) {
-    fprintf(stderr, "extra token: %s\n", tok->loc);
+  if (!equal(tok, ";")) {
+    fprintf(stderr, "expected \";\"\n");
     exit(1);
   }
 
+  *rest = tok->next;
   return node;
+}
+
+// stmt*
+Node *parse(Token *tok) {
+  Node head;
+  Node *cur = &head;
+
+  for (; tok->kind != TK_EOF;)
+    cur = cur->next = stmt(tok, &tok);
+
+  return head.next;
 }

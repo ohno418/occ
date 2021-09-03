@@ -28,17 +28,23 @@ Token *tokenize(char *input);
  * parse.c
  */
 typedef enum NodeKind {
-  ND_NUM, // number
-  ND_ADD, // +
-  ND_SUB, // -
-  ND_MUL, // *
-  ND_DIV, // /
+  ND_STMT, // statement
+           //   - lhs:  body
+           //   - next: next statement
+
+  ND_NUM,  // number
+  ND_ADD,  // +
+  ND_SUB,  // -
+  ND_MUL,  // *
+  ND_DIV,  // /
 } NodeKind;
 
 typedef struct Node Node;
 struct Node {
   NodeKind kind;
   Token *tok; // corresponding token (for debugging)
+
+  Node *next; // ND_STMT
 
   int num;    // ND_NUM
 

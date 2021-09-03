@@ -40,7 +40,19 @@ void gen_expr(Node *node) {
     printf("    push rax\n");
     break;
   default:
-    fprintf(stderr, "unknown kind of node: %d\n", node->kind);
+    fprintf(stderr, "unknown kind of expression node: %d\n", node->kind);
+    exit(1);
+  }
+}
+
+void gen_stmt(Node *node) {
+  switch (node->kind) {
+  case ND_STMT:
+    gen_expr(node->lhs);
+    printf("    pop rax\n");
+    break;
+  default:
+    fprintf(stderr, "unknown kind of statement node: %d\n", node->kind);
     exit(1);
   }
 }
@@ -50,8 +62,8 @@ void codegen(Node *node) {
   printf("    .globl main\n");
   printf("main:\n");
 
-  gen_expr(node);
+  for (Node *n = node; n; n = n->next)
+    gen_stmt(n);
 
-  printf("    pop rax\n");
   printf("    ret\n");
 }
