@@ -24,7 +24,7 @@ Node *expr(Token *tok, Token **rest) {
   return assign(tok, rest);
 }
 
-Node vars; // list of variables
+Node vars;
 Node *cur_var = &vars;
 int var_offset = 0;
 

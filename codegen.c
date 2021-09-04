@@ -91,8 +91,12 @@ void gen_stmt(Node *node) {
 void prologue() {
   printf("    push rbp\n");
   printf("    mov rbp, rsp\n");
-  // tmp: Up to 3 variables are available for now.
-  printf("    sub rsp, 24\n");
+
+  int max_offset = 0;
+  for (Node *v = vars.next; v; v = v->next)
+    if (max_offset < v->offset)
+      max_offset = v->offset;
+  printf("    sub rsp, %d\n", max_offset);
 }
 
 void epilogue() {

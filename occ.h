@@ -63,6 +63,8 @@ struct Node {
   int offset;
 };
 
+// list of variables, beginning from `vars.next`
+extern Node vars;
 _Bool equal(Token *tok, char *str);
 
 Node *parse(Token *tok);
