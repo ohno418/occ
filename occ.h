@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
 
 /**
  * tokenize.c
@@ -65,7 +66,7 @@ struct Node {
 
 // list of variables, beginning from `vars.next`
 extern Node vars;
-_Bool equal(Token *tok, char *str);
+bool equal(Token *tok, char *str);
 
 Node *parse(Token *tok);
 

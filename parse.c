@@ -1,6 +1,6 @@
 #include "occ.h"
 
-_Bool equal(Token *tok, char *str) {
+bool equal(Token *tok, char *str) {
   return tok->len == strlen(str) && strncmp(tok->loc, str, tok->len) == 0;
 }
 
