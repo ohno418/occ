@@ -45,6 +45,17 @@ Token *tokenize(char *input) {
       continue;
     }
 
+    // puctuator (two letters)
+    if (strncmp(p, "++", 2) == 0 || strncmp(p, "--", 2) == 0) {
+      Token *tok = calloc(1, sizeof(Token));
+      tok->kind = TK_PUNCT;
+      tok->loc = p;
+      tok->len = 2;
+      p += 2;
+      cur = cur->next = tok;
+      continue;
+    }
+
     // puctuator
     if (*p == '+' || *p == '-' || *p == '*' || *p == '/' ||
         *p == '(' || *p == ')' || *p == '{' || *p == '}' ||
@@ -53,8 +64,8 @@ Token *tokenize(char *input) {
       tok->kind = TK_PUNCT;
       tok->loc = p;
       tok->len = 1;
-      cur = cur->next = tok;
       p++;
+      cur = cur->next = tok;
       continue;
     }
 

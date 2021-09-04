@@ -49,6 +49,8 @@ assert "main() { var=14; foo=15; bar=16; return foo; }" "15"
 assert "main() { var=14; foo=15; bar=16; return bar; }" "16"
 assert "main() { a=42; var=14; foo=15; bar=16; return a; }" "42"
 assert "main() { a=42; var=14; foo=15; bar=16; return bar; }" "16"
+assert "main() { a=42; a++; return a; }" "43"
+assert "main() { a=42; a--; return a; }" "41"
 
 echo OK
 exit 0

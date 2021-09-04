@@ -4,6 +4,27 @@ bool equal(Token *tok, char *str) {
   return tok->len == strlen(str) && strncmp(tok->loc, str, tok->len) == 0;
 }
 
+Node vars;
+Node *cur_var = &vars;
+int var_offset = 0;
+
+Node *find_var(char *name) {
+  for (Node *v = vars.next; v; v = v->next)
+    if (strlen(v->name) == strlen(name) &&
+        strncmp(v->name, name, strlen(name)) == 0)
+      return v;
+
+  return NULL;
+}
+
+Node *new_num_node(int num, Token *tok) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_NUM;
+  node->tok = tok;
+  node->num = num;
+  return node;
+}
+
 Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
@@ -17,24 +38,12 @@ Node *expr(Token *tok, Token **rest);
 Node *assign(Token *tok, Token **rest);
 Node *add(Token *tok, Token **rest);
 Node *mul(Token *tok, Token **rest);
+Node *postfix(Token *tok, Token **rest);
 Node *primary(Token *tok, Token **rest);
 
 // expr = assign
 Node *expr(Token *tok, Token **rest) {
   return assign(tok, rest);
-}
-
-Node vars;
-Node *cur_var = &vars;
-int var_offset = 0;
-
-Node *find_var(char *name) {
-  for (Node *v = vars.next; v; v = v->next)
-    if (strlen(v->name) == strlen(name) &&
-        strncmp(v->name, name, strlen(name)) == 0)
-      return v;
-
-  return NULL;
 }
 
 // assign = ident "=" add
@@ -52,12 +61,8 @@ Node *assign(Token *tok, Token **rest) {
     }
     lhs->name = var_name;
     lhs->offset = var_offset;
-
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_ASSIGN;
-    node->tok = tok;
-    node->lhs = lhs;
-    node->rhs = add(tok->next->next, &tok);
+    Node *node = new_binary_node(ND_ASSIGN,
+        lhs, add(tok->next->next, &tok), tok);
 
     *rest = tok;
     return node;
@@ -88,22 +93,61 @@ Node *add(Token *tok, Token **rest) {
   return node;
 }
 
-// mul = primary ("*" primary | "/" primary)*
+// mul = postfix ("*" postfix | "/" postfix)*
 Node *mul(Token *tok, Token **rest) {
-  Node *node = primary(tok, &tok);
+  Node *node = postfix(tok, &tok);
 
   for (;;) {
     if (equal(tok, "*")) {
-      node = new_binary_node(ND_MUL, node, primary(tok->next, &tok), tok);
+      node = new_binary_node(ND_MUL, node, postfix(tok->next, &tok), tok);
       continue;
     }
 
     if (equal(tok, "/")) {
-      node = new_binary_node(ND_DIV, node, primary(tok->next, &tok), tok);
+      node = new_binary_node(ND_DIV, node, postfix(tok->next, &tok), tok);
       continue;
     }
 
     break;
+  }
+
+  *rest = tok;
+  return node;
+}
+
+// postfix = primary ("++" | "--")?
+Node *postfix(Token *tok, Token **rest) {
+  Token *start = tok;
+  Node *node = primary(tok, &tok);
+
+  if (equal(tok, "++")) {
+    node = new_binary_node(
+        ND_ASSIGN,
+        node,
+        new_binary_node(
+            ND_ADD,
+            node,
+            new_num_node(1, start),
+            start
+        ),
+        start
+    );
+    tok = tok->next;
+  }
+
+  if (equal(tok, "--")) {
+    node = new_binary_node(
+        ND_ASSIGN,
+        node,
+        new_binary_node(
+            ND_SUB,
+            node,
+            new_num_node(1, start),
+            start
+        ),
+        start
+    );
+    tok = tok->next;
   }
 
   *rest = tok;
@@ -115,10 +159,7 @@ Node *mul(Token *tok, Token **rest) {
 Node *primary(Token *tok, Token **rest) {
   // number
   if (tok->kind == TK_NUM) {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_NUM;
-    node->tok = tok;
-    node->num = atoi(strndup(tok->loc, tok->len));
+    Node *node = new_num_node(atoi(strndup(tok->loc, tok->len)), tok);
     *rest = tok->next;
     return node;
   }
