@@ -91,8 +91,8 @@ void gen_stmt(Node *node) {
 void prologue() {
   printf("    push rbp\n");
   printf("    mov rbp, rsp\n");
-  // tmp: Only 1 variable is available for now.
-  printf("    sub rsp, 8\n");
+  // tmp: Up to 3 variables are available for now.
+  printf("    sub rsp, 24\n");
 }
 
 void epilogue() {

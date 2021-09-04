@@ -24,6 +24,19 @@ Node *expr(Token *tok, Token **rest) {
   return assign(tok, rest);
 }
 
+Node vars; // list of variables
+Node *cur_var = &vars;
+int var_offset = 0;
+
+Node *find_var(char *name) {
+  for (Node *v = vars.next; v; v = v->next)
+    if (strlen(v->name) == strlen(name) &&
+        strncmp(v->name, name, strlen(name)) == 0)
+      return v;
+
+  return NULL;
+}
+
 // assign = ident "=" add
 //        | add
 Node *assign(Token *tok, Token **rest) {
@@ -31,8 +44,14 @@ Node *assign(Token *tok, Token **rest) {
     Node *lhs = calloc(1, sizeof(Node));
     lhs->kind = ND_VAR;
     lhs->tok = tok;
-    lhs->name = strndup(tok->loc, tok->len);
-    lhs->offset = 8; // TODO
+    char *var_name = strndup(tok->loc, tok->len);
+    Node *var_node = find_var(var_name);
+    if (!var_node) {
+      var_offset += 8;
+      cur_var = cur_var->next = lhs;
+    }
+    lhs->name = var_name;
+    lhs->offset = var_offset;
 
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_ASSIGN;
@@ -106,12 +125,18 @@ Node *primary(Token *tok, Token **rest) {
 
   // ident (variable)
   if (tok->kind == TK_IDENT) {
-    // TODO: Error with unknown variables.
+    char *var_name = strndup(tok->loc, tok->len);
+    Node *var_node = find_var(var_name);
+    if (!var_node) {
+      fprintf(stderr, "unknown variable: %s\n", var_name);
+      exit(1);
+    }
+
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
     node->tok = tok;
-    node->name = strndup(tok->loc, tok->len);
-    node->offset = 8; // TODO
+    node->name = var_node->name;
+    node->offset = var_node->offset;
     *rest = tok->next;
     return node;
   }
