@@ -41,6 +41,8 @@ typedef enum NodeKind {
   ND_SUB,    // -
   ND_MUL,    // *
   ND_DIV,    // /
+  ND_VAR,    // variable
+  ND_ASSIGN, // assign
 } NodeKind;
 
 typedef struct Node Node;
@@ -48,12 +50,17 @@ struct Node {
   NodeKind kind;
   Token *tok; // corresponding token (for debugging)
 
-  Node *next; // ND_STMT
-
-  int num;    // ND_NUM
+  // statement
+  Node *next;
 
   Node *lhs;  // left-hand
   Node *rhs;  // right-hand
+
+  int num;    // ND_NUM
+
+  // ND_VAR
+  char *name;
+  int offset;
 };
 
 _Bool equal(Token *tok, char *str);

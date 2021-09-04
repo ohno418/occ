@@ -13,9 +13,39 @@ Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
   return node;
 }
 
+Node *expr(Token *tok, Token **rest);
+Node *assign(Token *tok, Token **rest);
 Node *add(Token *tok, Token **rest);
 Node *mul(Token *tok, Token **rest);
-Node *num(Token *tok, Token **rest);
+Node *primary(Token *tok, Token **rest);
+
+// expr = assign
+Node *expr(Token *tok, Token **rest) {
+  return assign(tok, rest);
+}
+
+// assign = ident "=" add
+//        | add
+Node *assign(Token *tok, Token **rest) {
+  if (tok->kind == TK_IDENT && equal(tok->next, "=")) {
+    Node *lhs = calloc(1, sizeof(Node));
+    lhs->kind = ND_VAR;
+    lhs->tok = tok;
+    lhs->name = strndup(tok->loc, tok->len);
+    lhs->offset = 8; // TODO
+
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_ASSIGN;
+    node->tok = tok;
+    node->lhs = lhs;
+    node->rhs = add(tok->next->next, &tok);
+
+    *rest = tok;
+    return node;
+  }
+
+  return add(tok, rest);
+}
 
 // add = mul ("+" mul | "-" mul)*
 Node *add(Token *tok, Token **rest) {
@@ -39,18 +69,18 @@ Node *add(Token *tok, Token **rest) {
   return node;
 }
 
-// mul = num ("*" num | "/" num)*
+// mul = primary ("*" primary | "/" primary)*
 Node *mul(Token *tok, Token **rest) {
-  Node *node = num(tok, &tok);
+  Node *node = primary(tok, &tok);
 
   for (;;) {
     if (equal(tok, "*")) {
-      node = new_binary_node(ND_MUL, node, num(tok->next, &tok), tok);
+      node = new_binary_node(ND_MUL, node, primary(tok->next, &tok), tok);
       continue;
     }
 
     if (equal(tok, "/")) {
-      node = new_binary_node(ND_DIV, node, num(tok->next, &tok), tok);
+      node = new_binary_node(ND_DIV, node, primary(tok->next, &tok), tok);
       continue;
     }
 
@@ -61,23 +91,37 @@ Node *mul(Token *tok, Token **rest) {
   return node;
 }
 
-// num = number
-Node *num(Token *tok, Token **rest) {
-  if (tok->kind != TK_NUM) {
-    fprintf(stderr, "number token is expected\n");
-    exit(1);
+// primary = number
+//         | ident
+Node *primary(Token *tok, Token **rest) {
+  // number
+  if (tok->kind == TK_NUM) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_NUM;
+    node->tok = tok;
+    node->num = atoi(strndup(tok->loc, tok->len));
+    *rest = tok->next;
+    return node;
   }
 
-  Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_NUM;
-  node->tok = tok;
-  node->num = atoi(strndup(tok->loc, tok->len));
-  *rest = tok->next;
-  return node;
+  // ident (variable)
+  if (tok->kind == TK_IDENT) {
+    // TODO: Error with unknown variables.
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_VAR;
+    node->tok = tok;
+    node->name = strndup(tok->loc, tok->len);
+    node->offset = 8; // TODO
+    *rest = tok->next;
+    return node;
+  }
+
+  fprintf(stderr, "unknown primary: %s\n", tok->loc);
+  exit(1);
 }
 
-// stmt = "return" add ";"
-//      | add ";"
+// stmt = "return" expr ";"
+//      | expr ";"
 Node *stmt(Token *tok, Token **rest) {
   NodeKind kind = ND_STMT;
   if (equal(tok, "return")) {
@@ -88,7 +132,7 @@ Node *stmt(Token *tok, Token **rest) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
   node->tok = tok;
-  node->lhs = add(tok, &tok);
+  node->lhs = expr(tok, &tok);
 
   if (!equal(tok, ";")) {
     fprintf(stderr, "expected \";\"\n");
