@@ -235,16 +235,16 @@ Node *primary(Token *tok, Token **rest) {
   exit(1);
 }
 
-// function = func-name "(" ")" "{" stmt* "}"
+// function = type-name func-name "(" ")" "{" stmt* "}"
 Function *function(Token *tok, Token **rest) {
-  if (tok->kind != TK_IDENT &&
-      equal(tok->next, "(") && equal(tok->next->next, ")") &&
-      equal(tok->next->next->next, "{")) {
+  if (is_typename(tok) && tok->next->kind != TK_IDENT &&
+      equal(tok->next->next, "(") && equal(tok->next->next->next, ")") &&
+      equal(tok->next->next->next->next, "{")) {
     fprintf(stderr, "function name expected: %s\n", tok->loc);
     exit(1);
   }
-  char *name = strndup(tok->loc, tok->len);
-  tok = tok->next->next->next->next;
+  char *name = strndup(tok->next->loc, tok->next->len);
+  tok = tok->next->next->next->next->next;
 
   Node head;
   Node *cur = &head;
