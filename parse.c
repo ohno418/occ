@@ -42,12 +42,36 @@ Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
   return node;
 }
 
+Node *stmt(Token *tok, Token **rest);
 Node *expr(Token *tok, Token **rest);
 Node *assign(Token *tok, Token **rest);
 Node *add(Token *tok, Token **rest);
 Node *mul(Token *tok, Token **rest);
 Node *postfix(Token *tok, Token **rest);
 Node *primary(Token *tok, Token **rest);
+
+// stmt = "return" expr ";"
+//      | expr ";"
+Node *stmt(Token *tok, Token **rest) {
+  NodeKind kind = ND_STMT;
+  if (equal(tok, "return")) {
+    kind = ND_RETURN;
+    tok = tok->next;
+  }
+
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = kind;
+  node->tok = tok;
+  node->lhs = expr(tok, &tok);
+
+  if (!equal(tok, ";")) {
+    fprintf(stderr, "expected \";\"\n");
+    exit(1);
+  }
+
+  *rest = tok->next;
+  return node;
+}
 
 // expr = assign
 Node *expr(Token *tok, Token **rest) {
@@ -184,29 +208,6 @@ Node *primary(Token *tok, Token **rest) {
 
   fprintf(stderr, "unknown primary: %s\n", tok->loc);
   exit(1);
-}
-
-// stmt = "return" expr ";"
-//      | expr ";"
-Node *stmt(Token *tok, Token **rest) {
-  NodeKind kind = ND_STMT;
-  if (equal(tok, "return")) {
-    kind = ND_RETURN;
-    tok = tok->next;
-  }
-
-  Node *node = calloc(1, sizeof(Node));
-  node->kind = kind;
-  node->tok = tok;
-  node->lhs = expr(tok, &tok);
-
-  if (!equal(tok, ";")) {
-    fprintf(stderr, "expected \";\"\n");
-    exit(1);
-  }
-
-  *rest = tok->next;
-  return node;
 }
 
 // "main" "(" ")" "{" stmt* "}"
