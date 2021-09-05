@@ -42,6 +42,10 @@ Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
   return node;
 }
 
+bool is_typename(Token *tok) {
+  return equal(tok, "int");
+}
+
 Node *stmt(Token *tok, Token **rest);
 Node *expr(Token *tok, Token **rest);
 Node *assign(Token *tok, Token **rest);
@@ -176,6 +180,7 @@ Node *postfix(Token *tok, Token **rest) {
 }
 
 // primary = number
+//         | type-name ident
 //         | ident
 Node *primary(Token *tok, Token **rest) {
   // number
@@ -185,23 +190,43 @@ Node *primary(Token *tok, Token **rest) {
     return node;
   }
 
-  // ident (variable)
-  if (tok->kind == TK_IDENT) {
-    char *var_name = strndup(tok->loc, tok->len);
+  // new variable
+  if (is_typename(tok)) {
+    char *var_name = strndup(tok->next->loc, tok->next->len);
     Node *var_node = find_var(var_name);
+    if (var_node) {
+      fprintf(stderr, "variable \"%s\" is already declared\n", var_name);
+      exit(1);
+    }
 
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
     node->tok = tok;
     node->name = var_name;
-    if (var_node) {
-      node->offset = var_node->offset;
-    } else {
-      node->offset = var_offset;
-      var_offset += 8;
-      // Register a var into `vars`.
-      cur_var = cur_var->next = node;
+    node->offset = var_offset;
+
+    var_offset += 8;
+    // Register a var into `vars`.
+    cur_var = cur_var->next = node;
+
+    *rest = tok->next->next;
+    return node;
+  }
+
+  // existing variable
+  if (tok->kind == TK_IDENT) {
+    char *var_name = strndup(tok->loc, tok->len);
+    Node *var_node = find_var(var_name);
+    if (!var_node) {
+      fprintf(stderr, "unknown variable \"%s\"\n", var_name);
+      exit(1);
     }
+
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_VAR;
+    node->tok = tok;
+    node->name = var_name;
+    node->offset = var_node->offset;
     *rest = tok->next;
     return node;
   }
