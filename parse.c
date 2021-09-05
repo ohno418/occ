@@ -1,12 +1,20 @@
 #include "occ.h"
 
+// debugger
+void debug_node(Node *node) {
+  printf("=== debug ===\n");
+  printf("kind:\t%d\n", node->kind);
+  printf("loc:\t%s\n", node->tok->loc);
+  printf("=========-===\n");
+}
+
 bool equal(Token *tok, char *str) {
   return tok->len == strlen(str) && strncmp(tok->loc, str, tok->len) == 0;
 }
 
 Node vars;
 Node *cur_var = &vars;
-int var_offset = 0;
+int var_offset = 8;
 
 Node *find_var(char *name) {
   for (Node *v = vars.next; v; v = v->next)
@@ -46,29 +54,18 @@ Node *expr(Token *tok, Token **rest) {
   return assign(tok, rest);
 }
 
-// assign = ident "=" add
-//        | add
+// assign = add ("=" assign)*
 Node *assign(Token *tok, Token **rest) {
-  if (tok->kind == TK_IDENT && equal(tok->next, "=")) {
-    Node *lhs = calloc(1, sizeof(Node));
-    lhs->kind = ND_VAR;
-    lhs->tok = tok;
-    char *var_name = strndup(tok->loc, tok->len);
-    Node *var_node = find_var(var_name);
-    if (!var_node) {
-      var_offset += 8;
-      cur_var = cur_var->next = lhs;
-    }
-    lhs->name = var_name;
-    lhs->offset = var_offset;
-    Node *node = new_binary_node(ND_ASSIGN,
-        lhs, add(tok->next->next, &tok), tok);
+  Token *start = tok;
+  Node *node = add(tok, &tok);
 
-    *rest = tok;
-    return node;
+  for (; equal(tok, "=");) {
+    node = new_binary_node(ND_ASSIGN,
+        node, assign(tok->next, &tok), start);
   }
 
-  return add(tok, rest);
+  *rest = tok;
+  return node;
 }
 
 // add = mul ("+" mul | "-" mul)*
@@ -168,16 +165,19 @@ Node *primary(Token *tok, Token **rest) {
   if (tok->kind == TK_IDENT) {
     char *var_name = strndup(tok->loc, tok->len);
     Node *var_node = find_var(var_name);
-    if (!var_node) {
-      fprintf(stderr, "unknown variable: %s\n", var_name);
-      exit(1);
-    }
 
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
     node->tok = tok;
-    node->name = var_node->name;
-    node->offset = var_node->offset;
+    node->name = var_name;
+    if (var_node) {
+      node->offset = var_node->offset;
+    } else {
+      node->offset = var_offset;
+      var_offset += 8;
+      // Register a var into `vars`.
+      cur_var = cur_var->next = node;
+    }
     *rest = tok->next;
     return node;
   }

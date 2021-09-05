@@ -3,7 +3,7 @@
 // Push the address to the stack.
 void gen_addr(Node *node) {
   if (node->kind != ND_VAR) {
-    fprintf(stderr, "expected var node: %d\n", node->kind);
+    fprintf(stderr, "expected var node: %s\n", node->tok->loc);
     exit(1);
   }
 
@@ -58,12 +58,12 @@ void gen_expr(Node *node) {
     printf("    push rax\n");
     break;
   case ND_ASSIGN:
-    gen_addr(node->lhs);
     gen_expr(node->rhs);
-    printf("    pop rdi\n");
+    gen_addr(node->lhs);
     printf("    pop rax\n");
+    printf("    pop rdi\n");
     printf("    mov [rax], rdi\n");
-    printf("    push rax\n");
+    printf("    push rdi\n");
     break;
   default:
     fprintf(stderr, "unknown kind of expression node: %d\n", node->kind);

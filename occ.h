@@ -70,6 +70,9 @@ bool equal(Token *tok, char *str);
 
 Node *parse(Token *tok);
 
+// debugger
+void debug_node(Node *node);
+
 /**
  * codegen.c
  */
