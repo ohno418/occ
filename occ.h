@@ -6,7 +6,7 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-/**
+/*
  * tokenize.c
  */
 typedef enum TokenKind {
@@ -27,7 +27,7 @@ struct Token {
 
 Token *tokenize(char *input);
 
-/**
+/*
  * parse.c
  */
 typedef enum NodeKind {
@@ -73,7 +73,7 @@ Node *parse(Token *tok);
 // debugger
 void debug_node(Node *node);
 
-/**
+/*
  * codegen.c
  */
 void codegen(Node *node);
