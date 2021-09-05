@@ -64,11 +64,18 @@ struct Node {
   int offset;
 };
 
+typedef struct Function Function;
+struct Function {
+  char *name;
+  Node *body;
+  Function *next;
+};
+
 // list of variables, beginning from `vars.next`
 extern Node vars;
 bool equal(Token *tok, char *str);
 
-Node *parse(Token *tok);
+Function *parse(Token *tok);
 
 // debugger
 void debug_node(Node *node);
@@ -76,4 +83,4 @@ void debug_node(Node *node);
 /*
  * codegen.c
  */
-void codegen(Node *node);
+void codegen(Function *prog);

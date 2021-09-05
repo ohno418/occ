@@ -1,5 +1,7 @@
 #include "occ.h"
 
+Function *cur_func;
+
 // Push the address to the stack.
 void gen_addr(Node *node) {
   if (node->kind != ND_VAR) {
@@ -80,7 +82,7 @@ void gen_stmt(Node *node) {
   case ND_RETURN:
     gen_expr(node->lhs);
     printf("    pop rax\n");
-    printf("    jmp .Lend\n");
+    printf("    jmp .L.end.%s\n", cur_func->name);
     break;
   default:
     fprintf(stderr, "unknown kind of statement node: %d\n", node->kind);
@@ -100,19 +102,25 @@ void prologue() {
 }
 
 void epilogue() {
-  printf(".Lend:\n");
+  printf(".L.end.%s:\n", cur_func->name);
   printf("    mov rsp, rbp\n");
   printf("    pop rbp\n");
   printf("    ret\n");
 }
 
-void codegen(Node *node) {
+void codegen(Function *prog) {
   printf("    .intel_syntax noprefix\n");
   printf("    .globl main\n");
 
-  printf("main:\n");
-  prologue();
-  for (Node *n = node; n; n = n->next)
-    gen_stmt(n);
-  epilogue();
+  for (Function *f = prog; f; f = f->next) {
+    cur_func = f;
+
+    printf("%s:\n", f->name);
+    prologue();
+
+    for (Node *n = f->body; n; n = n->next)
+      gen_stmt(n);
+
+    epilogue();
+  }
 }

@@ -235,25 +235,37 @@ Node *primary(Token *tok, Token **rest) {
   exit(1);
 }
 
-// "main" "(" ")" "{" stmt* "}"
-Node *parse(Token *tok) {
-  if (!(equal(tok, "main") && equal(tok->next, "(") &&
-      equal(tok->next->next, ")") && equal(tok->next->next->next, "{"))) {
-    fprintf(stderr, "main function required: %s\n", tok->loc);
+// function = func-name "(" ")" "{" stmt* "}"
+Function *function(Token *tok, Token **rest) {
+  if (tok->kind != TK_IDENT &&
+      equal(tok->next, "(") && equal(tok->next->next, ")") &&
+      equal(tok->next->next->next, "{")) {
+    fprintf(stderr, "function name expected: %s\n", tok->loc);
     exit(1);
   }
+  char *name = strndup(tok->loc, tok->len);
   tok = tok->next->next->next->next;
 
   Node head;
   Node *cur = &head;
-
   for (; !equal(tok, "}");)
     cur = cur->next = stmt(tok, &tok);
 
-  if (tok->next->kind != TK_EOF) {
-    fprintf(stderr, "extra token\n");
-    exit(1);
-  }
+  Function *func = calloc(1, sizeof(Function));
+  func->name = name;
+  func->body = head.next;
+
+  *rest = tok->next;
+  return func;
+}
+
+// prog = function*
+Function *parse(Token *tok) {
+  Function head;
+  Function *cur = &head;
+
+  for (; tok->kind != TK_EOF;)
+    cur = cur->next = function(tok, &tok);
 
   return head.next;
 }
