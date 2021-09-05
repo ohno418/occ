@@ -35,15 +35,16 @@ typedef enum NodeKind {
   //   - lhs:  body
   //   - next: next statement
   ND_STMT,
-  ND_RETURN, // return
+  ND_RETURN,  // return
 
-  ND_NUM,    // number
-  ND_ADD,    // +
-  ND_SUB,    // -
-  ND_MUL,    // *
-  ND_DIV,    // /
-  ND_VAR,    // variable
-  ND_ASSIGN, // assign
+  ND_NUM,     // number
+  ND_ADD,     // +
+  ND_SUB,     // -
+  ND_MUL,     // *
+  ND_DIV,     // /
+  ND_VAR,     // variable
+  ND_ASSIGN,  // assign
+  ND_FUNCALL, // function call
 } NodeKind;
 
 typedef struct Node Node;
@@ -57,11 +58,15 @@ struct Node {
   Node *lhs;  // left-hand
   Node *rhs;  // right-hand
 
-  int num;    // ND_NUM
+  // ND_NUM
+  int num;
 
   // ND_VAR
   char *name;
   int offset;
+
+  // ND_FUNCALL
+  char *func_name;
 };
 
 typedef struct Function Function;

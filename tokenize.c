@@ -30,7 +30,7 @@ Token *tokenize(char *input) {
     // keyword / identifier
     if (isalpha(*p)) {
       char *start = p;
-      for (; isalpha(*p); p++);
+      for (; isalpha(*p) || isdigit(*p) || *p == '_'; p++);
 
       Token *tok = calloc(1, sizeof(Token));
       tok->kind = TK_IDENT;

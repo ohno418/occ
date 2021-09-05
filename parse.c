@@ -12,6 +12,7 @@ bool equal(Token *tok, char *str) {
   return tok->len == strlen(str) && strncmp(tok->loc, str, tok->len) == 0;
 }
 
+// list of variables
 Node vars;
 Node *cur_var = &vars;
 int var_offset = 8;
@@ -181,6 +182,7 @@ Node *postfix(Token *tok, Token **rest) {
 
 // primary = number
 //         | type-name ident
+//         | ident "(" ")"
 //         | ident
 Node *primary(Token *tok, Token **rest) {
   // number
@@ -210,6 +212,17 @@ Node *primary(Token *tok, Token **rest) {
     cur_var = cur_var->next = node;
 
     *rest = tok->next->next;
+    return node;
+  }
+
+  // function call
+  if (tok->kind == TK_IDENT &&
+      equal(tok->next, "(") && equal(tok->next->next, ")")) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_FUNCALL;
+    node->tok = tok;
+    node->func_name = strndup(tok->loc, tok->len);;
+    *rest = tok->next->next->next;
     return node;
   }
 
