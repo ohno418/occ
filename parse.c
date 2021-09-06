@@ -22,8 +22,9 @@ void register_lvar(Var *var) {
   lvar_offset += 8;
 }
 
-Var *new_lvar(char *name) {
+Var *new_lvar(Type *ty, char *name) {
   Var *var = calloc(1, sizeof(Var));
+  var->ty = ty;
   var->name = name;
   var->offset = lvar_offset;
   register_lvar(var);
@@ -56,8 +57,11 @@ Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
   return node;
 }
 
-bool is_typename(Token *tok) {
-  return equal(tok, "int");
+Type *is_typename(Token *tok) {
+  if (equal(tok, "int"))
+    return ty_int();
+
+  return NULL;
 }
 
 Node *stmt(Token *tok, Token **rest);
@@ -196,6 +200,7 @@ Node *postfix(Token *tok, Token **rest) {
 // primary = number
 //         | type-name ident
 //         | ident "(" ")"
+//         | "sizeof" "(" ident ")"
 //         | ident
 Node *primary(Token *tok, Token **rest) {
   // number
@@ -206,7 +211,8 @@ Node *primary(Token *tok, Token **rest) {
   }
 
   // new variable
-  if (is_typename(tok)) {
+  Type *ty = is_typename(tok);
+  if (ty) {
     char *var_name = strndup(tok->next->loc, tok->next->len);
     Var *lvar = find_lvar(var_name);
     if (lvar) {
@@ -217,7 +223,7 @@ Node *primary(Token *tok, Token **rest) {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
     node->tok = tok;
-    node->var = new_lvar(var_name);
+    node->var = new_lvar(ty, var_name);
 
     *rest = tok->next->next;
     return node;
@@ -231,6 +237,26 @@ Node *primary(Token *tok, Token **rest) {
     node->tok = tok;
     node->func_name = strndup(tok->loc, tok->len);;
     *rest = tok->next->next->next;
+    return node;
+  }
+
+  // sizeof
+  if (equal(tok, "sizeof")) {
+    if (!equal(tok->next, "(") || !equal(tok->next->next->next, ")")) {
+      fprintf(stderr, "\"()\" is required after a sizeof operator\n", tok->loc);
+      exit(1);
+    }
+
+    Token *var_tok = tok->next->next;
+    char *var_name = strndup(var_tok->loc, var_tok->len);
+    Var *lvar = find_lvar(var_name);
+    if (!lvar) {
+      fprintf(stderr, "unknown variable \"%s\"\n", var_name);
+      exit(1);
+    }
+
+    Node *node = new_num_node(lvar->ty->size, tok);
+    *rest = var_tok->next->next;
     return node;
   }
 
@@ -257,7 +283,8 @@ Node *primary(Token *tok, Token **rest) {
 
 // function = type-name func-name "(" ")" "{" stmt* "}"
 Function *function(Token *tok, Token **rest) {
-  if (is_typename(tok) && tok->next->kind != TK_IDENT &&
+  Type *ty = is_typename(tok);
+  if (ty && tok->next->kind != TK_IDENT &&
       equal(tok->next->next, "(") && equal(tok->next->next->next, ")") &&
       equal(tok->next->next->next->next, "{")) {
     fprintf(stderr, "function name expected: %s\n", tok->loc);
@@ -276,6 +303,7 @@ Function *function(Token *tok, Token **rest) {
     cur = cur->next = stmt(tok, &tok);
 
   Function *func = calloc(1, sizeof(Function));
+  func->ty = ty;
   func->name = name;
   func->body = head.next;
   func->lvars = lvars;

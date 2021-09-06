@@ -6,6 +6,8 @@
 #include <ctype.h>
 #include <stdbool.h>
 
+typedef struct Type Type;
+
 /*
  * tokenize.c
  */
@@ -32,6 +34,7 @@ Token *tokenize(char *input);
  */
 typedef struct Var Var;
 struct Var {
+  Type *ty;
   char *name;
   int offset;
   Var *next;
@@ -77,6 +80,7 @@ struct Node {
 
 typedef struct Function Function;
 struct Function {
+  Type *ty;
   char *name;
   Node *body;
   Var *lvars;
@@ -94,3 +98,17 @@ void debug_node(Node *node);
  * codegen.c
  */
 void codegen(Function *prog);
+
+/*
+ * type.c
+ */
+typedef enum TypeKind {
+  TY_INT,
+} TypeKind;
+
+struct Type {
+  TypeKind kind;
+  int size;
+};
+
+Type *ty_int();

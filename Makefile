@@ -1,4 +1,4 @@
-OBJS=occ.o tokenize.o parse.o codegen.o
+OBJS=occ.o tokenize.o parse.o codegen.o type.o
 
 occ: $(OBJS)
 	$(CC) -o occ $(OBJS)
