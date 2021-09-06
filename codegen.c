@@ -10,7 +10,7 @@ void gen_addr(Node *node) {
   }
 
   printf("    mov rax, rbp\n");
-  printf("    sub rax, %d\n", node->offset);
+  printf("    sub rax, %d\n", node->var->offset);
   printf("    push rax\n");
 }
 
@@ -94,12 +94,12 @@ void gen_stmt(Node *node) {
   }
 }
 
-void prologue() {
+void prologue(Var *lvars) {
   printf("    push rbp\n");
   printf("    mov rbp, rsp\n");
 
   int max_offset = 0;
-  for (Node *v = vars.next; v; v = v->next)
+  for (Var *v = lvars; v; v = v->next)
     if (max_offset < v->offset)
       max_offset = v->offset;
   printf("    sub rsp, %d\n", max_offset);
@@ -120,7 +120,7 @@ void codegen(Function *prog) {
     cur_func = f;
 
     printf("%s:\n", f->name);
-    prologue();
+    prologue(f->vars);
 
     for (Node *n = f->body; n; n = n->next)
       gen_stmt(n);

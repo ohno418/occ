@@ -30,6 +30,13 @@ Token *tokenize(char *input);
 /*
  * parse.c
  */
+typedef struct Var Var;
+struct Var {
+  char *name;
+  int offset;
+  Var *next;
+};
+
 typedef enum NodeKind {
   // statements
   //   - lhs:  body
@@ -62,8 +69,7 @@ struct Node {
   int num;
 
   // ND_VAR
-  char *name;
-  int offset;
+  Var *var;
 
   // ND_FUNCALL
   char *func_name;
@@ -73,11 +79,10 @@ typedef struct Function Function;
 struct Function {
   char *name;
   Node *body;
+  Var *vars;  // local variables
   Function *next;
 };
 
-// list of variables, beginning from `vars.next`
-extern Node vars;
 bool equal(Token *tok, char *str);
 
 Function *parse(Token *tok);

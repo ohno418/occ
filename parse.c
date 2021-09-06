@@ -12,13 +12,27 @@ bool equal(Token *tok, char *str) {
   return tok->len == strlen(str) && strncmp(tok->loc, str, tok->len) == 0;
 }
 
-// list of variables
-Node vars;
-Node *cur_var = &vars;
-int var_offset = 8;
+// List of local vars of current function.
+Var *lvars;
+int lvar_offset;
 
-Node *find_var(char *name) {
-  for (Node *v = vars.next; v; v = v->next)
+void register_lvar(Var *var) {
+  var->next = lvars;
+  lvars = var;
+  lvar_offset += 8;
+}
+
+Var *new_lvar(char *name) {
+  Var *var = calloc(1, sizeof(Var));
+  var->name = name;
+  // TODO
+  var->offset = lvar_offset;
+  register_lvar(var);
+  return var;
+}
+
+Var *find_lvar(char *name) {
+  for (Var *v = lvars; v; v = v->next)
     if (strlen(v->name) == strlen(name) &&
         strncmp(v->name, name, strlen(name)) == 0)
       return v;
@@ -195,8 +209,8 @@ Node *primary(Token *tok, Token **rest) {
   // new variable
   if (is_typename(tok)) {
     char *var_name = strndup(tok->next->loc, tok->next->len);
-    Node *var_node = find_var(var_name);
-    if (var_node) {
+    Var *lvar = find_lvar(var_name);
+    if (lvar) {
       fprintf(stderr, "variable \"%s\" is already declared\n", var_name);
       exit(1);
     }
@@ -204,12 +218,7 @@ Node *primary(Token *tok, Token **rest) {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
     node->tok = tok;
-    node->name = var_name;
-    node->offset = var_offset;
-
-    var_offset += 8;
-    // Register a var into `vars`.
-    cur_var = cur_var->next = node;
+    node->var = new_lvar(var_name);
 
     *rest = tok->next->next;
     return node;
@@ -229,8 +238,8 @@ Node *primary(Token *tok, Token **rest) {
   // existing variable
   if (tok->kind == TK_IDENT) {
     char *var_name = strndup(tok->loc, tok->len);
-    Node *var_node = find_var(var_name);
-    if (!var_node) {
+    Var *lvar = find_lvar(var_name);
+    if (!lvar) {
       fprintf(stderr, "unknown variable \"%s\"\n", var_name);
       exit(1);
     }
@@ -238,8 +247,7 @@ Node *primary(Token *tok, Token **rest) {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
     node->tok = tok;
-    node->name = var_name;
-    node->offset = var_node->offset;
+    node->var = lvar;
     *rest = tok->next;
     return node;
   }
@@ -259,6 +267,10 @@ Function *function(Token *tok, Token **rest) {
   char *name = strndup(tok->next->loc, tok->next->len);
   tok = tok->next->next->next->next->next;
 
+  // Reset local variables list.
+  lvars = NULL;
+  lvar_offset = 8;
+
   Node head;
   Node *cur = &head;
   for (; !equal(tok, "}");)
@@ -267,6 +279,7 @@ Function *function(Token *tok, Token **rest) {
   Function *func = calloc(1, sizeof(Function));
   func->name = name;
   func->body = head.next;
+  func->vars = lvars;
 
   *rest = tok->next;
   return func;

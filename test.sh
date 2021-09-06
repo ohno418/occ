@@ -58,6 +58,7 @@ assert "int main() { int a=1; int b=2; a=b=42; a++; return b; }" "42"
 assert "int ret42() { return 42; } int main() { return ret42(); }" "42"
 assert "int ret42() { return 42; } int main() { int res = ret42(); return res; }" "42"
 assert "int ret42() { return 42; } int main() { int res = ret42(); res++; return res; }" "43"
+assert "int func() { int a=12; return 42; } int main() { int a=func(); return a; }" "42"
 
 echo OK
 exit 0
