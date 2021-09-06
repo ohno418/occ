@@ -79,7 +79,7 @@ typedef struct Function Function;
 struct Function {
   char *name;
   Node *body;
-  Var *vars;  // local variables
+  Var *lvars;
   Function *next;
 };
 

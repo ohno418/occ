@@ -120,7 +120,7 @@ void codegen(Function *prog) {
     cur_func = f;
 
     printf("%s:\n", f->name);
-    prologue(f->vars);
+    prologue(f->lvars);
 
     for (Node *n = f->body; n; n = n->next)
       gen_stmt(n);

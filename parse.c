@@ -278,7 +278,7 @@ Function *function(Token *tok, Token **rest) {
   Function *func = calloc(1, sizeof(Function));
   func->name = name;
   func->body = head.next;
-  func->vars = lvars;
+  func->lvars = lvars;
 
   *rest = tok->next;
   return func;
