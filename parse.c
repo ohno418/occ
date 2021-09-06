@@ -25,7 +25,6 @@ void register_lvar(Var *var) {
 Var *new_lvar(char *name) {
   Var *var = calloc(1, sizeof(Var));
   var->name = name;
-  // TODO
   var->offset = lvar_offset;
   register_lvar(var);
   return var;
