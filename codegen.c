@@ -53,6 +53,15 @@ void gen_expr(Node *node) {
     printf("    idiv rdi\n");
     printf("    push rax\n");
     break;
+  case ND_REF:
+    gen_addr(node->lhs);
+    break;
+  case ND_DEREF:
+    gen_expr(node->lhs);
+    printf("    pop rax\n");
+    printf("    mov rax, [rax]\n");
+    printf("    push rax\n");
+    break;
   case ND_VAR:
     gen_addr(node);
     printf("    pop rax\n");

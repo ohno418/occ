@@ -57,11 +57,33 @@ Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
   return node;
 }
 
-Type *is_typename(Token *tok) {
+bool is_typename(Token *tok) {
   if (equal(tok, "int"))
     return ty_int();
 
   return NULL;
+}
+
+// type_with_name = type-name "*"? var-name
+Type *type_with_name(Token *tok, Token **rest) {
+  Type *ty;
+  if (equal(tok, "int")) {
+    ty = ty_int();
+  } else {
+    fprintf(stderr, "not type name: %s\n", tok->loc);
+    exit(1);
+  }
+  tok = tok->next;
+
+  if (equal(tok, "*")) {
+    ty = ty_ptr(ty);
+    tok = tok->next;
+  }
+
+  ty->name = strndup(tok->loc, tok->len);
+
+  *rest = tok->next;
+  return ty;
 }
 
 Node *stmt(Token *tok, Token **rest);
@@ -198,34 +220,17 @@ Node *postfix(Token *tok, Token **rest) {
 }
 
 // primary = number
-//         | type-name ident
 //         | ident "(" ")"
 //         | "sizeof" "(" ident ")"
+//         | "&" primary
+//         | "*" primary
+//         | type-name ident
 //         | ident
 Node *primary(Token *tok, Token **rest) {
   // number
   if (tok->kind == TK_NUM) {
     Node *node = new_num_node(atoi(strndup(tok->loc, tok->len)), tok);
     *rest = tok->next;
-    return node;
-  }
-
-  // new variable
-  Type *ty = is_typename(tok);
-  if (ty) {
-    char *var_name = strndup(tok->next->loc, tok->next->len);
-    Var *lvar = find_lvar(var_name);
-    if (lvar) {
-      fprintf(stderr, "variable \"%s\" is already declared\n", var_name);
-      exit(1);
-    }
-
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_VAR;
-    node->tok = tok;
-    node->var = new_lvar(ty, var_name);
-
-    *rest = tok->next->next;
     return node;
   }
 
@@ -260,6 +265,54 @@ Node *primary(Token *tok, Token **rest) {
     return node;
   }
 
+  // reference
+  if (equal(tok, "&")) {
+    Token *start = tok;
+    Node *lhs = primary(tok->next, &tok);
+
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_REF;
+    node->tok = start;
+    node->lhs = lhs;
+
+    *rest = tok;
+    return node;
+  }
+
+  // dereference
+  if (equal(tok, "*")) {
+    Token *start = tok;
+    Node *lhs = primary(tok->next, &tok);
+
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_DEREF;
+    node->tok = start;
+    node->lhs = lhs;
+
+    *rest = tok;
+    return node;
+  }
+
+  // new variable
+  if (is_typename(tok)) {
+    Token *start = tok;
+
+    Type *ty = type_with_name(tok, &tok);
+    Var *lvar = find_lvar(ty->name);
+    if (lvar) {
+      fprintf(stderr, "variable \"%s\" is already declared\n", ty->name);
+      exit(1);
+    }
+
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_VAR;
+    node->tok = start;
+    node->var = new_lvar(ty, ty->name);
+
+    *rest = tok;
+    return node;
+  }
+
   // existing variable
   if (tok->kind == TK_IDENT) {
     char *var_name = strndup(tok->loc, tok->len);
@@ -283,15 +336,14 @@ Node *primary(Token *tok, Token **rest) {
 
 // function = type-name func-name "(" ")" "{" stmt* "}"
 Function *function(Token *tok, Token **rest) {
-  Type *ty = is_typename(tok);
-  if (ty && tok->next->kind != TK_IDENT &&
+  if (is_typename(tok) && tok->next->kind != TK_IDENT &&
       equal(tok->next->next, "(") && equal(tok->next->next->next, ")") &&
       equal(tok->next->next->next->next, "{")) {
     fprintf(stderr, "function name expected: %s\n", tok->loc);
     exit(1);
   }
-  char *name = strndup(tok->next->loc, tok->next->len);
-  tok = tok->next->next->next->next->next;
+  Type *ty = type_with_name(tok, &tok);
+  tok = tok->next->next->next; // skip "(" and ")"
 
   // Reset local variables list.
   lvars = NULL;
@@ -304,7 +356,7 @@ Function *function(Token *tok, Token **rest) {
 
   Function *func = calloc(1, sizeof(Function));
   func->ty = ty;
-  func->name = name;
+  func->name = ty->name;
   func->body = head.next;
   func->lvars = lvars;
 

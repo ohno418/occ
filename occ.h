@@ -52,6 +52,8 @@ typedef enum NodeKind {
   ND_SUB,     // -
   ND_MUL,     // *
   ND_DIV,     // /
+  ND_REF,     // address operator &
+  ND_DEREF,   // dereference operator *
   ND_VAR,     // variable
   ND_ASSIGN,  // assign
   ND_FUNCALL, // function call
@@ -104,11 +106,19 @@ void codegen(Function *prog);
  */
 typedef enum TypeKind {
   TY_INT,
+  TY_PTR,
 } TypeKind;
 
 struct Type {
   TypeKind kind;
   int size;
+
+  // TY_PTR
+  Type *base;
+
+  // variable (or function) name holder
+  char *name;
 };
 
 Type *ty_int();
+Type *ty_ptr();
