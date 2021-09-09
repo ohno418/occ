@@ -14,19 +14,16 @@ bool equal(Token *tok, char *str) {
 
 // List of local vars of current function.
 Var *lvars;
-int lvar_offset;
 
 void register_lvar(Var *var) {
   var->next = lvars;
   lvars = var;
-  lvar_offset += 8;
 }
 
 Var *new_lvar(Type *ty, char *name) {
   Var *var = calloc(1, sizeof(Var));
   var->ty = ty;
   var->name = name;
-  var->offset = lvar_offset;
   register_lvar(var);
   return var;
 }
@@ -334,6 +331,14 @@ Node *primary(Token *tok, Token **rest) {
   exit(1);
 }
 
+void assign_lvar_offsets(Function *func) {
+  int offset = 0;
+  for (Var *v = lvars; v; v = v->next) {
+    offset += 8;
+    v->offset = offset;
+  }
+}
+
 // function = type-name func-name "(" ")" "{" stmt* "}"
 Function *function(Token *tok, Token **rest) {
   if (is_typename(tok) && tok->next->kind != TK_IDENT &&
@@ -347,7 +352,6 @@ Function *function(Token *tok, Token **rest) {
 
   // Reset local variables list.
   lvars = NULL;
-  lvar_offset = 8;
 
   Node head;
   Node *cur = &head;
@@ -359,6 +363,8 @@ Function *function(Token *tok, Token **rest) {
   func->name = ty->name;
   func->body = head.next;
   func->lvars = lvars;
+
+  assign_lvar_offsets(func);
 
   *rest = tok->next;
   return func;
