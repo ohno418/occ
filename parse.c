@@ -55,7 +55,7 @@ Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
 }
 
 Node *new_add_node(Node *lhs, Node *rhs, Token *tok) {
-  // case when lhs is a pointer variable
+  // pointer + number
   if (lhs->kind == ND_VAR && lhs->var->ty->kind == TY_PTR)
     rhs = new_binary_node(ND_MUL, rhs,
         new_num_node(lhs->var->ty->base->size, NULL), tok);
@@ -64,7 +64,7 @@ Node *new_add_node(Node *lhs, Node *rhs, Token *tok) {
 }
 
 Node *new_sub_node(Node *lhs, Node *rhs, Token *tok) {
-  // case when lhs is a pointer variable
+  // pointer - number
   if (lhs->kind == ND_VAR && lhs->var->ty->kind == TY_PTR)
     rhs = new_binary_node(ND_MUL, rhs,
         new_num_node(lhs->var->ty->base->size, NULL), tok);
