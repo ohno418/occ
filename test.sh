@@ -63,6 +63,10 @@ assert "int main() { int a=12; return sizeof(a); }" "8"
 assert "int main() { int a=12; int b=sizeof(a); return b; }" "8"
 assert "int main() { int a=23; int *p=&a; return *p; }" "23"
 assert "int main() { int a=23; int *p=&a; int b=*p; return b; }" "23"
+assert "int main() { int a=12; int b=23; int *p=&a; p=p+1; return *p; }" "23"
+assert "int main() { int a=12; int b=23; int *p=&b; p=p-1; return *p; }" "12"
+assert "int main() { int a=12; int b=23; int *p=&a; p++; return *p; }" "23"
+assert "int main() { int a=12; int b=23; int *p=&b; p--; return *p; }" "12"
 
 echo OK
 exit 0

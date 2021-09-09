@@ -54,6 +54,24 @@ Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
   return node;
 }
 
+Node *new_add_node(Node *lhs, Node *rhs, Token *tok) {
+  // case when lhs is a pointer variable
+  if (lhs->kind == ND_VAR && lhs->var->ty->kind == TY_PTR)
+    rhs = new_binary_node(ND_MUL, rhs,
+        new_num_node(lhs->var->ty->base->size, NULL), tok);
+
+  return new_binary_node(ND_ADD, lhs, rhs, tok);
+}
+
+Node *new_sub_node(Node *lhs, Node *rhs, Token *tok) {
+  // case when lhs is a pointer variable
+  if (lhs->kind == ND_VAR && lhs->var->ty->kind == TY_PTR)
+    rhs = new_binary_node(ND_MUL, rhs,
+        new_num_node(lhs->var->ty->base->size, NULL), tok);
+
+  return new_binary_node(ND_SUB, lhs, rhs, tok);
+}
+
 bool is_typename(Token *tok) {
   if (equal(tok, "int"))
     return ty_int();
@@ -139,12 +157,14 @@ Node *add(Token *tok, Token **rest) {
 
   for (;;) {
     if (equal(tok, "+")) {
-      node = new_binary_node(ND_ADD, node, mul(tok->next, &tok), tok);
+      Token *op_tok = tok;
+      node = new_add_node(node, mul(tok->next, &tok), op_tok);
       continue;
     }
 
     if (equal(tok, "-")) {
-      node = new_binary_node(ND_SUB, node, mul(tok->next, &tok), tok);
+      Token *op_tok = tok;
+      node = new_sub_node(node, mul(tok->next, &tok), op_tok);
       continue;
     }
 
@@ -186,8 +206,7 @@ Node *postfix(Token *tok, Token **rest) {
     node = new_binary_node(
         ND_ASSIGN,
         node,
-        new_binary_node(
-            ND_ADD,
+        new_add_node(
             node,
             new_num_node(1, start),
             start
@@ -201,8 +220,7 @@ Node *postfix(Token *tok, Token **rest) {
     node = new_binary_node(
         ND_ASSIGN,
         node,
-        new_binary_node(
-            ND_SUB,
+        new_sub_node(
             node,
             new_num_node(1, start),
             start
