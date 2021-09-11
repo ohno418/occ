@@ -67,6 +67,8 @@ assert "int main() { int a=12; int b=23; int *p=&a; p=p+1; return *p; }" "23"
 assert "int main() { int a=12; int b=23; int *p=&b; p=p-1; return *p; }" "12"
 assert "int main() { int a=12; int b=23; int *p=&a; p++; return *p; }" "23"
 assert "int main() { int a=12; int b=23; int *p=&b; p--; return *p; }" "12"
+assert "int ret(int x) { return x; } int main() { int n=ret(12); return n; }" "12"
+assert "int ret(int x) { return x; } int main() { return ret(23); }" "23"
 assert "int add(int x, int y) { return x+y; } int main() { int n=add(1, 2); return n; }" "3"
 assert "int add(int x, int y) { return x+y; } int main() { return add(1, 2); }" "3"
 
