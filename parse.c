@@ -29,10 +29,11 @@ void register_lvar(Var *var) {
   lvars = var;
 }
 
-Var *new_lvar(Type *ty, char *name) {
+Var *new_lvar(Type *ty, char *name, bool is_arg) {
   Var *var = calloc(1, sizeof(Var));
   var->ty = ty;
   var->name = name;
+  var->is_arg = is_arg;
   register_lvar(var);
   return var;
 }
@@ -345,7 +346,7 @@ Node *primary(Token *tok, Token **rest) {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
     node->tok = start;
-    node->var = new_lvar(ty, ty->name);
+    node->var = new_lvar(ty, ty->name, false);
 
     *rest = tok;
     return node;
@@ -380,17 +381,31 @@ void assign_lvar_offsets(Function *func) {
   }
 }
 
-// function = type-name func-name "(" ")" "{" stmt* "}"
+// func_args = (type-name ident ("," type-name ident)*)?
+void func_args(Token *tok, Token **rest) {
+  for (int i = 0; !equal(tok, ")"); i++) {
+    if (i != 0)
+      consume(&tok, ",");
+
+    Type *ty = type_with_name(tok, &tok);
+    new_lvar(ty, ty->name, true);
+  }
+
+  *rest = tok;
+}
+
+// function = type-name func-name "(" func_args ")" "{" stmt* "}"
 Function *function(Token *tok, Token **rest) {
   Type *ty = type_with_name(tok, &tok);
   char *func_name = ty->name;
-
   consume(&tok, "(");
-  consume(&tok, ")");
-  consume(&tok, "{");
 
   // Reset local variables list.
   lvars = NULL;
+
+  func_args(tok, &tok);
+  consume(&tok, ")");
+  consume(&tok, "{");
 
   Node head;
   Node *cur = &head;
@@ -405,7 +420,8 @@ Function *function(Token *tok, Token **rest) {
 
   assign_lvar_offsets(func);
 
-  *rest = tok->next;
+  consume(&tok, "}");
+  *rest = tok;
   return func;
 }
 

@@ -2,6 +2,9 @@
 
 Function *cur_func;
 
+// regsiters for function arguments
+char *arg_regs[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+
 // Push the address to the stack.
 void gen_addr(Node *node) {
   if (node->kind != ND_VAR) {
@@ -77,7 +80,6 @@ void gen_expr(Node *node) {
     printf("    push rbx\n");
     break;
   case ND_FUNCALL:
-    char *arg_regs[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
     int i = 0;
     for (Node *arg = node->args; arg; arg = arg->next) {
       if (!arg) {
@@ -121,11 +123,24 @@ void prologue(Var *lvars) {
   printf("    push rbp\n");
   printf("    mov rbp, rsp\n");
 
+  // local variables
   int max_offset = 0;
   for (Var *v = lvars; v; v = v->next)
     if (max_offset < v->offset)
       max_offset = v->offset;
   printf("    sub rsp, %d\n", max_offset);
+
+  // arguments
+  int i = 0;
+  for (Var *lv = cur_func->lvars; lv; lv = lv->next) {
+    if (!lv->is_arg)
+      continue;
+
+    printf("    mov rax, rbp\n");
+    printf("    sub rax, %d\n", lv->offset);
+    printf("    mov [rax], %s\n", arg_regs[i]);
+    i++;
+  }
 }
 
 void epilogue() {

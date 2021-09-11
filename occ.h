@@ -38,6 +38,9 @@ struct Var {
   char *name;
   int offset;
   Var *next;
+
+  // function argument
+  bool is_arg;
 };
 
 typedef enum NodeKind {
