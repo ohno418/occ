@@ -12,6 +12,15 @@ bool equal(Token *tok, char *str) {
   return tok->len == strlen(str) && strncmp(tok->loc, str, tok->len) == 0;
 }
 
+void consume(Token **rest, char *str) {
+  if (!equal(*rest, str)) {
+    fprintf(stderr, "expected \"%s\"\n", str);
+    exit(1);
+  }
+
+  *rest = (*rest)->next;
+}
+
 // List of local vars of current function.
 Var *lvars;
 
@@ -123,12 +132,8 @@ Node *stmt(Token *tok, Token **rest) {
   node->tok = tok;
   node->lhs = expr(tok, &tok);
 
-  if (!equal(tok, ";")) {
-    fprintf(stderr, "expected \";\"\n");
-    exit(1);
-  }
-
-  *rest = tok->next;
+  consume(&tok, ";");
+  *rest = tok;
   return node;
 }
 
@@ -246,14 +251,8 @@ Node *func_call(Token *tok, Token **rest) {
   Node head = {};
   Node *cur = &head;
   for (int i = 0; !equal(tok, ")"); i++) {
-    if (i != 0) {
-      if (equal(tok, ",")) {
-        tok = tok->next;
-      } else {
-        fprintf(stderr, "expected \",\": %s\n", tok->loc);
-        exit(1);
-      }
-    }
+    if (i != 0)
+      consume(&tok, ",");
 
     cur = cur->next = expr(tok, &tok);
   }
@@ -284,21 +283,23 @@ Node *primary(Token *tok, Token **rest) {
 
   // sizeof
   if (equal(tok, "sizeof")) {
-    if (!equal(tok->next, "(") || !equal(tok->next->next->next, ")")) {
-      fprintf(stderr, "\"()\" is required after a sizeof operator\n", tok->loc);
-      exit(1);
-    }
+    Token *start = tok;
+    tok = tok->next;
 
-    Token *var_tok = tok->next->next;
+    consume(&tok, "(");
+
+    Token *var_tok = tok;
     char *var_name = strndup(var_tok->loc, var_tok->len);
     Var *lvar = find_lvar(var_name);
     if (!lvar) {
       fprintf(stderr, "unknown variable \"%s\"\n", var_name);
       exit(1);
     }
+    Node *node = new_num_node(lvar->ty->size, start);
 
-    Node *node = new_num_node(lvar->ty->size, tok);
-    *rest = var_tok->next->next;
+    tok = tok->next;
+    consume(&tok, ")");
+    *rest = tok;
     return node;
   }
 
