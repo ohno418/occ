@@ -59,7 +59,7 @@ Token *tokenize(char *input) {
     // puctuator
     if (*p == '+' || *p == '-' || *p == '*' || *p == '/' ||
         *p == '(' || *p == ')' || *p == '{' || *p == '}' ||
-        *p == ';' || *p == '=' || *p == '&') {
+        *p == ';' || *p == '=' || *p == '&' || *p == ',') {
       Token *tok = calloc(1, sizeof(Token));
       tok->kind = TK_PUNCT;
       tok->loc = p;

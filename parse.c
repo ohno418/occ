@@ -234,6 +234,35 @@ Node *postfix(Token *tok, Token **rest) {
   return node;
 }
 
+// func_call = ident "(" args* ")"
+// args      = primary ("," primary)*
+Node *func_call(Token *tok, Token **rest) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_FUNCALL;
+  node->tok = tok;
+  node->func_name = strndup(tok->loc, tok->len);;
+  tok = tok->next->next;
+
+  Node head = {};
+  Node *cur = &head;
+  for (int i = 0; !equal(tok, ")"); i++) {
+    if (i != 0) {
+      if (equal(tok, ",")) {
+        tok = tok->next;
+      } else {
+        fprintf(stderr, "expected \",\": %s\n", tok->loc);
+        exit(1);
+      }
+    }
+
+    cur = cur->next = expr(tok, &tok);
+  }
+  node->args = head.next;
+
+  *rest = tok->next;
+  return node;
+}
+
 // primary = number
 //         | ident "(" ")"
 //         | "sizeof" "(" ident ")"
@@ -250,15 +279,8 @@ Node *primary(Token *tok, Token **rest) {
   }
 
   // function call
-  if (tok->kind == TK_IDENT &&
-      equal(tok->next, "(") && equal(tok->next->next, ")")) {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_FUNCALL;
-    node->tok = tok;
-    node->func_name = strndup(tok->loc, tok->len);;
-    *rest = tok->next->next->next;
-    return node;
-  }
+  if (tok->kind == TK_IDENT && equal(tok->next, "("))
+    return func_call(tok, rest);
 
   // sizeof
   if (equal(tok, "sizeof")) {

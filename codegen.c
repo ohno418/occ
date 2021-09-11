@@ -77,6 +77,20 @@ void gen_expr(Node *node) {
     printf("    push rbx\n");
     break;
   case ND_FUNCALL:
+    char *arg_regs[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+    int i = 0;
+    for (Node *arg = node->args; arg; arg = arg->next) {
+      if (!arg) {
+        printf("d/0\n");
+        break;
+      }
+
+      gen_expr(arg);
+      printf("    pop rax\n");
+      printf("    mov %s, rax\n", arg_regs[i]);
+      i++;
+    }
+
     printf("    call %s\n", node->func_name);
     printf("    push rax\n");
     break;

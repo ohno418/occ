@@ -78,6 +78,7 @@ struct Node {
 
   // ND_FUNCALL
   char *func_name;
+  Node *args;
 };
 
 typedef struct Function Function;
