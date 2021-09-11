@@ -23,34 +23,34 @@ void gen_expr(Node *node) {
   case ND_ADD:
     gen_expr(node->lhs);
     gen_expr(node->rhs);
-    printf("    pop rdi\n");
+    printf("    pop rbx\n");
     printf("    pop rax\n");
-    printf("    add rax, rdi\n");
+    printf("    add rax, rbx\n");
     printf("    push rax\n");
     break;
   case ND_SUB:
     gen_expr(node->lhs);
     gen_expr(node->rhs);
-    printf("    pop rdi\n");
+    printf("    pop rbx\n");
     printf("    pop rax\n");
-    printf("    sub rax, rdi\n");
+    printf("    sub rax, rbx\n");
     printf("    push rax\n");
     break;
   case ND_MUL:
     gen_expr(node->lhs);
     gen_expr(node->rhs);
-    printf("    pop rdi\n");
+    printf("    pop rbx\n");
     printf("    pop rax\n");
-    printf("    imul rax, rdi\n");
+    printf("    imul rax, rbx\n");
     printf("    push rax\n");
     break;
   case ND_DIV:
     gen_expr(node->lhs);
     gen_expr(node->rhs);
-    printf("    pop rdi\n");
+    printf("    pop rbx\n");
     printf("    pop rax\n");
     printf("    cqo\n");
-    printf("    idiv rdi\n");
+    printf("    idiv rbx\n");
     printf("    push rax\n");
     break;
   case ND_REF:
@@ -72,9 +72,9 @@ void gen_expr(Node *node) {
     gen_expr(node->rhs);
     gen_addr(node->lhs);
     printf("    pop rax\n");
-    printf("    pop rdi\n");
-    printf("    mov [rax], rdi\n");
-    printf("    push rdi\n");
+    printf("    pop rbx\n");
+    printf("    mov [rax], rbx\n");
+    printf("    push rbx\n");
     break;
   case ND_FUNCALL:
     printf("    call %s\n", node->func_name);
