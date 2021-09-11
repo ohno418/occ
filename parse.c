@@ -14,7 +14,7 @@ bool equal(Token *tok, char *str) {
 
 void consume(Token **rest, char *str) {
   if (!equal(*rest, str)) {
-    fprintf(stderr, "expected \"%s\"\n", str);
+    fprintf(stderr, "expected \"%s\": %s\n", str, (*rest)->loc);
     exit(1);
   }
 
@@ -382,14 +382,12 @@ void assign_lvar_offsets(Function *func) {
 
 // function = type-name func-name "(" ")" "{" stmt* "}"
 Function *function(Token *tok, Token **rest) {
-  if (is_typename(tok) && tok->next->kind != TK_IDENT &&
-      equal(tok->next->next, "(") && equal(tok->next->next->next, ")") &&
-      equal(tok->next->next->next->next, "{")) {
-    fprintf(stderr, "function name expected: %s\n", tok->loc);
-    exit(1);
-  }
   Type *ty = type_with_name(tok, &tok);
-  tok = tok->next->next->next; // skip "(" and ")"
+  char *func_name = ty->name;
+
+  consume(&tok, "(");
+  consume(&tok, ")");
+  consume(&tok, "{");
 
   // Reset local variables list.
   lvars = NULL;
@@ -401,7 +399,7 @@ Function *function(Token *tok, Token **rest) {
 
   Function *func = calloc(1, sizeof(Function));
   func->ty = ty;
-  func->name = ty->name;
+  func->name = func_name;
   func->body = head.next;
   func->lvars = lvars;
 
