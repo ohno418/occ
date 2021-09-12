@@ -114,6 +114,7 @@ Type *type_with_name(Token *tok, Token **rest) {
 Node *stmt(Token *tok, Token **rest);
 Node *expr(Token *tok, Token **rest);
 Node *assign(Token *tok, Token **rest);
+Node *relation(Token *tok, Token **rest);
 Node *add(Token *tok, Token **rest);
 Node *mul(Token *tok, Token **rest);
 Node *postfix(Token *tok, Token **rest);
@@ -168,15 +169,26 @@ Node *expr(Token *tok, Token **rest) {
   return assign(tok, rest);
 }
 
-// assign = add ("=" assign)*
+// assign = relation ("=" assign)*
 Node *assign(Token *tok, Token **rest) {
   Token *start = tok;
-  Node *node = add(tok, &tok);
+  Node *node = relation(tok, &tok);
 
   for (; equal(tok, "=");) {
     node = new_binary_node(ND_ASSIGN,
         node, assign(tok->next, &tok), start);
   }
+
+  *rest = tok;
+  return node;
+}
+
+// relation = add ("==" add)?
+Node *relation(Token *tok, Token **rest) {
+  Node *node = add(tok, &tok);
+
+  if (equal(tok, "=="))
+    node = new_binary_node(ND_EQ, node, add(tok->next, &tok), tok);
 
   *rest = tok;
   return node;

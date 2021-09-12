@@ -58,6 +58,21 @@ void gen_expr(Node *node) {
     printf("    idiv rbx\n");
     printf("    push rax\n");
     break;
+  case ND_EQ: {
+    int label = label_cnt++;
+    gen_expr(node->lhs);
+    gen_expr(node->rhs);
+    printf("    pop rbx\n");
+    printf("    pop rax\n");
+    printf("    cmp rax, rbx\n");
+    printf("    je .L.eq.%d\n", label);
+    printf("    push 0\n");
+    printf("    jmp .L.eq.end.%d\n", label);
+    printf(".L.eq.%d:\n", label);
+    printf("    push 1\n");
+    printf(".L.eq.end.%d:\n", label);
+    break;
+  }
   case ND_REF:
     gen_addr(node->lhs);
     break;
