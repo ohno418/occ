@@ -183,12 +183,15 @@ Node *assign(Token *tok, Token **rest) {
   return node;
 }
 
-// relation = add ("==" add)?
+// relation = add ("==" add | "!=" add)?
 Node *relation(Token *tok, Token **rest) {
   Node *node = add(tok, &tok);
 
   if (equal(tok, "=="))
     node = new_binary_node(ND_EQ, node, add(tok->next, &tok), tok);
+
+  if (equal(tok, "!="))
+    node = new_binary_node(ND_NEQ, node, add(tok->next, &tok), tok);
 
   *rest = tok;
   return node;

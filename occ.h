@@ -56,6 +56,7 @@ typedef enum NodeKind {
   ND_MUL,     // *
   ND_DIV,     // /
   ND_EQ,      // ==
+  ND_NEQ,     // !=
   ND_REF,     // address operator &
   ND_DEREF,   // dereference operator *
   ND_VAR,     // variable

@@ -82,12 +82,9 @@ assert "int main() { int cond=0; if (cond) return 12; else return 23; return 34;
 assert "int main() { int n=42; if (n==42) return 12; else return 23; return 34; }" "12"
 assert "int main() { int n=42; if (n==41) return 12; else return 23; return 34; }" "23"
 assert "int main() { int n=42; if (n==39+3) return 12; else return 23; return 34; }" "12"
-
-# assert "int main() { int n=42; if (n!=42) return 12; else return 23; return 34; }" "23"
-# assert "int main() { int n=42; if (n!=41) return 12; else return 23; return 34; }" "12"
-
-# TODO: if-statement needed
-# assert "int fib(int n) { if (n==0) return n; if (n==1) return n; return fib(n-2) + fib(n-1); } int main() { return fib(10); }" "55"
+assert "int main() { int n=42; if (n!=42) return 12; else return 23; return 34; }" "23"
+assert "int main() { int n=42; if (n!=41) return 12; else return 23; return 34; }" "12"
+assert "int fib(int n) { if (n==0) return n; if (n==1) return n; return fib(n-2) + fib(n-1); } int main() { return fib(10); }" "55"
 
 echo OK
 exit 0
