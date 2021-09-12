@@ -21,6 +21,11 @@ void gen_addr(Node *node) {
 
 // Push the result to the stack.
 void gen_expr(Node *node) {
+  if (node == NULL) {
+    printf("    push 0\n");
+    return;
+  }
+
   switch (node->kind) {
   case ND_NUM:
     printf("    push %d\n", node->num);
@@ -185,6 +190,22 @@ void gen_stmt(Node *node) {
     printf(".L.if.else.%d:\n", label);
     if (node->els)
       gen_stmt(node->els);
+    break;
+  }
+  case ND_FOR: {
+    int label = label_cnt++;
+    gen_expr(node->init);
+    printf("    pop rax\n");
+    printf(".L.for.cond.%d:\n", label);
+    gen_expr(node->cond);
+    printf("    pop rax\n");
+    printf("    cmp rax, 0\n");
+    printf("    je .L.for.end.%d\n", label);
+    gen_stmt(node->then);
+    gen_expr(node->inc);
+    printf("    pop rax\n");
+    printf("    jmp .L.for.cond.%d\n", label);
+    printf(".L.for.end.%d:\n", label);
     break;
   }
   case ND_BLOCK:

@@ -96,6 +96,13 @@ assert "int main() { int a=12; if (a<=12) return 12; else return 23; }" "12"
 assert "int main() { int a=12; if (a<=11) return 12; else return 23; }" "23"
 assert "int main() { int a=12; if (a>=12) return 12; else return 23; }" "12"
 assert "int main() { int a=12; if (a>=13) return 12; else return 23; }" "23"
+assert "int main() { int i=3; for (int j=0; j<3; j++) i=i*3; return i; }" "81"
+assert "int main() { int i=0; for (; i<10; i++); return i; }" "10"
+assert "int main() { int i=0; for (; i<10;) { i++; } return i; }" "10"
+assert "int main() { int i=1; for (i=2; i<10;) i=i*3; return i; }" "18"
+assert "int main() { int i=1; for (i=3; i<10;) i=i*3; return i; }" "27"
+assert "int main() { int i=1; int j=3; for (i=2; i<10; i=i*3) j=j*3; return j; }" "27"
+assert "int main() { int i=0; for (; i<10; i++) { if (i==5) return i; } return 42; }" "5"
 
 echo OK
 exit 0

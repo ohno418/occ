@@ -121,6 +121,7 @@ Node *postfix(Token *tok, Token **rest);
 Node *primary(Token *tok, Token **rest);
 
 // stmt = "if" "(" expr ")" stmt ("else" stmt)?
+//      | "for" "(" expr ";" expr ";" expr) stmt
 //      | "return" expr ";"
 //      | "{" stmt* "}"
 //      | expr ";"
@@ -149,6 +150,28 @@ Node *stmt(Token *tok, Token **rest) {
     return node;
   }
 
+  if (equal(tok, "for")) {
+    Token *start = tok;
+    tok = tok->next;
+    consume(&tok, "(");
+
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_FOR;
+    node->tok = start;
+
+    node->init = expr(tok, &tok);
+    consume(&tok, ";");
+    node->cond = expr(tok, &tok);
+    consume(&tok, ";");
+    if (!equal(tok, ")"))
+      node->inc = expr(tok, &tok);
+    consume(&tok, ")");
+    node->then = stmt(tok, &tok);
+
+    *rest = tok;
+    return node;
+  }
+
   // compound statement (block)
   if (equal(tok, "{")) {
     Token *start = tok;
@@ -168,17 +191,20 @@ Node *stmt(Token *tok, Token **rest) {
     return node;
   }
 
-  NodeKind kind = ND_STMT;
   if (equal(tok, "return")) {
-    kind = ND_RETURN;
-    tok = tok->next;
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_RETURN;
+    node->tok = tok;
+    node->lhs = expr(tok->next, &tok);
+    consume(&tok, ";");
+    *rest = tok;
+    return node;
   }
 
   Node *node = calloc(1, sizeof(Node));
-  node->kind = kind;
+  node->kind = ND_STMT;
   node->tok = tok;
   node->lhs = expr(tok, &tok);
-
   consume(&tok, ";");
   *rest = tok;
   return node;
@@ -344,6 +370,7 @@ Node *func_call(Token *tok, Token **rest) {
 //         | "*" primary
 //         | type-name ident
 //         | ident
+//         | (null)
 Node *primary(Token *tok, Token **rest) {
   // number
   if (tok->kind == TK_NUM) {
@@ -442,6 +469,9 @@ Node *primary(Token *tok, Token **rest) {
     *rest = tok->next;
     return node;
   }
+
+  if (equal(tok, ";"))
+    return NULL;
 
   fprintf(stderr, "unknown primary: %s\n", tok->loc);
   exit(1);

@@ -50,6 +50,7 @@ typedef enum NodeKind {
   ND_STMT,
   ND_RETURN,  // return
   ND_IF,      // if
+  ND_FOR,     // for
   ND_BLOCK,   // compound statement (block)
 
   ND_NUM,     // number
@@ -89,10 +90,13 @@ struct Node {
   char *func_name;
   Node *args;
 
-  // ND_IF
+  // ND_IF:  cond, then, els
+  // ND_FOR: init, cond, inc, then
   Node *cond;
   Node *then;
   Node *els;
+  Node *init;
+  Node *inc;
 
   // ND_BLOCK
   Node *body;
