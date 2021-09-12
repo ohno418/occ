@@ -119,7 +119,7 @@ Node *mul(Token *tok, Token **rest);
 Node *postfix(Token *tok, Token **rest);
 Node *primary(Token *tok, Token **rest);
 
-// stmt = "if" "(" expr ")" stmt
+// stmt = "if" "(" expr ")" stmt ("else" stmt)?
 //      | "return" expr ";"
 //      | expr ";"
 Node *stmt(Token *tok, Token **rest) {
@@ -132,11 +132,16 @@ Node *stmt(Token *tok, Token **rest) {
     consume(&tok, ")");
     Node *then = stmt(tok, &tok);
 
+    Node *els = NULL;
+    if (equal(tok, "else"))
+      els = stmt(tok->next, &tok);
+
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_IF;
     node->tok = start;
     node->cond = cond;
     node->then = then;
+    node->els = els;
 
     *rest = tok;
     return node;

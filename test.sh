@@ -72,7 +72,11 @@ assert "int ret(int x) { return x; } int main() { return ret(23); }" "23"
 assert "int add(int x, int y) { return x+y; } int main() { int n=add(1, 2); return n; }" "3"
 assert "int add(int x, int y) { return x+y; } int main() { return add(1, 2); }" "3"
 assert "int main() { if (1) return 12; return 23; }" "12"
+assert "int main() { if (2) return 12; return 23; }" "12"
 assert "int main() { if (0) return 12; return 23; }" "23"
+assert "int main() { if (1) return 12; else return 23; return 34; }" "12"
+assert "int main() { if (2) return 12; else return 23; return 34; }" "12"
+assert "int main() { if (0) return 12; else return 23; return 34; }" "23"
 
 # TODO: if-statement needed
 # assert "int fib(int n) { if (n==0) return n; if (n==1) return n; return fib(n-2) + fib(n-1); } int main() { return fib(10); }" "55"

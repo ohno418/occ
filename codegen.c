@@ -120,9 +120,11 @@ void gen_stmt(Node *node) {
     gen_expr(node->cond);
     printf("    pop rax\n");
     printf("    cmp rax, 0\n");
-    printf("    je .L.if.end.%d\n", label);
+    printf("    je .L.if.else.%d\n", label);
     gen_stmt(node->then);
-    printf(".L.if.end.%d:\n", label);
+    printf(".L.if.else.%d:\n", label);
+    if (node->els)
+      gen_stmt(node->els);
     break;
   default:
     fprintf(stderr, "unknown kind of statement node: %d\n", node->kind);

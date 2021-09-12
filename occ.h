@@ -87,6 +87,7 @@ struct Node {
   // ND_IF
   Node *cond;
   Node *then;
+  Node *els;
 };
 
 typedef struct Function Function;
