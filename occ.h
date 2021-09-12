@@ -59,6 +59,7 @@ typedef enum NodeKind {
   ND_DEREF,   // dereference operator *
   ND_VAR,     // variable
   ND_ASSIGN,  // assign
+  ND_IF,      // if
   ND_FUNCALL, // function call
 } NodeKind;
 
@@ -82,6 +83,10 @@ struct Node {
   // ND_FUNCALL
   char *func_name;
   Node *args;
+
+  // ND_IF
+  Node *cond;
+  Node *then;
 };
 
 typedef struct Function Function;

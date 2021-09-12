@@ -38,7 +38,8 @@ Token *tokenize(char *input) {
       tok->len = p - start;
 
       // keyword
-      if (equal(tok, "return") || equal(tok, "int") || equal(tok, "sizeof"))
+      if (equal(tok, "return") || equal(tok, "int") || equal(tok, "sizeof") ||
+          equal(tok, "if"))
         tok->kind = TK_KW;
 
       cur = cur->next = tok;

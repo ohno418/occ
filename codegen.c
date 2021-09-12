@@ -2,6 +2,8 @@
 
 Function *cur_func;
 
+int label_cnt = 0;
+
 // regsiters for function arguments
 char *arg_regs[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
@@ -112,6 +114,15 @@ void gen_stmt(Node *node) {
     gen_expr(node->lhs);
     printf("    pop rax\n");
     printf("    jmp .L.end.%s\n", cur_func->name);
+    break;
+  case ND_IF:
+    int label = label_cnt++;
+    gen_expr(node->cond);
+    printf("    pop rax\n");
+    printf("    cmp rax, 0\n");
+    printf("    je .L.if.end.%d\n", label);
+    gen_stmt(node->then);
+    printf(".L.if.end.%d:\n", label);
     break;
   default:
     fprintf(stderr, "unknown kind of statement node: %d\n", node->kind);

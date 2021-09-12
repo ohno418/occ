@@ -119,9 +119,29 @@ Node *mul(Token *tok, Token **rest);
 Node *postfix(Token *tok, Token **rest);
 Node *primary(Token *tok, Token **rest);
 
-// stmt = "return" expr ";"
+// stmt = "if" "(" expr ")" stmt
+//      | "return" expr ";"
 //      | expr ";"
 Node *stmt(Token *tok, Token **rest) {
+  if (equal(tok, "if")) {
+    Token *start = tok;
+
+    tok = tok->next;
+    consume(&tok, "(");
+    Node *cond = expr(tok, &tok);
+    consume(&tok, ")");
+    Node *then = stmt(tok, &tok);
+
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_IF;
+    node->tok = start;
+    node->cond = cond;
+    node->then = then;
+
+    *rest = tok;
+    return node;
+  }
+
   NodeKind kind = ND_STMT;
   if (equal(tok, "return")) {
     kind = ND_RETURN;
