@@ -49,6 +49,8 @@ typedef enum NodeKind {
   //   - next: next statement
   ND_STMT,
   ND_RETURN,  // return
+  ND_IF,      // if
+  ND_BLOCK,   // compound statement (block)
 
   ND_NUM,     // number
   ND_ADD,     // +
@@ -61,7 +63,6 @@ typedef enum NodeKind {
   ND_DEREF,   // dereference operator *
   ND_VAR,     // variable
   ND_ASSIGN,  // assign
-  ND_IF,      // if
   ND_FUNCALL, // function call
 } NodeKind;
 
@@ -90,6 +91,9 @@ struct Node {
   Node *cond;
   Node *then;
   Node *els;
+
+  // ND_BLOCK
+  Node *body;
 };
 
 typedef struct Function Function;

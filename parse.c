@@ -122,6 +122,7 @@ Node *primary(Token *tok, Token **rest);
 
 // stmt = "if" "(" expr ")" stmt ("else" stmt)?
 //      | "return" expr ";"
+//      | "{" stmt* "}"
 //      | expr ";"
 Node *stmt(Token *tok, Token **rest) {
   if (equal(tok, "if")) {
@@ -145,6 +146,25 @@ Node *stmt(Token *tok, Token **rest) {
     node->els = els;
 
     *rest = tok;
+    return node;
+  }
+
+  // compound statement (block)
+  if (equal(tok, "{")) {
+    Token *start = tok;
+    tok = tok->next;
+
+    Node head;
+    Node *cur = &head;
+    for (; !equal(tok, "}");)
+      cur = cur->next = stmt(tok, &tok);
+
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_BLOCK;
+    node->tok = start;
+    node->body = head.next;
+
+    *rest = tok->next;
     return node;
   }
 

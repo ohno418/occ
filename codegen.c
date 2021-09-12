@@ -157,6 +157,10 @@ void gen_stmt(Node *node) {
       gen_stmt(node->els);
     break;
   }
+  case ND_BLOCK:
+    for (Node *stmt = node->body; stmt; stmt = stmt->next)
+      gen_stmt(stmt);
+    break;
   default:
     fprintf(stderr, "unknown kind of statement node: %d\n", node->kind);
     exit(1);

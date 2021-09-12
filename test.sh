@@ -85,6 +85,9 @@ assert "int main() { int n=42; if (n==39+3) return 12; else return 23; return 34
 assert "int main() { int n=42; if (n!=42) return 12; else return 23; return 34; }" "23"
 assert "int main() { int n=42; if (n!=41) return 12; else return 23; return 34; }" "12"
 assert "int fib(int n) { if (n==0) return n; if (n==1) return n; return fib(n-2) + fib(n-1); } int main() { return fib(10); }" "55"
+assert "int main() { { int n = 2+3; return n; } return 3; }" "5"
+assert "int main() { int a=12; if (1) { int n=a+23; return n; } else { return 98; } return 87; }" "35"
+assert "int main() { int a=12; if (0) { int n=a+23; return n; } else { return 98; } return 87; }" "98"
 
 echo OK
 exit 0
