@@ -88,6 +88,36 @@ void gen_expr(Node *node) {
     printf(".L.neq.end.%d:\n", label);
     break;
   }
+  case ND_LT: {
+    int label = label_cnt++;
+    gen_expr(node->lhs);
+    gen_expr(node->rhs);
+    printf("    pop rbx\n");
+    printf("    pop rax\n");
+    printf("    cmp rax, rbx\n");
+    printf("    jl .L.lt.true.%d\n", label);
+    printf("    push 0\n");
+    printf("    jmp .L.lt.end.%d\n", label);
+    printf(".L.lt.true.%d:\n", label);
+    printf("    push 1\n");
+    printf(".L.lt.end.%d:\n", label);
+    break;
+  }
+  case ND_LTE: {
+    int label = label_cnt++;
+    gen_expr(node->lhs);
+    gen_expr(node->rhs);
+    printf("    pop rbx\n");
+    printf("    pop rax\n");
+    printf("    cmp rax, rbx\n");
+    printf("    jle .L.lte.true.%d\n", label);
+    printf("    push 0\n");
+    printf("    jmp .L.lte.end.%d\n", label);
+    printf(".L.lte.true.%d:\n", label);
+    printf("    push 1\n");
+    printf(".L.lte.end.%d:\n", label);
+    break;
+  }
   case ND_REF:
     gen_addr(node->lhs);
     break;

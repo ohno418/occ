@@ -88,6 +88,14 @@ assert "int fib(int n) { if (n==0) return n; if (n==1) return n; return fib(n-2)
 assert "int main() { { int n = 2+3; return n; } return 3; }" "5"
 assert "int main() { int a=12; if (1) { int n=a+23; return n; } else { return 98; } return 87; }" "35"
 assert "int main() { int a=12; if (0) { int n=a+23; return n; } else { return 98; } return 87; }" "98"
+assert "int main() { int a=12; if (a<12) return 12; else return 23; }" "23"
+assert "int main() { int a=12; if (a<13) return 12; else return 23; }" "12"
+assert "int main() { int a=12; if (a>12) return 12; else return 23; }" "23"
+assert "int main() { int a=12; if (a>11) return 12; else return 23; }" "12"
+assert "int main() { int a=12; if (a<=12) return 12; else return 23; }" "12"
+assert "int main() { int a=12; if (a<=11) return 12; else return 23; }" "23"
+assert "int main() { int a=12; if (a>=12) return 12; else return 23; }" "12"
+assert "int main() { int a=12; if (a>=13) return 12; else return 23; }" "23"
 
 echo OK
 exit 0

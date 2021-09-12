@@ -203,15 +203,29 @@ Node *assign(Token *tok, Token **rest) {
   return node;
 }
 
-// relation = add ("==" add | "!=" add)?
+// relation = add ("==" add | "!=" add | "<" add | ">" add
+//                                     | "<=" add | ">=" add)?
 Node *relation(Token *tok, Token **rest) {
+  Token *start = tok;
   Node *node = add(tok, &tok);
 
   if (equal(tok, "=="))
-    node = new_binary_node(ND_EQ, node, add(tok->next, &tok), tok);
+    node = new_binary_node(ND_EQ, node, add(tok->next, &tok), start);
 
   if (equal(tok, "!="))
-    node = new_binary_node(ND_NEQ, node, add(tok->next, &tok), tok);
+    node = new_binary_node(ND_NEQ, node, add(tok->next, &tok), start);
+
+  if (equal(tok, "<"))
+    node = new_binary_node(ND_LT, node, add(tok->next, &tok), start);
+
+  if (equal(tok, ">"))
+    node = new_binary_node(ND_LT, add(tok->next, &tok), node, start);
+
+  if (equal(tok, "<="))
+    node = new_binary_node(ND_LTE, node, add(tok->next, &tok), start);
+
+  if (equal(tok, ">="))
+    node = new_binary_node(ND_LTE, add(tok->next, &tok), node, start);
 
   *rest = tok;
   return node;
