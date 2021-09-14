@@ -89,7 +89,7 @@ bool is_typename(Token *tok) {
   return NULL;
 }
 
-// type_with_name = type-name "*"? var-name
+// type_with_name = type-name "*"? var-name?
 Type *type_with_name(Token *tok, Token **rest) {
   Type *ty;
   if (equal(tok, "int")) {
@@ -105,9 +105,12 @@ Type *type_with_name(Token *tok, Token **rest) {
     tok = tok->next;
   }
 
-  ty->name = strndup(tok->loc, tok->len);
+  if (tok->kind == TK_IDENT) {
+    ty->name = strndup(tok->loc, tok->len);
+    tok = tok->next;
+  }
 
-  *rest = tok->next;
+  *rest = tok;
   return ty;
 }
 
@@ -390,16 +393,24 @@ Node *primary(Token *tok, Token **rest) {
 
     consume(&tok, "(");
 
-    Token *var_tok = tok;
-    char *var_name = strndup(var_tok->loc, var_tok->len);
-    Var *lvar = find_lvar(var_name);
-    if (!lvar) {
-      fprintf(stderr, "unknown variable \"%s\"\n", var_name);
-      exit(1);
+    Token *operand_tok = tok;
+    Node *node;
+    if (is_typename(operand_tok)) {
+      // type
+      Type *ty = type_with_name(tok, &tok);
+      node = new_num_node(ty->size, start);
+    } else {
+      // variable
+      char *var_name = strndup(operand_tok->loc, operand_tok->len);
+      Var *lvar = find_lvar(var_name);
+      if (!lvar) {
+        fprintf(stderr, "unknown variable \"%s\"\n", var_name);
+        exit(1);
+      }
+      node = new_num_node(lvar->ty->size, start);
+      tok = tok->next;
     }
-    Node *node = new_num_node(lvar->ty->size, start);
 
-    tok = tok->next;
     consume(&tok, ")");
     *rest = tok;
     return node;

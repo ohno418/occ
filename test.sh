@@ -61,6 +61,8 @@ assert "int ret42() { return 42; } int main() { int res = ret42(); res++; return
 assert "int func() { int a=12; return 42; } int main() { int a=func(); return a; }" "42"
 assert "int main() { int a=12; return sizeof(a); }" "8"
 assert "int main() { int a=12; int b=sizeof(a); return b; }" "8"
+assert "int main() { return sizeof(int); }" "8"
+assert "int main() { return sizeof(int*); }" "8"
 assert "int main() { int a=23; int *p=&a; return *p; }" "23"
 assert "int main() { int a=23; int *p=&a; int b=*p; return b; }" "23"
 assert "int main() { int a=12; int b=23; int *p=&a; p=p+1; return *p; }" "23"
