@@ -123,6 +123,23 @@ void gen_expr(Node *node) {
     printf(".L.lte.end.%d:\n", label);
     break;
   }
+  case ND_AND: {
+    int label = label_cnt++;
+    gen_expr(node->lhs);
+    gen_expr(node->rhs);
+    printf("    pop rbx\n");
+    printf("    pop rax\n");
+    printf("    cmp rax, 0\n");
+    printf("    je .L.and.false.%d\n", label);
+    printf("    cmp rbx, 0\n");
+    printf("    je .L.and.false.%d\n", label);
+    printf("    push 1\n");
+    printf("    jmp .L.and.end.%d\n", label);
+    printf(".L.and.false.%d:\n", label);
+    printf("    push 0\n");
+    printf(".L.and.end.%d:\n", label);
+    break;
+  }
   case ND_REF:
     gen_addr(node->lhs);
     break;

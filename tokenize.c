@@ -49,7 +49,8 @@ Token *tokenize(char *input) {
     // puctuator (two letters)
     if (strncmp(p, "++", 2) == 0 || strncmp(p, "--", 2) == 0 ||
         strncmp(p, "==", 2) == 0 || strncmp(p, "!=", 2) == 0 ||
-        strncmp(p, "<=", 2) == 0 || strncmp(p, ">=", 2) == 0) {
+        strncmp(p, "<=", 2) == 0 || strncmp(p, ">=", 2) == 0 ||
+        strncmp(p, "&&", 2) == 0) {
       Token *tok = calloc(1, sizeof(Token));
       tok->kind = TK_PUNCT;
       tok->loc = p;
