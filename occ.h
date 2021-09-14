@@ -63,6 +63,7 @@ typedef enum NodeKind {
   ND_LT,      // <
   ND_LTE,     // <=
   ND_AND,     // &&
+  ND_OR,      // ||
   ND_REF,     // address operator &
   ND_DEREF,   // dereference operator *
   ND_VAR,     // variable

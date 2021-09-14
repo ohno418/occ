@@ -233,13 +233,17 @@ Node *assign(Token *tok, Token **rest) {
   return node;
 }
 
-// logical = relation ("&&" relation)*
+// logical = relation ("&&" relation | "||" relation)*
 Node *logical(Token *tok, Token **rest) {
   Token *start = tok;
   Node *node = relation(tok, &tok);
 
+  // TODO: loop
   if (equal(tok, "&&"))
     node = new_binary_node(ND_AND, node, relation(tok->next, &tok), start);
+
+  if (equal(tok, "||"))
+    node = new_binary_node(ND_OR, node, relation(tok->next, &tok), start);
 
   *rest = tok;
   return node;
