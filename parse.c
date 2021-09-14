@@ -238,12 +238,19 @@ Node *logical(Token *tok, Token **rest) {
   Token *start = tok;
   Node *node = relation(tok, &tok);
 
-  // TODO: loop
-  if (equal(tok, "&&"))
-    node = new_binary_node(ND_AND, node, relation(tok->next, &tok), start);
+  for (;;) {
+    if (equal(tok, "&&")) {
+      node = new_binary_node(ND_AND, node, relation(tok->next, &tok), start);
+      continue;
+    }
 
-  if (equal(tok, "||"))
-    node = new_binary_node(ND_OR, node, relation(tok->next, &tok), start);
+    if (equal(tok, "||")) {
+      node = new_binary_node(ND_OR, node, relation(tok->next, &tok), start);
+      continue;
+    }
+
+    break;
+  }
 
   *rest = tok;
   return node;

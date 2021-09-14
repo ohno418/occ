@@ -115,6 +115,12 @@ assert "int main() { if (0 || 1) return 12; else return 23; }" "12"
 assert "int main() { if (0 || 0) return 12; else return 23; }" "23"
 assert "int main() { int a=42; if (a<40 && a==42) return 12; else return 23; }" "23"
 assert "int main() { int a=42; if (a<40 || a==42) return 12; else return 23; }" "12"
+assert "int main() { if (0 || 0 || 0 || 0 || 1) return 12; else return 23; }" "12"
+assert "int main() { if (0 || 0 || 0 || 0 || 0) return 12; else return 23; }" "23"
+assert "int main() { if (1 && 1 && 1) return 12; else return 23; }" "12"
+assert "int main() { if (1 && 1 || 0) return 12; else return 23; }" "12"
+assert "int main() { if (0 || 0 && 1) return 12; else return 23; }" "23"
+assert "int main() { if (0 || 1 && 1) return 12; else return 23; }" "12"
 
 echo OK
 exit 0
