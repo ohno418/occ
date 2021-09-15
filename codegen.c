@@ -173,10 +173,10 @@ void gen_expr(Node *node) {
     printf("    push rax\n");
     break;
   case ND_ASSIGN:
-    gen_expr(node->rhs);
     gen_addr(node->lhs);
-    printf("    pop rax\n");
+    gen_expr(node->rhs);
     printf("    pop rbx\n");
+    printf("    pop rax\n");
     printf("    mov [rax], rbx\n");
     printf("    push rbx\n");
     break;
