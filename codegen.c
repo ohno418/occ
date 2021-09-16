@@ -5,7 +5,8 @@ Function *cur_func;
 int label_cnt = 0;
 
 // regsiters for function arguments
-char *arg_regs[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+char *arg_64_regs[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+char *arg_32_regs[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
 
 void gen_expr(Node *node);
 
@@ -176,7 +177,10 @@ void gen_expr(Node *node) {
   case ND_VAR:
     gen_addr(node);
     printf("    pop rax\n");
-    printf("    mov rax, [rax]\n");
+    if (node->var->ty->size == 4)
+      printf("    mov eax, [rax]\n");
+    else
+      printf("    mov rax, [rax]\n");
     printf("    push rax\n");
     break;
   case ND_ASSIGN:
@@ -184,20 +188,22 @@ void gen_expr(Node *node) {
     gen_expr(node->rhs);
     printf("    pop rbx\n");
     printf("    pop rax\n");
-    printf("    mov [rax], rbx\n");
+    if (size(node->lhs) == 4)
+      printf("    mov [rax], ebx\n");
+    else
+      printf("    mov [rax], rbx\n");
     printf("    push rbx\n");
     break;
   case ND_FUNCALL:
     int i = 0;
     for (Node *arg = node->args; arg; arg = arg->next) {
       if (!arg) {
-        printf("d/0\n");
         break;
       }
 
       gen_expr(arg);
       printf("    pop rax\n");
-      printf("    mov %s, rax\n", arg_regs[i]);
+      printf("    mov %s, rax\n", arg_64_regs[i]);
       i++;
     }
 
@@ -278,7 +284,10 @@ void prologue(Var *lvars) {
 
     printf("    mov rax, rbp\n");
     printf("    sub rax, %d\n", lv->offset);
-    printf("    mov [rax], %s\n", arg_regs[i]);
+    if (lv->ty->size == 4)
+      printf("    mov [rax], %s\n", arg_32_regs[i]);
+    else
+      printf("    mov [rax], %s\n", arg_64_regs[i]);
     i++;
   }
 }

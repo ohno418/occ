@@ -146,3 +146,4 @@ struct Type {
 
 Type *ty_int();
 Type *ty_ptr();
+int size(Node *node);

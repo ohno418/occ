@@ -515,7 +515,7 @@ Node *primary(Token *tok, Token **rest) {
 void assign_lvar_offsets(Function *func) {
   int offset = 0;
   for (Var *v = lvars; v; v = v->next) {
-    offset += 8;
+    offset += v->ty->size;
     v->offset = offset;
   }
 }
