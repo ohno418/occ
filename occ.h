@@ -13,6 +13,7 @@ typedef struct Type Type;
  */
 typedef enum TokenKind {
   TK_NUM,   // number
+  TK_CHAR,  // char
   TK_PUNCT, // punctuator
   TK_IDENT, // identifier
   TK_KW,    // keyword
@@ -54,6 +55,7 @@ typedef enum NodeKind {
   ND_BLOCK,   // compound statement (block)
 
   ND_NUM,     // number
+  ND_CHAR,    // character
   ND_ADD,     // +
   ND_SUB,     // -
   ND_MUL,     // *
@@ -83,6 +85,7 @@ struct Node {
   Node *rhs;  // right-hand
 
   // ND_NUM
+  // ND_CHAR
   int num;
 
   // ND_VAR
@@ -129,6 +132,7 @@ void codegen(Function *prog);
  * type.c
  */
 typedef enum TypeKind {
+  TY_CHAR,
   TY_INT,
   TY_PTR,
 } TypeKind;
@@ -144,6 +148,7 @@ struct Type {
   char *name;
 };
 
+Type *ty_char();
 Type *ty_int();
 Type *ty_ptr();
 int size(Node *node);

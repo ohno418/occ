@@ -27,6 +27,31 @@ Token *tokenize(char *input) {
       continue;
     }
 
+    // character (e.g. 'a')
+    if (*p == '\'') {
+      char *start = p;
+      p++;
+
+      if (!((65 <= *p && *p <= 90) || (97 <= *p && *p <= 122))) {
+        fprintf(stderr, "invalid character: %s\n", p);
+        exit(1);
+      }
+      p++;
+
+      if (*p != '\'') {
+        fprintf(stderr, "unclosed character: %s\n", start);
+        exit(1);
+      }
+      p++;
+
+      Token *tok = calloc(1, sizeof(Token));
+      tok->kind = TK_CHAR;
+      tok->loc = start;
+      tok->len = 3;
+      cur = cur->next = tok;
+      continue;
+    }
+
     // keyword / identifier
     if (isalpha(*p)) {
       char *start = p;
@@ -38,8 +63,9 @@ Token *tokenize(char *input) {
       tok->len = p - start;
 
       // keyword
-      if (equal(tok, "return") || equal(tok, "int") || equal(tok, "sizeof") ||
-          equal(tok, "if") || equal(tok, "else") || equal(tok, "for"))
+      if (equal(tok, "return") || equal(tok, "sizeof") ||
+          equal(tok, "if") || equal(tok, "else") || equal(tok, "for") ||
+          equal(tok, "int") || equal(tok, "char"))
         tok->kind = TK_KW;
 
       cur = cur->next = tok;

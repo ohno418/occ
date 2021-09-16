@@ -38,6 +38,9 @@ void gen_expr(Node *node) {
   case ND_NUM:
     printf("    push %d\n", node->num);
     break;
+  case ND_CHAR:
+    printf("    push %d\n", node->num);
+    break;
   case ND_ADD:
     gen_expr(node->lhs);
     gen_expr(node->rhs);

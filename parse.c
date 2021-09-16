@@ -82,19 +82,20 @@ Node *new_sub_node(Node *lhs, Node *rhs, Token *tok) {
   return new_binary_node(ND_SUB, lhs, rhs, tok);
 }
 
-bool is_typename(Token *tok) {
+Type *is_typename(Token *tok) {
   if (equal(tok, "int"))
     return ty_int();
+
+  if (equal(tok, "char"))
+    return ty_char();
 
   return NULL;
 }
 
 // type_with_name = type-name "*"? var-name?
 Type *type_with_name(Token *tok, Token **rest) {
-  Type *ty;
-  if (equal(tok, "int")) {
-    ty = ty_int();
-  } else {
+  Type *ty = is_typename(tok);
+  if (!ty) {
     fprintf(stderr, "not type name: %s\n", tok->loc);
     exit(1);
   }
@@ -391,6 +392,7 @@ Node *func_call(Token *tok, Token **rest) {
 }
 
 // primary = number
+//         | char
 //         | ident "(" ")"
 //         | "sizeof" "(" ident ")"
 //         | "&" primary
@@ -402,6 +404,17 @@ Node *primary(Token *tok, Token **rest) {
   // number
   if (tok->kind == TK_NUM) {
     Node *node = new_num_node(atoi(strndup(tok->loc, tok->len)), tok);
+    *rest = tok->next;
+    return node;
+  }
+
+  // char
+  if (tok->kind == TK_CHAR) {
+    char c = strndup(tok->loc, tok->len)[1];
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_CHAR;
+    node->tok = tok;
+    node->num = c;
     *rest = tok->next;
     return node;
   }
