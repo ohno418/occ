@@ -133,6 +133,8 @@ assert "int main() { char c='Z'; return c; }" "90"
 assert "int main() { char c='a'; return sizeof(c); }" "1"
 assert "int main() { char c='a'; return sizeof(char); }" "1"
 assert "int main() { char c='a'; return sizeof(char*); }" "8"
+assert "int main() { int a; a=42; return a; }" "42"
+assert "int main() { int a; int b; a=42; return a; }" "42"
 
 echo OK
 exit 0
