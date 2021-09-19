@@ -23,10 +23,17 @@ void consume(Token **rest, char *str) {
 
 // List of local vars of current function.
 Var *lvars;
+// List of global vars.
+Var *gvars;
 
 void register_lvar(Var *var) {
   var->next = lvars;
   lvars = var;
+}
+
+void register_gvar(Var *var) {
+  var->next = gvars;
+  gvars = var;
 }
 
 Var *new_lvar(Type *ty, char *name, bool is_arg) {
@@ -38,8 +45,15 @@ Var *new_lvar(Type *ty, char *name, bool is_arg) {
   return var;
 }
 
-Var *find_lvar(char *name) {
+Var *find_var(char *name) {
+  // find from local variables
   for (Var *v = lvars; v; v = v->next)
+    if (strlen(v->name) == strlen(name) &&
+        strncmp(v->name, name, strlen(name)) == 0)
+      return v;
+
+  // find from global variables
+  for (Var *v = gvars; v; v = v->next)
     if (strlen(v->name) == strlen(name) &&
         strncmp(v->name, name, strlen(name)) == 0)
       return v;
@@ -439,12 +453,12 @@ Node *primary(Token *tok, Token **rest) {
     } else {
       // variable
       char *var_name = strndup(operand_tok->loc, operand_tok->len);
-      Var *lvar = find_lvar(var_name);
-      if (!lvar) {
+      Var *var = find_var(var_name);
+      if (!var) {
         fprintf(stderr, "unknown variable \"%s\"\n", var_name);
         exit(1);
       }
-      node = new_num_node(lvar->ty->size, start);
+      node = new_num_node(var->ty->size, start);
       tok = tok->next;
     }
 
@@ -486,8 +500,8 @@ Node *primary(Token *tok, Token **rest) {
     Token *start = tok;
 
     Type *ty = type_with_name(tok, &tok);
-    Var *lvar = find_lvar(ty->name);
-    if (lvar) {
+    Var *var = find_var(ty->name);
+    if (var) {
       fprintf(stderr, "variable \"%s\" is already declared\n", ty->name);
       exit(1);
     }
@@ -504,8 +518,8 @@ Node *primary(Token *tok, Token **rest) {
   // existing variable
   if (tok->kind == TK_IDENT) {
     char *var_name = strndup(tok->loc, tok->len);
-    Var *lvar = find_lvar(var_name);
-    if (!lvar) {
+    Var *var = find_var(var_name);
+    if (!var) {
       fprintf(stderr, "unknown variable \"%s\"\n", var_name);
       exit(1);
     }
@@ -513,7 +527,7 @@ Node *primary(Token *tok, Token **rest) {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
     node->tok = tok;
-    node->var = lvar;
+    node->var = var;
     *rest = tok->next;
     return node;
   }
@@ -523,6 +537,24 @@ Node *primary(Token *tok, Token **rest) {
 
   fprintf(stderr, "unknown primary: %s\n", tok->loc);
   exit(1);
+}
+
+bool is_gvar(Token *tok) {
+  type_with_name(tok, &tok);
+  return !equal(tok, "(");
+}
+
+// gvar = type-name ident ";"
+void gvar(Token *tok, Token **rest) {
+  Type *ty = type_with_name(tok, &tok);
+  Var *var = calloc(1, sizeof(Var));
+  var->name = ty->name;
+  var->ty = ty;
+  var->is_global = true;
+  register_gvar(var);
+
+  consume(&tok, ";");
+  *rest = tok;
 }
 
 void assign_lvar_offsets(Function *func) {
@@ -577,13 +609,19 @@ Function *function(Token *tok, Token **rest) {
   return func;
 }
 
-// prog = function*
+// prog = (gvar | function)*
 Function *parse(Token *tok) {
   Function head;
   Function *cur = &head;
 
-  for (; tok->kind != TK_EOF;)
+  for (; tok->kind != TK_EOF;) {
+    if (is_gvar(tok)) {
+      gvar(tok, &tok);
+      continue;
+    }
+
     cur = cur->next = function(tok, &tok);
+  }
 
   return head.next;
 }

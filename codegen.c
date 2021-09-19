@@ -178,8 +178,12 @@ void gen_expr(Node *node) {
     printf("    push rax\n");
     break;
   case ND_VAR:
-    gen_addr(node);
-    printf("    pop rax\n");
+    if (node->var->is_global) {
+      // FIXME: Handle global var.
+    } else {
+      gen_addr(node);
+      printf("    pop rax\n");
+    }
     if (node->var->ty->size == 4)
       printf("    mov eax, [rax]\n");
     else
@@ -302,9 +306,18 @@ void epilogue() {
   printf("    ret\n");
 }
 
+void gen_gvars() {
+  for (Var *g = gvars; g; g = g->next) {
+    printf("%s:\n", g->name);
+    printf("    .zero %d\n", g->ty->size);
+  }
+}
+
 void codegen(Function *prog) {
   printf("    .intel_syntax noprefix\n");
   printf("    .globl main\n");
+
+  gen_gvars();
 
   for (Function *f = prog; f; f = f->next) {
     cur_func = f;

@@ -40,6 +40,8 @@ struct Var {
   int offset;
   Var *next;
 
+  // global variable
+  bool is_global;
   // function argument
   bool is_arg;
 };
@@ -118,6 +120,8 @@ struct Function {
 
 bool equal(Token *tok, char *str);
 
+// list of global variables
+extern Var *gvars;
 Function *parse(Token *tok);
 
 // debugger
