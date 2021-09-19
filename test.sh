@@ -138,7 +138,9 @@ assert "int main() { int a; int b; a=42; return a; }" "42"
 assert "int g; int main() { g=42; return g; }" "42"
 assert "int ga; int gb; int main() { ga=42; gb=3; return ga; }" "42"
 assert "int ga; int gb; int main() { ga=42; gb=3; return gb; }" "3"
-# assert "int g=42; int main() { return g; }" "42"
+assert "int g; int main() { return sizeof(g); }" "4"
+assert "char g; int main() { return sizeof(g); }" "1"
+assert "int *g; int main() { return sizeof(g); }" "8"
 
 echo OK
 exit 0
