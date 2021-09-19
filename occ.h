@@ -154,5 +154,5 @@ struct Type {
 
 Type *ty_char();
 Type *ty_int();
-Type *ty_ptr();
+Type *ty_ptr(Type *base);
 int size(Node *node);
