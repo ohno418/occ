@@ -315,13 +315,12 @@ void gen_gvars() {
 
 void codegen(Function *prog) {
   printf("    .intel_syntax noprefix\n");
-  printf("    .globl main\n");
-
   gen_gvars();
 
   for (Function *f = prog; f; f = f->next) {
     cur_func = f;
 
+    printf("    .globl %s\n", f->name);
     printf("%s:\n", f->name);
     prologue(f->lvars);
 
