@@ -18,8 +18,7 @@ void gen_addr(Node *node) {
       printf("    lea rax, %s[rip]\n", node->var->name);
       printf("    push rax\n");
     } else {
-      printf("    mov rax, rbp\n");
-      printf("    sub rax, %d\n", node->var->offset);
+      printf("    lea rax, -%d[rbp]\n", node->var->offset);
       printf("    push rax\n");
     }
     return;
