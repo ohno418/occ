@@ -306,17 +306,17 @@ void epilogue() {
   printf("    ret\n");
 }
 
-void gen_gvars() {
+void emit_data() {
+  printf("    .data\n");
   for (Var *g = gvars; g; g = g->next) {
+    printf("    .globl %s\n", g->name);
     printf("%s:\n", g->name);
     printf("    .zero %d\n", g->ty->size);
   }
 }
 
-void codegen(Function *prog) {
-  printf("    .intel_syntax noprefix\n");
-  gen_gvars();
-
+void emit_text(Function *prog) {
+  printf("    .text\n");
   for (Function *f = prog; f; f = f->next) {
     cur_func = f;
 
@@ -329,4 +329,10 @@ void codegen(Function *prog) {
 
     epilogue();
   }
+}
+
+void codegen(Function *prog) {
+  printf("    .intel_syntax noprefix\n");
+  emit_data();
+  emit_text(prog);
 }
