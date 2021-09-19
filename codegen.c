@@ -14,9 +14,14 @@ void gen_expr(Node *node);
 void gen_addr(Node *node) {
   switch (node->kind) {
   case ND_VAR:
-    printf("    mov rax, rbp\n");
-    printf("    sub rax, %d\n", node->var->offset);
-    printf("    push rax\n");
+    if (node->var->is_global) {
+      printf("    lea rax, %s[rip]\n", node->var->name);
+      printf("    push rax\n");
+    } else {
+      printf("    mov rax, rbp\n");
+      printf("    sub rax, %d\n", node->var->offset);
+      printf("    push rax\n");
+    }
     return;
   case ND_DEREF:
     gen_expr(node->lhs);
@@ -178,12 +183,8 @@ void gen_expr(Node *node) {
     printf("    push rax\n");
     break;
   case ND_VAR:
-    if (node->var->is_global) {
-      // FIXME: Handle global var.
-    } else {
-      gen_addr(node);
-      printf("    pop rax\n");
-    }
+    gen_addr(node);
+    printf("    pop rax\n");
     if (node->var->ty->size == 4)
       printf("    mov eax, [rax]\n");
     else
