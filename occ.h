@@ -139,6 +139,7 @@ typedef enum TypeKind {
   TY_CHAR,
   TY_INT,
   TY_PTR,
+  TY_ARRAY,
 } TypeKind;
 
 struct Type {
@@ -146,6 +147,7 @@ struct Type {
   int size;
 
   // TY_PTR
+  // TY_ARRAY
   Type *base;
 
   // variable (or function) name holder
@@ -155,4 +157,5 @@ struct Type {
 Type *ty_char();
 Type *ty_int();
 Type *ty_ptr(Type *base);
+Type *ty_array(Type *base, int num);
 int size(Node *node);

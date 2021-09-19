@@ -22,6 +22,14 @@ Type *ty_ptr(Type *base) {
   return ty;
 }
 
+Type *ty_array(Type *base, int num) {
+  Type *ty = calloc(1, sizeof(Type));
+  ty->kind = TY_ARRAY;
+  ty->size = base->size * num;
+  ty->base = base;
+  return ty;
+}
+
 int size(Node *node) {
   switch (node->kind) {
   case ND_VAR:

@@ -106,7 +106,7 @@ Type *is_typename(Token *tok) {
   return NULL;
 }
 
-// type_with_name = type-name "*"? var-name?
+// type_with_name = type-name "*"? var-name? ("[" num "]")?
 Type *type_with_name(Token *tok, Token **rest) {
   Type *ty = is_typename(tok);
   if (!ty) {
@@ -123,6 +123,20 @@ Type *type_with_name(Token *tok, Token **rest) {
   if (tok->kind == TK_IDENT) {
     ty->name = strndup(tok->loc, tok->len);
     tok = tok->next;
+  }
+
+  if (equal(tok, "[")) {
+    tok = tok->next;
+    if (tok->kind != TK_NUM) {
+      fprintf(stderr, "expected a number: %s\n", tok->loc);
+      exit(1);
+    }
+
+    char *name = ty->name;
+    ty = ty_array(ty, atoi(strndup(tok->loc, tok->len)));
+    ty->name = name;
+    tok = tok->next;
+    consume(&tok, "]");
   }
 
   *rest = tok;
