@@ -35,7 +35,7 @@ int size(Node *node) {
   case ND_VAR:
     return node->var->ty->size;
   case ND_DEREF:
-    return size(node->lhs);
+    return node->lhs->var->ty->base->size;
   default:
     fprintf(stderr, "unknown size of node: kind=%d\n", node->kind);
     exit(1);

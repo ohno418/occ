@@ -178,7 +178,10 @@ void gen_expr(Node *node) {
   case ND_DEREF:
     gen_expr(node->lhs);
     printf("    pop rax\n");
-    printf("    mov rax, [rax]\n");
+    if (size(node->lhs) == 4)
+      printf("    mov eax, [rax]\n");
+    else
+      printf("    mov rax, [rax]\n");
     printf("    push rax\n");
     break;
   case ND_VAR:
