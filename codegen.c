@@ -8,6 +8,26 @@ int label_cnt = 0;
 char *arg_64_regs[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 char *arg_32_regs[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
 
+// Load a value from where the stack top is pointing to.
+void load(Type *ty) {
+  printf("    pop rax\n");
+  if (ty->size == 4)
+    printf("    mov eax, [rax]\n");
+  else
+    printf("    mov rax, [rax]\n");
+  printf("    push rax\n");
+}
+
+// Store RAX value to an address of the stack top.
+void store(Type *ty) {
+  printf("    pop rbx\n");
+  if (ty->size == 4)
+    printf("    mov [rbx], eax\n");
+  else
+    printf("    mov [rbx], rax\n");
+  printf("    push rax\n");
+}
+
 void gen_expr(Node *node);
 
 // Push the address to the stack.
@@ -177,32 +197,17 @@ void gen_expr(Node *node) {
     break;
   case ND_DEREF:
     gen_expr(node->lhs);
-    printf("    pop rax\n");
-    if (size(node->lhs) == 4)
-      printf("    mov eax, [rax]\n");
-    else
-      printf("    mov rax, [rax]\n");
-    printf("    push rax\n");
+    load(type_of(node->lhs));
     break;
   case ND_VAR:
     gen_addr(node);
-    printf("    pop rax\n");
-    if (node->var->ty->size == 4)
-      printf("    mov eax, [rax]\n");
-    else
-      printf("    mov rax, [rax]\n");
-    printf("    push rax\n");
+    load(type_of(node));
     break;
   case ND_ASSIGN:
     gen_addr(node->lhs);
     gen_expr(node->rhs);
-    printf("    pop rbx\n");
     printf("    pop rax\n");
-    if (size(node->lhs) == 4)
-      printf("    mov [rax], ebx\n");
-    else
-      printf("    mov [rax], rbx\n");
-    printf("    push rbx\n");
+    store(type_of(node->lhs));
     break;
   case ND_FUNCALL:
     int i = 0;

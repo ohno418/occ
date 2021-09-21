@@ -158,4 +158,4 @@ Type *ty_char();
 Type *ty_int();
 Type *ty_ptr(Type *base);
 Type *ty_array(Type *base, int num);
-int size(Node *node);
+Type *type_of(Node *node);

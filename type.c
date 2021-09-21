@@ -30,12 +30,12 @@ Type *ty_array(Type *base, int num) {
   return ty;
 }
 
-int size(Node *node) {
+Type *type_of(Node *node) {
   switch (node->kind) {
   case ND_VAR:
-    return node->var->ty->size;
+    return node->var->ty;
   case ND_DEREF:
-    return node->lhs->var->ty->base->size;
+    return node->lhs->var->ty->base;
   default:
     fprintf(stderr, "unknown size of node: kind=%d\n", node->kind);
     exit(1);
