@@ -10,6 +10,9 @@ char *arg_32_regs[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
 
 // Load a value from where the stack top is pointing to.
 void load(Type *ty) {
+  if (ty->kind == TY_ARRAY)
+    return;
+
   printf("    pop rax\n");
   if (ty->size == 4)
     printf("    mov eax, [rax]\n");
@@ -197,7 +200,7 @@ void gen_expr(Node *node) {
     break;
   case ND_DEREF:
     gen_expr(node->lhs);
-    load(type_of(node->lhs));
+    load(type_of(node));
     break;
   case ND_VAR:
     gen_addr(node);
