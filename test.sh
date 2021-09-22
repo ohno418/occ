@@ -162,12 +162,12 @@ assert "int main() { int arr[3]; arr[0]=3; arr[1]=4; arr[2]=5; return arr[2]; }"
 assert "int arr[3]; int main() { int *p=arr; *p=3; p++; *p=4; p++; *p=5; return arr[0]; }" "3"
 assert "int arr[3]; int main() { int *p=arr; *p=3; p++; *p=4; p++; *p=5; return arr[1]; }" "4"
 assert "int arr[3]; int main() { int *p=arr; *p=3; p++; *p=4; p++; *p=5; return arr[2]; }" "5"
-# assert "int main() { char arr[3]; char *p=arr; *p='a'; p++; *p='b'; p++; *p='c'; return arr[0]; }" "97"
-# assert "int main() { char arr[3]; char *p=arr; *p='a'; p++; *p='b'; p++; *p='c'; return arr[1]; }" "98"
-# assert "int main() { char arr[3]; char *p=arr; *p='a'; p++; *p='b'; p++; *p='c'; return arr[2]; }" "99"
-# assert "int main() { char arr[3]; arr[0]='a'; arr[1]='b'; arr[2]='c'; return arr[0]; }" "97"
-# assert "int main() { char arr[3]; arr[0]='a'; arr[1]='b'; arr[2]='c'; return arr[1]; }" "98"
-# assert "int main() { char arr[3]; arr[0]='a'; arr[1]='b'; arr[2]='c'; return arr[2]; }" "99"
+assert "int main() { char arr[3]; char *p=arr; *p='a'; p++; *p='b'; p++; *p='c'; return arr[0]; }" "97"
+assert "int main() { char arr[3]; char *p=arr; *p='a'; p++; *p='b'; p++; *p='c'; return arr[1]; }" "98"
+assert "int main() { char arr[3]; char *p=arr; *p='a'; p++; *p='b'; p++; *p='c'; return arr[2]; }" "99"
+assert "int main() { char arr[3]; arr[0]='a'; arr[1]='b'; arr[2]='c'; return arr[0]; }" "97"
+assert "int main() { char arr[3]; arr[0]='a'; arr[1]='b'; arr[2]='c'; return arr[1]; }" "98"
+assert "int main() { char arr[3]; arr[0]='a'; arr[1]='b'; arr[2]='c'; return arr[2]; }" "99"
 
 echo OK
 exit 0

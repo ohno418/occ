@@ -14,20 +14,40 @@ void load(Type *ty) {
     return;
 
   printf("    pop rax\n");
-  if (ty->size == 4)
+  switch (ty->size) {
+  case 1:
+    printf("    movzx rax, BYTE PTR [rax]\n");
+    break;
+  case 4:
     printf("    mov eax, [rax]\n");
-  else
+    break;
+  case 8:
     printf("    mov rax, [rax]\n");
+    break;
+  default:
+    fprintf(stderr, "unknown size of variable: TypeKind=%d, Size=%d\n", ty->kind, ty->size);
+    exit(1);
+  }
   printf("    push rax\n");
 }
 
 // Store RAX value to an address of the stack top.
 void store(Type *ty) {
   printf("    pop rbx\n");
-  if (ty->size == 4)
+  switch (ty->size) {
+  case 1:
+    printf("    mov BYTE PTR [rbx], al\n");
+    break;
+  case 4:
     printf("    mov [rbx], eax\n");
-  else
+    break;
+  case 8:
     printf("    mov [rbx], rax\n");
+    break;
+  default:
+    fprintf(stderr, "unknown size of variable: TypeKind=%d, Size=%d\n", ty->kind, ty->size);
+    exit(1);
+  }
   printf("    push rax\n");
 }
 
