@@ -80,7 +80,7 @@ Node *new_binary_node(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
 
 Node *new_add_node(Node *lhs, Node *rhs, Token *tok) {
   // pointer + number
-  if (lhs->kind == ND_VAR && lhs->var->ty->kind == TY_PTR)
+  if (lhs->kind == ND_VAR && lhs->var->ty->base)
     rhs = new_binary_node(ND_MUL, rhs,
         new_num_node(lhs->var->ty->base->size, NULL), tok);
 
@@ -89,7 +89,7 @@ Node *new_add_node(Node *lhs, Node *rhs, Token *tok) {
 
 Node *new_sub_node(Node *lhs, Node *rhs, Token *tok) {
   // pointer - number
-  if (lhs->kind == ND_VAR && lhs->var->ty->kind == TY_PTR)
+  if (lhs->kind == ND_VAR && lhs->var->ty->base)
     rhs = new_binary_node(ND_MUL, rhs,
         new_num_node(lhs->var->ty->base->size, NULL), tok);
 
@@ -433,9 +433,27 @@ Node *func_call(Token *tok, Token **rest) {
   return node;
 }
 
+// existing_var = var-name
+Node *existing_var(Token *tok, Token **rest) {
+  char *var_name = strndup(tok->loc, tok->len);
+  Var *var = find_var(var_name);
+  if (!var) {
+    fprintf(stderr, "unknown variable \"%s\"\n", var_name);
+    exit(1);
+  }
+
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_VAR;
+  node->tok = tok;
+  node->var = var;
+  *rest = tok->next;
+  return node;
+}
+
 // primary = number
 //         | char
 //         | ident "(" ")"
+//         | ident "[" num "]"
 //         | "sizeof" "(" ident ")"
 //         | "&" primary
 //         | "*" parentheses
@@ -464,6 +482,24 @@ Node *primary(Token *tok, Token **rest) {
   // function call
   if (tok->kind == TK_IDENT && equal(tok->next, "("))
     return func_call(tok, rest);
+
+  // array indexing
+  //   `arr[3]` is equal to `*(arr+3)`
+  if (tok->kind == TK_IDENT && equal(tok->next, "[")) {
+    Token *start = tok;
+    tok = tok->next->next;
+
+    Node *num_node = new_num_node(atoi(strndup(tok->loc, tok->len)), tok);
+    tok = tok->next;
+    consume(&tok, "]");
+    *rest = tok;
+
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_DEREF;
+    node->tok = start;
+    node->lhs = new_add_node(existing_var(start, &tok), num_node, start);;
+    return node;
+  }
 
   // sizeof
   if (equal(tok, "sizeof")) {
@@ -544,21 +580,8 @@ Node *primary(Token *tok, Token **rest) {
   }
 
   // existing variable
-  if (tok->kind == TK_IDENT) {
-    char *var_name = strndup(tok->loc, tok->len);
-    Var *var = find_var(var_name);
-    if (!var) {
-      fprintf(stderr, "unknown variable \"%s\"\n", var_name);
-      exit(1);
-    }
-
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_VAR;
-    node->tok = tok;
-    node->var = var;
-    *rest = tok->next;
-    return node;
-  }
+  if (tok->kind == TK_IDENT)
+    return existing_var(tok, rest);
 
   if (equal(tok, ";"))
     return NULL;
