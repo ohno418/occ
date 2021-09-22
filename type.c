@@ -35,7 +35,9 @@ Type *type_of(Node *node) {
   case ND_VAR:
     return node->var->ty;
   case ND_DEREF:
-    return node->lhs->var->ty->base;
+    return type_of(node->lhs)->base;
+  case ND_ADD:
+    return type_of(node->lhs);
   default:
     fprintf(stderr, "unknown size of node: kind=%d\n", node->kind);
     exit(1);

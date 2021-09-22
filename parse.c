@@ -438,7 +438,7 @@ Node *func_call(Token *tok, Token **rest) {
 //         | ident "(" ")"
 //         | "sizeof" "(" ident ")"
 //         | "&" primary
-//         | "*" primary
+//         | "*" parentheses
 //         | type-name ident
 //         | ident
 //         | (null)
@@ -512,7 +512,7 @@ Node *primary(Token *tok, Token **rest) {
   // dereference
   if (equal(tok, "*")) {
     Token *start = tok;
-    Node *lhs = primary(tok->next, &tok);
+    Node *lhs = parentheses(tok->next, &tok);
 
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_DEREF;
