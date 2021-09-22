@@ -150,6 +150,7 @@ Node *logical(Token *tok, Token **rest);
 Node *relation(Token *tok, Token **rest);
 Node *add(Token *tok, Token **rest);
 Node *mul(Token *tok, Token **rest);
+Node *parentheses(Token *tok, Token **rest);
 Node *postfix(Token *tok, Token **rest);
 Node *primary(Token *tok, Token **rest);
 
@@ -337,18 +338,18 @@ Node *add(Token *tok, Token **rest) {
   return node;
 }
 
-// mul = postfix ("*" postfix | "/" postfix)*
+// mul = parentheses ("*" parentheses | "/" parentheses)*
 Node *mul(Token *tok, Token **rest) {
-  Node *node = postfix(tok, &tok);
+  Node *node = parentheses(tok, &tok);
 
   for (;;) {
     if (equal(tok, "*")) {
-      node = new_binary_node(ND_MUL, node, postfix(tok->next, &tok), tok);
+      node = new_binary_node(ND_MUL, node, parentheses(tok->next, &tok), tok);
       continue;
     }
 
     if (equal(tok, "/")) {
-      node = new_binary_node(ND_DIV, node, postfix(tok->next, &tok), tok);
+      node = new_binary_node(ND_DIV, node, parentheses(tok->next, &tok), tok);
       continue;
     }
 
@@ -357,6 +358,19 @@ Node *mul(Token *tok, Token **rest) {
 
   *rest = tok;
   return node;
+}
+
+// parentheses = "(" expr ")"
+//             | postfix
+Node *parentheses(Token *tok, Token **rest) {
+  if (equal(tok, "(")) {
+    Node *node = expr(tok->next, &tok);
+    consume(&tok, ")");
+    *rest = tok;
+    return node;
+  }
+
+  return postfix(tok, rest);
 }
 
 // postfix = primary ("++" | "--")?
