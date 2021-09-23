@@ -8,7 +8,7 @@ void debug_tokens(Token *tok) {
       printf("---\n");
 
     printf("kind:\t%d\n", t->kind);
-    printf("loc:\t\"%s\"\n", t->loc);
+    printf("loc:\t%s\n", t->loc);
     printf("len:\t%d\n", t->len);
   }
   printf("=============\n");
