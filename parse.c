@@ -25,6 +25,9 @@ void consume(Token **rest, char *str) {
 Var *lvars;
 // List of global vars.
 Var *gvars;
+// List of string literals.
+// TODO
+char *strs[10];
 
 void register_lvar(Var *var) {
   var->next = lvars;
@@ -34,6 +37,11 @@ void register_lvar(Var *var) {
 void register_gvar(Var *var) {
   var->next = gvars;
   gvars = var;
+}
+
+void register_str(char *str) {
+  // TODO
+  strs[0] = str;
 }
 
 Var *new_lvar(Type *ty, char *name, bool is_arg) {
@@ -452,6 +460,7 @@ Node *existing_var(Token *tok, Token **rest) {
 
 // primary = number
 //         | char
+//         | string
 //         | ident "(" ")"
 //         | ident "[" num "]"
 //         | "sizeof" "(" ident ")"
@@ -475,6 +484,18 @@ Node *primary(Token *tok, Token **rest) {
     node->kind = ND_CHAR;
     node->tok = tok;
     node->num = c;
+    *rest = tok->next;
+    return node;
+  }
+
+  // string
+  if (tok->kind == TK_STR) {
+    char *str = strndup((tok->loc) + 1, tok->len-2);
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_STR;
+    node->tok = tok;
+    node->str = str;
+    register_str(str);
     *rest = tok->next;
     return node;
   }

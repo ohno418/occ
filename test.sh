@@ -168,6 +168,10 @@ assert "int main() { char arr[3]; char *p=arr; *p='a'; p++; *p='b'; p++; *p='c';
 assert "int main() { char arr[3]; arr[0]='a'; arr[1]='b'; arr[2]='c'; return arr[0]; }" "97"
 assert "int main() { char arr[3]; arr[0]='a'; arr[1]='b'; arr[2]='c'; return arr[1]; }" "98"
 assert "int main() { char arr[3]; arr[0]='a'; arr[1]='b'; arr[2]='c'; return arr[2]; }" "99"
+assert 'int main() { char str[4]="abc"; return str[0]; }' "97"
+assert 'int main() { char str[4]="abc"; return str[1]; }' "98"
+assert 'int main() { char str[4]="abc"; return str[2]; }' "99"
+assert 'int main() { char str[4]="abc"; return str[3]; }' "0"
 
 echo OK
 exit 0

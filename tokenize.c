@@ -52,6 +52,21 @@ Token *tokenize(char *input) {
       continue;
     }
 
+    // string (e.g. "Hello")
+    if (*p == '"') {
+      char *start = p;
+      // Find closing '"'.
+      for (p++; *p != '"'; p++);
+      p++;
+
+      Token *tok = calloc(1, sizeof(Token));
+      tok->kind = TK_STR;
+      tok->loc = start;
+      tok->len = p - start;
+      cur = cur->next = tok;
+      continue;
+    }
+
     // keyword / identifier
     if (isalpha(*p)) {
       char *start = p;

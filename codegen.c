@@ -88,6 +88,11 @@ void gen_expr(Node *node) {
   case ND_CHAR:
     printf("    push %d\n", node->num);
     break;
+  case ND_STR:
+    // TODO
+    printf("    mov rax, %s\n", node->str);
+    printf("    push rax\n");
+    break;
   case ND_ADD:
     gen_expr(node->lhs);
     gen_expr(node->rhs);
@@ -339,10 +344,21 @@ void epilogue() {
 
 void emit_data() {
   printf("    .data\n");
+
+  // Emit global variables.
   for (Var *g = gvars; g; g = g->next) {
     printf("    .globl %s\n", g->name);
     printf("%s:\n", g->name);
     printf("    .zero %d\n", g->ty->size);
+  }
+
+  // Emit string literals.
+  // TODO
+  for (int i = 0; strs[i]; i++) {
+    char *str = strs[i];
+    printf("    .globl %s\n", str);
+    printf("%s:\n", str);
+    printf("    .string \"%s\"\n", str);
   }
 }
 

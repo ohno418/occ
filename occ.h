@@ -14,6 +14,7 @@ typedef struct Type Type;
 typedef enum TokenKind {
   TK_NUM,   // number
   TK_CHAR,  // char
+  TK_STR,   // string
   TK_PUNCT, // punctuator
   TK_IDENT, // identifier
   TK_KW,    // keyword
@@ -58,6 +59,7 @@ typedef enum NodeKind {
 
   ND_NUM,     // number
   ND_CHAR,    // character
+  ND_STR,     // string
   ND_ADD,     // +
   ND_SUB,     // -
   ND_MUL,     // *
@@ -89,6 +91,9 @@ struct Node {
   // ND_NUM
   // ND_CHAR
   int num;
+
+  // ND_STR
+  char *str;
 
   // ND_VAR
   Var *var;
@@ -122,6 +127,9 @@ bool equal(Token *tok, char *str);
 
 // list of global variables
 extern Var *gvars;
+// list of string literals
+// TODO
+extern char *strs[10];
 Function *parse(Token *tok);
 
 // debugger
