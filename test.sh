@@ -172,6 +172,9 @@ assert 'int main() { char str[4]="abc"; return str[0]; }' "97"
 assert 'int main() { char str[4]="abc"; return str[1]; }' "98"
 assert 'int main() { char str[4]="abc"; return str[2]; }' "99"
 assert 'int main() { char str[4]="abc"; return str[3]; }' "0"
+assert 'int main() { char str[4]="abc"; return *str; }' "97"
+assert 'int main() { char str[4]="abc"; char *p = str; return *p; }' "97"
+assert 'int main() { char str[4]="abc"; char *p = str; p++; return *p; }' "98"
 
 echo OK
 exit 0
