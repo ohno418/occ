@@ -168,13 +168,22 @@ assert "int main() { char arr[3]; char *p=arr; *p='a'; p++; *p='b'; p++; *p='c';
 assert "int main() { char arr[3]; arr[0]='a'; arr[1]='b'; arr[2]='c'; return arr[0]; }" "97"
 assert "int main() { char arr[3]; arr[0]='a'; arr[1]='b'; arr[2]='c'; return arr[1]; }" "98"
 assert "int main() { char arr[3]; arr[0]='a'; arr[1]='b'; arr[2]='c'; return arr[2]; }" "99"
-assert 'int main() { char str[4]="abc"; return str[0]; }' "97"
-assert 'int main() { char str[4]="abc"; return str[1]; }' "98"
-assert 'int main() { char str[4]="abc"; return str[2]; }' "99"
-assert 'int main() { char str[4]="abc"; return str[3]; }' "0"
-assert 'int main() { char str[4]="abc"; return *str; }' "97"
-assert 'int main() { char str[4]="abc"; char *p = str; return *p; }' "97"
-assert 'int main() { char str[4]="abc"; char *p = str; p++; return *p; }' "98"
+assert 'int main() { char *str = "abc"; return str[0]; }' "97"
+assert 'int main() { char *str = "abc"; return str[1]; }' "98"
+assert 'int main() { char *str = "abc"; return str[2]; }' "99"
+assert 'int main() { char *str = "abc"; return str[3]; }' "0"
+assert 'int main() { char *str = "abc"; return sizeof(str); }' "8"
+
+# TODO:
+#   Initializing an array of characters is a little bit different from that of a pointer of characters,
+#   because it is necessary to assign every character to an element of an array.
+# assert 'int main() { char str[4]="abc"; return str[0]; }' "97"
+# assert 'int main() { char str[4]="abc"; return str[1]; }' "98"
+# assert 'int main() { char str[4]="abc"; return str[2]; }' "99"
+# assert 'int main() { char str[4]="abc"; return str[3]; }' "0"
+# assert 'int main() { char str[4]="abc"; return *str; }' "97"
+# assert 'int main() { char str[4]="abc"; char *p = str; return *p; }' "97"
+# assert 'int main() { char str[4]="abc"; char *p = str; p++; return *p; }' "98"
 
 echo OK
 exit 0

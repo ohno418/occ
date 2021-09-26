@@ -89,8 +89,7 @@ void gen_expr(Node *node) {
     printf("    push %d\n", node->num);
     break;
   case ND_STR:
-    // TODO
-    printf("    mov rax, %s[rip]\n", node->str);
+    printf("    lea rax, %s[rip]\n", node->str);
     printf("    push rax\n");
     break;
   case ND_ADD:
