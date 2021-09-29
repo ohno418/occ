@@ -26,8 +26,7 @@ Var *lvars;
 // List of global vars.
 Var *gvars;
 // List of string literals.
-// TODO
-char *strs[10];
+Node *strs;
 
 void register_lvar(Var *var) {
   var->next = lvars;
@@ -39,9 +38,9 @@ void register_gvar(Var *var) {
   gvars = var;
 }
 
-void register_str(char *str) {
-  // TODO
-  strs[0] = str;
+void register_str(Node *str) {
+  str->next = strs;
+  strs = str;
 }
 
 Var *new_lvar(Type *ty, char *name, bool is_arg) {
@@ -495,7 +494,7 @@ Node *primary(Token *tok, Token **rest) {
     node->kind = ND_STR;
     node->tok = tok;
     node->str = str;
-    register_str(str);
+    register_str(node);
     *rest = tok->next;
     return node;
   }

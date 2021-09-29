@@ -352,12 +352,11 @@ void emit_data() {
   }
 
   // Emit string literals.
-  // TODO
-  for (int i = 0; strs[i]; i++) {
-    char *str = strs[i];
-    printf("    .globl %s\n", str);
-    printf("%s:\n", str);
-    printf("    .string \"%s\"\n", str);
+  for (Node *str = strs; str; str = str->next) {
+    char *s = str->str;
+    printf("    .globl %s\n", s);
+    printf("%s:\n", s);
+    printf("    .string \"%s\"\n", s);
   }
 }
 

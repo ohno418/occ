@@ -128,8 +128,8 @@ bool equal(Token *tok, char *str);
 // list of global variables
 extern Var *gvars;
 // list of string literals
-// TODO
-extern char *strs[10];
+extern Node *strs;
+
 Function *parse(Token *tok);
 
 // debugger

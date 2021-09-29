@@ -173,6 +173,8 @@ assert 'int main() { char *str = "abc"; return str[1]; }' "98"
 assert 'int main() { char *str = "abc"; return str[2]; }' "99"
 assert 'int main() { char *str = "abc"; return str[3]; }' "0"
 assert 'int main() { char *str = "abc"; return sizeof(str); }' "8"
+assert 'int main() { char *str = "abc"; char *ss = "hello"; return str[0]; }' "97"
+assert 'int main() { char *str = "abc"; char *ss = "Hello"; return ss[0]; }' "72"
 
 # TODO:
 #   Initializing an array of characters is a little bit different from that of a pointer of characters,
