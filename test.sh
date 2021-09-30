@@ -2,7 +2,7 @@ assert() {
   input=$1
   expected=$2
 
-  echo "$input" | ./occ > tmp.s
+  echo "$input" | ./occ - > tmp.s
   gcc -o tmp tmp.s
   ./tmp
   actual=$?
@@ -175,6 +175,19 @@ assert 'int main() { char *str = "abc"; return str[3]; }' "0"
 assert 'int main() { char *str = "abc"; return sizeof(str); }' "8"
 assert 'int main() { char *str = "abc"; char *ss = "hello"; return str[0]; }' "97"
 assert 'int main() { char *str = "abc"; char *ss = "Hello"; return ss[0]; }' "72"
+
+# input from a file
+./occ test/sample.c > tmp.s
+gcc -o tmp tmp.s
+./tmp
+actual="$?"
+expected="42"
+if [ "$expected" = "$actual" ]; then
+  echo "$input => $actual"
+else
+  echo "$input => $expected expected, but got $actual"
+  exit 1
+fi
 
 # TODO:
 #   Initializing an array of characters is a little bit different from that of a pointer of characters,
