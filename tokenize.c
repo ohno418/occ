@@ -26,6 +26,12 @@ Token *tokenize(char *input) {
       p++;
       continue;
     }
+    // skip single line comment
+    if (strncmp(p, "//", 2) == 0) {
+      for (; *p != '\n'; p++);
+      p++;
+      continue;
+    }
 
     // character (e.g. 'a')
     if (*p == '\'') {
