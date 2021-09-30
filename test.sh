@@ -2,7 +2,7 @@ assert() {
   input=$1
   expected=$2
 
-  ./occ "$input" > tmp.s
+  echo "$input" | ./occ > tmp.s
   gcc -o tmp tmp.s
   ./tmp
   actual=$?

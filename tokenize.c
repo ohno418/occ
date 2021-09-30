@@ -22,7 +22,7 @@ Token *tokenize(char *input) {
 
   for (; *p;) {
     // skip spaces
-    if (*p == ' ') {
+    if (*p == ' ' || *p == '\n') {
       p++;
       continue;
     }
