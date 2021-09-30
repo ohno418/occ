@@ -26,10 +26,18 @@ Token *tokenize(char *input) {
       p++;
       continue;
     }
+
     // skip single line comment
     if (strncmp(p, "//", 2) == 0) {
       for (; *p != '\n'; p++);
       p++;
+      continue;
+    }
+
+    // skip multi-line comment
+    if (strncmp(p, "/*", 2) == 0) {
+      for (; strncmp(p, "*/", 2) != 0; p++);
+      p += 2;
       continue;
     }
 

@@ -177,7 +177,8 @@ assert 'int main() { char *str = "abc"; char *ss = "hello"; return str[0]; }' "9
 assert 'int main() { char *str = "abc"; char *ss = "Hello"; return ss[0]; }' "72"
 
 # input from a file
-./occ test/sample.c > tmp.s
+input=test/sample.c
+./occ "$input" > tmp.s
 gcc -o tmp tmp.s
 ./tmp
 actual="$?"
