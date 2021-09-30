@@ -21,7 +21,7 @@ Token *tokenize(char *input) {
   Token *cur = &head;;
 
   for (; *p;) {
-    // skip spaces
+    // skip space and '\n'
     if (*p == ' ' || *p == '\n') {
       p++;
       continue;
