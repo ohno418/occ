@@ -145,6 +145,7 @@ void codegen(Function *prog);
  * type.c
  */
 typedef enum TypeKind {
+  TY_VOID,
   TY_CHAR,
   TY_INT,
   TY_PTR,
@@ -163,6 +164,7 @@ struct Type {
   char *name;
 };
 
+Type *ty_void();
 Type *ty_char();
 Type *ty_int();
 Type *ty_ptr(Type *base);

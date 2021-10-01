@@ -175,6 +175,8 @@ assert 'int main() { char *str = "abc"; return str[3]; }' "0"
 assert 'int main() { char *str = "abc"; return sizeof(str); }' "8"
 assert 'int main() { char *str = "abc"; char *ss = "hello"; return str[0]; }' "97"
 assert 'int main() { char *str = "abc"; char *ss = "Hello"; return ss[0]; }' "72"
+assert 'void fnvoid() { "donothing"; } int main() { fnvoid();  return 42; }' "42"
+assert 'int main() { return sizeof(void); }' "1"
 
 # input from a file
 input=test/sample.c

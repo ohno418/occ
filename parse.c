@@ -104,11 +104,14 @@ Node *new_sub_node(Node *lhs, Node *rhs, Token *tok) {
 }
 
 Type *is_typename(Token *tok) {
-  if (equal(tok, "int"))
-    return ty_int();
+  if (equal(tok, "void"))
+    return ty_void();
 
   if (equal(tok, "char"))
     return ty_char();
+
+  if (equal(tok, "int"))
+    return ty_int();
 
   return NULL;
 }

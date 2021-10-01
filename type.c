@@ -1,5 +1,12 @@
 #include "occ.h"
 
+Type *ty_void() {
+  Type *ty = calloc(1, sizeof(Type));
+  ty->kind = TY_VOID;
+  ty->size = 1;
+  return ty;
+}
+
 Type *ty_char() {
   Type *ty = calloc(1, sizeof(Type));
   ty->kind = TY_CHAR;
