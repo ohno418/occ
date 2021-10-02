@@ -177,6 +177,8 @@ assert 'int main() { char *str = "abc"; char *ss = "hello"; return str[0]; }' "9
 assert 'int main() { char *str = "abc"; char *ss = "Hello"; return ss[0]; }' "72"
 assert 'void fnvoid() { "donothing"; } int main() { fnvoid();  return 42; }' "42"
 assert 'int main() { return sizeof(void); }' "1"
+assert 'int calc(int a, int b) { return a + b; } int main() { return calc(5, 6); }' "11"
+assert 'int calc(int a, int b) { return a + b; } int main() { int n = 12; return calc(n, 6); }' "18"
 
 # input from a file
 input=test/sample.c
