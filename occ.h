@@ -54,6 +54,7 @@ typedef enum NodeKind {
   //   - next: next statement
   ND_STMT,
   ND_RETURN,  // return
+  ND_BREAK,   // break
   ND_IF,      // if
   ND_FOR,     // for
   ND_BLOCK,   // compound statement (block)

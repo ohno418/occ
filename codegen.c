@@ -3,6 +3,9 @@
 Function *cur_func;
 
 int label_cnt = 0;
+// Within loop block, larger than or equal to 0.
+// Outsize of loop block, less than 0.
+int current_loop_label = -1;
 
 // regsiters for function arguments
 char *arg_64_regs[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
@@ -269,6 +272,13 @@ void gen_stmt(Node *node) {
     printf("    pop rax\n");
     printf("    jmp .L.end.%s\n", cur_func->name);
     break;
+  case ND_BREAK:
+    if (current_loop_label < 0) {
+      fprintf(stderr, "break outside of loop: %s\n", node->tok->loc);
+      exit(1);
+    }
+    printf("    jmp .L.for.end.%d\n", current_loop_label);
+    break;
   case ND_IF: {
     int label = label_cnt++;
     gen_expr(node->cond);
@@ -283,6 +293,9 @@ void gen_stmt(Node *node) {
   }
   case ND_FOR: {
     int label = label_cnt++;
+    int prev_for_label = current_loop_label;
+    current_loop_label = label;
+
     gen_expr(node->init);
     printf("    pop rax\n");
     printf(".L.for.cond.%d:\n", label);
@@ -295,6 +308,8 @@ void gen_stmt(Node *node) {
     printf("    pop rax\n");
     printf("    jmp .L.for.cond.%d\n", label);
     printf(".L.for.end.%d:\n", label);
+
+    current_loop_label = prev_for_label;
     break;
   }
   case ND_BLOCK:

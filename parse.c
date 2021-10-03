@@ -167,6 +167,7 @@ Node *primary(Token *tok, Token **rest);
 // stmt = "if" "(" expr ")" stmt ("else" stmt)?
 //      | "for" "(" expr ";" expr ";" expr) stmt
 //      | "return" expr ";"
+//      | "break" ";"
 //      | "{" stmt* "}"
 //      | expr ";"
 Node *stmt(Token *tok, Token **rest) {
@@ -240,6 +241,16 @@ Node *stmt(Token *tok, Token **rest) {
     node->kind = ND_RETURN;
     node->tok = tok;
     node->lhs = expr(tok->next, &tok);
+    consume(&tok, ";");
+    *rest = tok;
+    return node;
+  }
+
+  if (equal(tok, "break")) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_BREAK;
+    node->tok = tok;
+    tok=tok->next;
     consume(&tok, ";");
     *rest = tok;
     return node;
