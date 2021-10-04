@@ -279,6 +279,13 @@ void gen_stmt(Node *node) {
     }
     printf("    jmp .L.for.end.%d\n", current_loop_label);
     break;
+  case ND_CONTINUE:
+    if (current_loop_label < 0) {
+      fprintf(stderr, "continue outside of loop: %s\n", node->tok->loc);
+      exit(1);
+    }
+    printf("    jmp .L.for.inc.%d\n", current_loop_label);
+    break;
   case ND_IF: {
     int label = label_cnt++;
     gen_expr(node->cond);
@@ -296,14 +303,20 @@ void gen_stmt(Node *node) {
     int prev_for_label = current_loop_label;
     current_loop_label = label;
 
+    printf(".L.for.init.%d:\n", label);
     gen_expr(node->init);
     printf("    pop rax\n");
+
     printf(".L.for.cond.%d:\n", label);
     gen_expr(node->cond);
     printf("    pop rax\n");
     printf("    cmp rax, 0\n");
     printf("    je .L.for.end.%d\n", label);
+
+    printf(".L.for.then.%d:\n", label);
     gen_stmt(node->then);
+
+    printf(".L.for.inc.%d:\n", label);
     gen_expr(node->inc);
     printf("    pop rax\n");
     printf("    jmp .L.for.cond.%d\n", label);

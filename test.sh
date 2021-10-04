@@ -180,6 +180,7 @@ assert 'int main() { return sizeof(void); }' "1"
 assert 'int calc(int a, int b) { return a + b; } int main() { return calc(5, 6); }' "11"
 assert 'int calc(int a, int b) { return a + b; } int main() { int n = 12; return calc(n, 6); }' "18"
 assert 'int main() { int i=0; for (; i<10; i++) { if (i==5) break; } return i; }' "5"
+assert 'int main() { int k=1; for (int i=0; i<10; i++) { if (i>3) continue; k = k*2; } return k; }' "16"
 # TODO: variable scope
 # assert 'int main() { for (int i=0; i<10; i++); for (int i=1; i<20; i=i*2) { if (i>10) return i; } return 42; }' "16"
 

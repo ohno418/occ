@@ -95,7 +95,7 @@ Token *tokenize(char *input) {
       if (equal(tok, "return") || equal(tok, "sizeof") ||
           equal(tok, "if") || equal(tok, "else") || equal(tok, "for") ||
           equal(tok, "void") || equal(tok, "int") || equal(tok, "char") ||
-          equal(tok, "break"))
+          equal(tok, "break") || equal(tok, "continue"))
         tok->kind = TK_KW;
 
       cur = cur->next = tok;

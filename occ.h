@@ -53,30 +53,31 @@ typedef enum NodeKind {
   //   - lhs:  body
   //   - next: next statement
   ND_STMT,
-  ND_RETURN,  // return
-  ND_BREAK,   // break
-  ND_IF,      // if
-  ND_FOR,     // for
-  ND_BLOCK,   // compound statement (block)
+  ND_RETURN,   // return
+  ND_BREAK,    // break
+  ND_CONTINUE, // continue
+  ND_IF,       // if
+  ND_FOR,      // for
+  ND_BLOCK,    // compound statement (block)
 
-  ND_NUM,     // number
-  ND_CHAR,    // character
-  ND_STR,     // string
-  ND_ADD,     // +
-  ND_SUB,     // -
-  ND_MUL,     // *
-  ND_DIV,     // /
-  ND_EQ,      // ==
-  ND_NEQ,     // !=
-  ND_LT,      // <
-  ND_LTE,     // <=
-  ND_AND,     // &&
-  ND_OR,      // ||
-  ND_REF,     // address operator &
-  ND_DEREF,   // dereference operator *
-  ND_VAR,     // variable
-  ND_ASSIGN,  // assign
-  ND_FUNCALL, // function call
+  ND_NUM,      // number
+  ND_CHAR,     // character
+  ND_STR,      // string
+  ND_ADD,      // +
+  ND_SUB,      // -
+  ND_MUL,      // *
+  ND_DIV,      // /
+  ND_EQ,       // ==
+  ND_NEQ,      // !=
+  ND_LT,       // <
+  ND_LTE,      // <=
+  ND_AND,      // &&
+  ND_OR,       // ||
+  ND_REF,      // address operator &
+  ND_DEREF,    // dereference operator *
+  ND_VAR,      // variable
+  ND_ASSIGN,   // assign
+  ND_FUNCALL,  // function call
 } NodeKind;
 
 typedef struct Node Node;
