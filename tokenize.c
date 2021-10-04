@@ -1,19 +1,5 @@
 #include "occ.h"
 
-// debugger
-void debug_tokens(Token *tok) {
-  printf("=== debug ===\n");
-  for (Token *t = tok; t; t = t->next) {
-    if (t != tok)
-      printf("---\n");
-
-    printf("kind:\t%d\n", t->kind);
-    printf("loc:\t%s\n", t->loc);
-    printf("len:\t%d\n", t->len);
-  }
-  printf("=============\n");
-}
-
 Token *tokenize(char *input) {
   char *p = input;
 

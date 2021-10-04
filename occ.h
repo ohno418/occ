@@ -135,8 +135,6 @@ extern Node *strs;
 
 Function *parse(Token *tok);
 
-// debugger
-void debug_node(Node *node);
 
 /*
  * codegen.c
@@ -172,3 +170,27 @@ Type *ty_int();
 Type *ty_ptr(Type *base);
 Type *ty_array(Type *base, int num);
 Type *type_of(Node *node);
+
+
+/* debuggers */
+/*
+void debug_tokens(Token *tok) {
+  printf("=== debug ===\n");
+  for (Token *t = tok; t; t = t->next) {
+    if (t != tok)
+      printf("---\n");
+
+    printf("kind:\t%d\n", t->kind);
+    printf("loc:\t%s\n", t->loc);
+    printf("len:\t%d\n", t->len);
+  }
+  printf("=============\n");
+}
+
+void debug_node(Node *node) {
+  printf("=== debug ===\n");
+  printf("kind:\t%d\n", node->kind);
+  printf("loc:\t%s\n", node->tok->loc);
+  printf("=========-===\n");
+}
+*/

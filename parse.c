@@ -1,26 +1,5 @@
 #include "occ.h"
 
-// debugger
-void debug_node(Node *node) {
-  printf("=== debug ===\n");
-  printf("kind:\t%d\n", node->kind);
-  printf("loc:\t%s\n", node->tok->loc);
-  printf("=========-===\n");
-}
-
-bool equal(Token *tok, char *str) {
-  return tok->len == strlen(str) && strncmp(tok->loc, str, tok->len) == 0;
-}
-
-void consume(Token **rest, char *str) {
-  if (!equal(*rest, str)) {
-    fprintf(stderr, "expected \"%s\": %s\n", str, (*rest)->loc);
-    exit(1);
-  }
-
-  *rest = (*rest)->next;
-}
-
 // List of local vars of current function.
 Var *lvars;
 // List of global vars.
@@ -66,6 +45,19 @@ Var *find_var(char *name) {
       return v;
 
   return NULL;
+}
+
+bool equal(Token *tok, char *str) {
+  return tok->len == strlen(str) && strncmp(tok->loc, str, tok->len) == 0;
+}
+
+void consume(Token **rest, char *str) {
+  if (!equal(*rest, str)) {
+    fprintf(stderr, "expected \"%s\": %s\n", str, (*rest)->loc);
+    exit(1);
+  }
+
+  *rest = (*rest)->next;
 }
 
 Node *new_num_node(int num, Token *tok) {
