@@ -135,7 +135,6 @@ extern Node *strs;
 
 Function *parse(Token *tok);
 
-
 /*
  * codegen.c
  */
