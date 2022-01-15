@@ -9,6 +9,7 @@ Token *tokenize(char *input) {
     // skip spaces
     if (isspace(*p)) {
       p++;
+      continue;
     }
 
     // number
@@ -22,7 +23,17 @@ Token *tokenize(char *input) {
       tok->len = p - start;
       tok->num = atoi(strndup(tok->loc, tok->len));
       cur = cur->next = tok;
+      continue;
+    }
 
+    // +
+    if (*p == '+') {
+      Token *tok = calloc(1, sizeof(Token));
+      tok->kind = TK_ADD;
+      tok->loc = p;
+      tok->len = 1;
+      cur = cur->next = tok;
+      p++;
       continue;
     }
 

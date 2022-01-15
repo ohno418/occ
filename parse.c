@@ -1,24 +1,45 @@
 #include "occ.h"
 
-Node *parse(Token *tok) {
-  Node head = {};
-  Node *cur = &head;
+Node *new_binary(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_ADD;
+  node->lhs = lhs;
+  node->rhs = rhs;
+  node->tok = tok;
+  return node;
+}
 
-  for (Token *t = tok; t->kind != TK_EOF; t = t->next) {
-    switch (t->kind) {
-      case TK_NUM: {
-        Node *node = calloc(1, sizeof(Node));
-        node->kind = ND_NUM;
-        node->tok = t;
-        node->num = t->num;
-        cur = cur->next = node;
-        break;
-      }
-      default:
-        fprintf(stderr, "unknown token kind: %d\n", t->kind);
-        exit(1);
-    }
+Node *expr(Token *tok, Token **rest);
+Node *num(Token *tok, Token **rest);
+
+// num (+ num)?
+Node *expr(Token *tok, Token **rest) {
+  Token *start = tok;
+  Node *node = num(tok, &tok);
+
+  if (tok->kind == TK_ADD) {
+    Node *rhs = num(tok->next, &tok);
+    node = new_binary(ND_ADD, node, rhs, start);
   }
 
-  return head.next;
+  *rest = tok;
+  return node;
+}
+
+Node *num(Token *tok, Token **rest) {
+  if (tok->kind != TK_NUM) {
+    fprintf(stderr, "expected a number: %s\n", tok->loc);
+    exit(1);
+  }
+
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_NUM;
+  node->tok = tok;
+  node->num = tok->num;
+  *rest = tok->next;
+  return node;
+}
+
+Node *parse(Token *tok) {
+  return expr(tok, &tok);
 }

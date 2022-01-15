@@ -4,7 +4,7 @@ assert() {
   input=$1
   expected=$2
 
-  ./occ $input > tmp.s
+  ./occ "$input" > tmp.s
   gcc -o tmp tmp.s
   ./tmp
   actual=$?
@@ -20,6 +20,8 @@ assert() {
 
 assert "42" "42"
 assert "123" "123"
+assert "42+3" "45"
+assert "  42  + 13 " "55"
 
 echo OK
 exit 0
