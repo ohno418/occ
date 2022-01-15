@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "occ.h"
 
 int main(int argc, char **argv) {
   if (argc != 2) {
@@ -7,11 +6,9 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  printf("  .intel_syntax noprefix\n");
-  printf("  .text\n");
-  printf("  .globl main\n");
-  printf("main:\n");
-  printf("  mov rax, %s\n", argv[1]);
-  printf("  ret\n");
+  Token *tok = tokenize(argv[1]);
+  Node *node = parse(tok);
+  codegen(node);
+
   return 0;
 }

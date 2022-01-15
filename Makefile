@@ -1,7 +1,16 @@
 CC=gcc
+CFLAGS=-Wall
 
-occ: main.c
-	$(CC) -o occ main.c
+occ: main.o tokenize.o parse.o codegen.o
+	$(CC) -o occ main.o tokenize.o parse.o codegen.o
+
+main.o: main.c
+
+tokenize.o: tokenize.c
+
+parse.o: parse.c
+
+codegen.o: codegen.c
 
 .PHONY: test
 test: occ
@@ -9,4 +18,5 @@ test: occ
 
 .PHONY: clean
 clean:
-	rm -f occ tmp tmp.s
+	rm -f occ tmp tmp.s \
+		main.o tokenize.o parse.o codegen.o
