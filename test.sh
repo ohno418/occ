@@ -1,15 +1,25 @@
 #!/bin/bash
 
-./occ > tmp.s
-gcc -o tmp tmp.s
-./tmp
-actual=$?
+assert() {
+  input=$1
+  expected=$2
 
-if [ $actual = 42 ]
-then
-  echo "OK"
-  exit 0
-else
-  echo "Failed"
-  exit 1
-fi
+  ./occ $input > tmp.s
+  gcc -o tmp tmp.s
+  ./tmp
+  actual=$?
+
+  if [ $actual = $expected ]
+  then
+    echo "$input => $actual"
+  else
+    echo "$input => expected $expected, but got $actual"
+    exit 1
+  fi
+}
+
+assert "42" "42"
+assert "123" "123"
+
+echo OK
+exit 0
