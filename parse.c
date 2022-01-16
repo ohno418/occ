@@ -12,13 +12,13 @@ Node *new_binary(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
 Node *expr(Token *tok, Token **rest);
 Node *num(Token *tok, Token **rest);
 
-// num (+ num)?
+// num (+ expr)?
 Node *expr(Token *tok, Token **rest) {
   Token *start = tok;
   Node *node = num(tok, &tok);
 
   if (tok->kind == TK_ADD) {
-    Node *rhs = num(tok->next, &tok);
+    Node *rhs = expr(tok->next, &tok);
     node = new_binary(ND_ADD, node, rhs, start);
   }
 
