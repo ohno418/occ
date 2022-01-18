@@ -2,11 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 
 /* tokenize.c */
 typedef enum {
   TK_NUM, // number
   TK_ADD, // +
+  TK_SUB, // -
   TK_EOF, // end of token
 } TokenKind;
 
@@ -26,7 +28,8 @@ Token *tokenize(char *input);
 /* parse.c */
 typedef enum {
   ND_NUM, // number
-  ND_ADD, // add
+  ND_ADD, // +
+  ND_SUB, // -
 } NodeKind;
 
 typedef struct Node Node;

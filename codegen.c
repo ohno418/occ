@@ -14,6 +14,14 @@ void gen_expr(Node *node) {
       printf("  add rax, rdi\n");
       printf("  push rax\n");
       return;
+    case ND_SUB:
+      gen_expr(node->lhs);
+      gen_expr(node->rhs);
+      printf("  pop rdi\n");
+      printf("  pop rax\n");
+      printf("  sub rax, rdi\n");
+      printf("  push rax\n");
+      return;
     default:
       fprintf(stderr, "unknown kind of expr node: %d\n", node->kind);
       exit(1);

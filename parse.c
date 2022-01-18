@@ -12,14 +12,25 @@ Node *new_binary(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
 Node *expr(Token *tok, Token **rest);
 Node *num(Token *tok, Token **rest);
 
-// num (+ expr)?
+// expr = num ((+ | -) num)*
 Node *expr(Token *tok, Token **rest) {
   Token *start = tok;
   Node *node = num(tok, &tok);
 
-  if (tok->kind == TK_ADD) {
-    Node *rhs = expr(tok->next, &tok);
-    node = new_binary(ND_ADD, node, rhs, start);
+  for (; tok->kind == TK_ADD || tok->kind == TK_SUB;) {
+    if (tok->kind == TK_ADD) {
+      Node *rhs = num(tok->next, &tok);
+      node = new_binary(ND_ADD, node, rhs, start);
+      continue;
+    }
+
+    if (tok->kind == TK_SUB) {
+      Node *rhs = num(tok->next, &tok);
+      node = new_binary(ND_SUB, node, rhs, start);
+      continue;
+    }
+
+    assert(0);
   }
 
   *rest = tok;

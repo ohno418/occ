@@ -37,6 +37,17 @@ Token *tokenize(char *input) {
       continue;
     }
 
+    // -
+    if (*p == '-') {
+      Token *tok = calloc(1, sizeof(Token));
+      tok->kind = TK_SUB;
+      tok->loc = p;
+      tok->len = 1;
+      cur = cur->next = tok;
+      p++;
+      continue;
+    }
+
     fprintf(stderr, "unknown input: %s\n", p);
     exit(1);
   }
