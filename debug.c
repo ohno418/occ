@@ -11,12 +11,12 @@ static void print_binary(Node *node, int depth) {
   // lhs
   print_tabs(depth);
   printf("lhs:\n");
-  print_node(node->lhs, depth+1);
+  print_node(node->lhs, depth + 1);
 
   // rhs
   print_tabs(depth);
   printf("rhs:\n");
-  print_node(node->rhs, depth+1);
+  print_node(node->rhs, depth + 1);
 }
 
 static void print_node(Node *node, int depth) {
