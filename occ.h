@@ -6,10 +6,9 @@
 
 /* tokenize.c */
 typedef enum {
-  TK_NUM, // number
-  TK_ADD, // +
-  TK_SUB, // -
-  TK_EOF, // end of token
+  TK_NUM,   // number
+  TK_PUNCT, // puctuators
+  TK_EOF,   // end of token
 } TokenKind;
 
 typedef struct Token Token;

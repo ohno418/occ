@@ -17,14 +17,14 @@ Node *expr(Token *tok, Token **rest) {
   Token *start = tok;
   Node *node = num(tok, &tok);
 
-  for (; tok->kind == TK_ADD || tok->kind == TK_SUB;) {
-    if (tok->kind == TK_ADD) {
+  for (; tok->kind == TK_PUNCT;) {
+    if (strncmp(tok->loc, "+", tok->len) == 0) {
       Node *rhs = num(tok->next, &tok);
       node = new_binary(ND_ADD, node, rhs, start);
       continue;
     }
 
-    if (tok->kind == TK_SUB) {
+    if (strncmp(tok->loc, "-", tok->len) == 0) {
       Node *rhs = num(tok->next, &tok);
       node = new_binary(ND_SUB, node, rhs, start);
       continue;

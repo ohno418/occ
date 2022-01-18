@@ -29,7 +29,7 @@ Token *tokenize(char *input) {
     // +
     if (*p == '+') {
       Token *tok = calloc(1, sizeof(Token));
-      tok->kind = TK_ADD;
+      tok->kind = TK_PUNCT;
       tok->loc = p;
       tok->len = 1;
       cur = cur->next = tok;
@@ -40,7 +40,7 @@ Token *tokenize(char *input) {
     // -
     if (*p == '-') {
       Token *tok = calloc(1, sizeof(Token));
-      tok->kind = TK_SUB;
+      tok->kind = TK_PUNCT;
       tok->loc = p;
       tok->len = 1;
       cur = cur->next = tok;
