@@ -2,7 +2,7 @@
 
 Node *new_binary(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
   Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_ADD;
+  node->kind = kind;
   node->lhs = lhs;
   node->rhs = rhs;
   node->tok = tok;
