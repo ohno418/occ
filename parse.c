@@ -12,7 +12,7 @@ Node *new_binary(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
 Node *expr(Token *tok, Token **rest);
 Node *num(Token *tok, Token **rest);
 
-// expr = num ((+ | -) num)*
+// expr = num (("+" | "-") num)*
 Node *expr(Token *tok, Token **rest) {
   Token *start = tok;
   Node *node = num(tok, &tok);
