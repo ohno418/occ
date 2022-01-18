@@ -1,8 +1,8 @@
 CC=gcc
 CFLAGS=-Wall
 
-occ: main.o tokenize.o parse.o codegen.o
-	$(CC) -o occ main.o tokenize.o parse.o codegen.o
+occ: main.o tokenize.o parse.o codegen.o debug.o
+	$(CC) -o occ main.o tokenize.o parse.o codegen.o debug.o
 
 main.o: main.c
 
@@ -12,6 +12,8 @@ parse.o: parse.c
 
 codegen.o: codegen.c
 
+debug.o: debug.c
+
 .PHONY: test
 test: occ
 	./test.sh
@@ -19,4 +21,4 @@ test: occ
 .PHONY: clean
 clean:
 	rm -f occ tmp tmp.s \
-		main.o tokenize.o parse.o codegen.o
+		main.o tokenize.o parse.o codegen.o debug.o

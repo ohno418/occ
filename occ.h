@@ -45,3 +45,6 @@ Node *parse(Token *tok);
 
 /* codegen.c */
 void codegen(Node *node);
+
+/* debug.c */
+void debug_node(Node *node);
