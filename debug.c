@@ -37,6 +37,11 @@ static void print_node(Node *node, int depth) {
       printf("kind: ND_SUB\n");
       print_binary(node, depth);
       break;
+    case ND_MUL:
+      print_tabs(depth);
+      printf("kind: ND_MUL\n");
+      print_binary(node, depth);
+      break;
     default:
       fprintf(stderr, "unknown kind of node: %d\n", node->kind);
       exit(1);

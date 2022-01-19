@@ -10,27 +10,47 @@ Node *new_binary(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
 }
 
 Node *expr(Token *tok, Token **rest);
+Node *mul(Token *tok, Token **rest);
 Node *num(Token *tok, Token **rest);
 
-// expr = num (("+" | "-") num)*
+// expr = mul (("+" | "-") mul)*
 Node *expr(Token *tok, Token **rest) {
   Token *start = tok;
-  Node *node = num(tok, &tok);
+  Node *node = mul(tok, &tok);
 
   for (; tok->kind == TK_PUNCT;) {
     if (strncmp(tok->loc, "+", tok->len) == 0) {
-      Node *rhs = num(tok->next, &tok);
+      Node *rhs = mul(tok->next, &tok);
       node = new_binary(ND_ADD, node, rhs, start);
       continue;
     }
 
     if (strncmp(tok->loc, "-", tok->len) == 0) {
-      Node *rhs = num(tok->next, &tok);
+      Node *rhs = mul(tok->next, &tok);
       node = new_binary(ND_SUB, node, rhs, start);
       continue;
     }
 
     assert(0);
+  }
+
+  *rest = tok;
+  return node;
+}
+
+// mul = num ("*" num)*
+Node *mul(Token *tok, Token **rest) {
+  Token *start = tok;
+  Node *node = num(tok, &tok);
+
+  for (; tok->kind == TK_PUNCT;) {
+    if (strncmp(tok->loc, "*", tok->len) == 0) {
+      Node *rhs = num(tok->next, &tok);
+      node = new_binary(ND_MUL, node, rhs, start);
+      continue;
+    }
+
+    break;
   }
 
   *rest = tok;
