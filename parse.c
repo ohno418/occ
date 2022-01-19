@@ -38,7 +38,7 @@ Node *expr(Token *tok, Token **rest) {
   return node;
 }
 
-// mul = num ("*" num)*
+// mul = num (("*" | "/") num)*
 Node *mul(Token *tok, Token **rest) {
   Token *start = tok;
   Node *node = num(tok, &tok);
@@ -47,6 +47,12 @@ Node *mul(Token *tok, Token **rest) {
     if (strncmp(tok->loc, "*", tok->len) == 0) {
       Node *rhs = num(tok->next, &tok);
       node = new_binary(ND_MUL, node, rhs, start);
+      continue;
+    }
+
+    if (strncmp(tok->loc, "/", tok->len) == 0) {
+      Node *rhs = num(tok->next, &tok);
+      node = new_binary(ND_DIV, node, rhs, start);
       continue;
     }
 

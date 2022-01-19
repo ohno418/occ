@@ -30,6 +30,10 @@ assert "2*34" "68"
 assert "2*3*4" "24"
 assert "2*34-3" "65"
 assert "12+2*4-3" "17"
+assert "12/4" "3"
+assert "12/5" "2"
+assert "12+4/2-3" "11"
+assert "12+3*4/2-3" "15"
 
 echo OK
 exit 0
