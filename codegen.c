@@ -35,7 +35,7 @@ void gen_expr(Node *node) {
       gen_expr(node->rhs);
       printf("  pop rdi\n");
       printf("  pop rax\n");
-      printf("  xor rdx, rdx\n");
+      printf("  cqo\n");
       printf("  idiv rdi\n");
       printf("  push rax\n");
       return;
