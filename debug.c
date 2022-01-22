@@ -21,6 +21,13 @@ static void print_binary(Node *node, int depth) {
 
 static void print_node(Node *node, int depth) {
   switch (node->kind) {
+    case ND_STMT:
+      print_tabs(depth);
+      printf("kind: ND_STMT\n");
+      print_tabs(depth);
+      printf("body:\n");
+      print_node(node->body, depth + 1);
+      break;
     case ND_NUM:
       print_tabs(depth);
       printf("kind: ND_NUM\n");

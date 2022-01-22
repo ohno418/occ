@@ -26,6 +26,17 @@ Token *tokenize(char *input) {
       continue;
     }
 
+    // keyword
+    if (*p == ';') {
+      Token *tok = calloc(1, sizeof(Token));
+      tok->kind = TK_NUM;
+      tok->loc = p;
+      tok->len = 1;
+      cur = cur->next = tok;
+      p++;
+      continue;
+    }
+
     // puctuator
     if (*p == '+' || *p == '-' || *p == '*' || *p == '/') {
       Token *tok = calloc(1, sizeof(Token));

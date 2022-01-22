@@ -1,5 +1,13 @@
 #include "occ.h"
 
+bool equal(Token *tok, char *str) {
+  if (!tok->loc) {
+    return false;
+  }
+
+  return strncmp(tok->loc, str, strlen(str)) == 0;
+}
+
 Node *new_binary(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
@@ -9,9 +17,26 @@ Node *new_binary(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
   return node;
 }
 
+Node *stmt(Token *tok, Token **rest);
 Node *expr(Token *tok, Token **rest);
 Node *mul(Token *tok, Token **rest);
 Node *num(Token *tok, Token **rest);
+
+// stmt = expr ";"
+Node *stmt(Token *tok, Token **rest) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_STMT;
+  node->tok = tok;
+  node->body = expr(tok, &tok);
+
+  if (!equal(tok, ";")) {
+    fprintf(stderr, "expected \";\": %s\n", tok->loc);
+    exit(1);
+  }
+
+  *rest = tok->next;
+  return node;
+}
 
 // expr = mul (("+" | "-") mul)*
 Node *expr(Token *tok, Token **rest) {
@@ -78,5 +103,5 @@ Node *num(Token *tok, Token **rest) {
 }
 
 Node *parse(Token *tok) {
-  return expr(tok, &tok);
+  return stmt(tok, &tok);
 }
