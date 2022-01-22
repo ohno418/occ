@@ -45,6 +45,7 @@ struct Node {
   int num;
 
   // ND_STMT
+  Node *next;
   Node *body;
 
   Node *lhs;

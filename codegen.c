@@ -62,6 +62,9 @@ void codegen(Node *node) {
   printf("  .text\n");
   printf("  .globl main\n");
   printf("main:\n");
-  gen_stmt(node);
+
+  for (Node *n = node; n; n = n->next)
+    gen_stmt(n);
+
   printf("  ret\n");
 }

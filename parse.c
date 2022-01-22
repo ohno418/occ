@@ -103,5 +103,11 @@ Node *num(Token *tok, Token **rest) {
 }
 
 Node *parse(Token *tok) {
-  return stmt(tok, &tok);
+  Node head;
+  Node *cur = &head;
+
+  for (; tok->kind != TK_EOF;)
+    cur = cur->next = stmt(tok, &tok);
+
+  return head.next;
 }

@@ -34,6 +34,7 @@ assert "12/4;" "3"
 assert "12/5;" "2"
 assert "12+4/2-3;" "11"
 assert "12+3*4/2-3;" "15"
+assert "1; 2; 3;" "3"
 
 echo OK
 exit 0
