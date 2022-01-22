@@ -29,7 +29,7 @@ Token *tokenize(char *input) {
     // keyword
     if (*p == ';') {
       Token *tok = calloc(1, sizeof(Token));
-      tok->kind = TK_NUM;
+      tok->kind = TK_KEYWORD;
       tok->loc = p;
       tok->len = 1;
       cur = cur->next = tok;
