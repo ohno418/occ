@@ -102,12 +102,33 @@ Node *num(Token *tok, Token **rest) {
   return node;
 }
 
-Node *parse(Token *tok) {
+// function = "main" "(" ")" "{" stmt* "}"
+Function *function(Token *tok, Token **rest) {
+  if (!(equal(tok, "main") &&
+        equal(tok->next, "(") && equal(tok->next->next, ")") &&
+        equal(tok->next->next->next, "{"))) {
+    fprintf(stderr, "function format is wrong: %s\n", tok->loc);
+    exit(1);
+  }
+  tok = tok->next->next->next->next;
+
   Node head;
   Node *cur = &head;
 
-  for (; tok->kind != TK_EOF;)
+  for (; !equal(tok, "}");)
     cur = cur->next = stmt(tok, &tok);
+  tok = tok->next;
 
-  return head.next;
+  if (tok->kind != TK_EOF) {
+    fprintf(stderr, "expected TK_EOF token: %d\n", tok->kind);
+    exit(1);
+  }
+
+  Function *func = calloc(1, sizeof(Function));
+  func->body = head.next;
+  return func;
+}
+
+Function *parse(Token *tok) {
+  return function(tok, &tok);
 }

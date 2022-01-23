@@ -57,14 +57,14 @@ void gen_stmt(Node *node) {
   }
 }
 
-void codegen(Node *node) {
+void codegen(Function *func) {
   printf("  .intel_syntax noprefix\n");
   printf("  .text\n");
   printf("  .globl main\n");
   printf("main:\n");
 
-  for (Node *n = node; n; n = n->next)
-    gen_stmt(n);
+  for (Node *node = func->body; node; node = node->next)
+    gen_stmt(node);
 
   printf("  ret\n");
 }

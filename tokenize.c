@@ -27,7 +27,7 @@ Token *tokenize(char *input) {
     }
 
     // keyword
-    if (*p == ';') {
+    if (*p == ';' || *p == '(' || *p == ')' || *p == '{' || *p == '}') {
       Token *tok = calloc(1, sizeof(Token));
       tok->kind = TK_KEYWORD;
       tok->loc = p;
@@ -45,6 +45,18 @@ Token *tokenize(char *input) {
       tok->len = 1;
       cur = cur->next = tok;
       p++;
+      continue;
+    }
+
+    // identifier
+    if (isalnum(*p)) {
+      char *start = p;
+      for (; isalnum(*p); p++);
+      Token *tok = calloc(1, sizeof(Token));
+      tok->kind = TK_IDENT;
+      tok->loc = start;
+      tok->len = p - start;
+      cur = cur->next = tok;
       continue;
     }
 

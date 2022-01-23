@@ -10,6 +10,7 @@ typedef enum {
   TK_NUM,     // number
   TK_PUNCT,   // puctuators
   TK_KEYWORD, // keyword
+  TK_IDENT,   // identifier
   TK_EOF,     // end of token
 } TokenKind;
 
@@ -52,10 +53,15 @@ struct Node {
   Node *rhs;
 };
 
-Node *parse(Token *tok);
+typedef struct Function Function;
+struct Function {
+  Node *body;
+};
+
+Function *parse(Token *tok);
 
 /* codegen.c */
-void codegen(Node *node);
+void codegen(Function *func);
 
 /* debug.c */
 void debug_node(Node *node);
