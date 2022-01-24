@@ -44,7 +44,7 @@ Node *stmt(Token *tok, Token **rest) {
   }
 
   Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_STMT;
+  node->kind = ND_EXPR_STMT;
   node->tok = tok;
   node->body = expr(tok, &tok);
   consume(tok, rest, ";");

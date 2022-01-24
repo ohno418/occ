@@ -47,7 +47,7 @@ void gen_expr(Node *node) {
 
 void gen_stmt(Node *node) {
   switch (node->kind) {
-    case ND_STMT:
+    case ND_EXPR_STMT:
       gen_expr(node->body);
       printf("  pop rax\n");
       return;

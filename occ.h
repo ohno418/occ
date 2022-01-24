@@ -30,14 +30,14 @@ Token *tokenize(char *input);
 /* parse.c */
 typedef enum {
   // statements
-  ND_STMT,   // expression statement
-  ND_RETURN, // return statement
+  ND_EXPR_STMT, // expression statement
+  ND_RETURN,    // return statement
 
-  ND_NUM,  // number
-  ND_ADD,  // +
-  ND_SUB,  // -
-  ND_MUL,  // *
-  ND_DIV,  // /
+  ND_NUM,       // number
+  ND_ADD,       // +
+  ND_SUB,       // -
+  ND_MUL,       // *
+  ND_DIV,       // /
 } NodeKind;
 
 typedef struct Node Node;
@@ -45,12 +45,12 @@ struct Node {
   NodeKind kind;
   Token *tok;
 
-  // ND_NUM
-  int num;
-
-  // ND_STMT
+  // statements
   Node *next;
   Node *body;
+
+  // ND_NUM
+  int num;
 
   Node *lhs;
   Node *rhs;
