@@ -1,5 +1,17 @@
 #include "occ.h"
 
+// Return keyword length if keyword,
+// otherwise return zero.
+int is_keyword(char *loc) {
+  char *keywords[] = {";", "(", ")", "{", "}", "return"};
+  for (int i = 0; i < sizeof(keywords) / sizeof(char*); i++) {
+    char *kw = keywords[i];
+    if (strncmp(loc, kw, strlen(kw)) == 0)
+      return strlen(kw);
+  }
+  return 0;
+}
+
 Token *tokenize(char *input) {
   Token head = {};
   Token *cur = &head;
@@ -27,13 +39,13 @@ Token *tokenize(char *input) {
     }
 
     // keyword
-    if (*p == ';' || *p == '(' || *p == ')' || *p == '{' || *p == '}') {
+    if (is_keyword(p)) {
       Token *tok = calloc(1, sizeof(Token));
       tok->kind = TK_KEYWORD;
       tok->loc = p;
-      tok->len = 1;
+      tok->len = is_keyword(p);
       cur = cur->next = tok;
-      p++;
+      p += tok->len;
       continue;
     }
 

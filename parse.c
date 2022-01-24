@@ -8,6 +8,15 @@ bool equal(Token *tok, char *str) {
   return strncmp(tok->loc, str, strlen(str)) == 0;
 }
 
+void consume(Token *tok, Token **rest, char *str) {
+  if (equal(tok, str)) {
+    *rest = tok->next;
+  } else {
+    fprintf(stderr, "expected \"%s\": %s\n", str, tok->loc);
+    exit(1);
+  }
+}
+
 Node *new_binary(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
@@ -22,19 +31,23 @@ Node *expr(Token *tok, Token **rest);
 Node *mul(Token *tok, Token **rest);
 Node *num(Token *tok, Token **rest);
 
-// stmt = expr ";"
+// stmt = "return" expr ";"
+//      | expr ";"
 Node *stmt(Token *tok, Token **rest) {
+  if (equal(tok, "return")) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_RETURN;
+    node->tok = tok;
+    node->body = expr(tok->next, &tok);
+    consume(tok, rest, ";");
+    return node;
+  }
+
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_STMT;
   node->tok = tok;
   node->body = expr(tok, &tok);
-
-  if (!equal(tok, ";")) {
-    fprintf(stderr, "expected \";\": %s\n", tok->loc);
-    exit(1);
-  }
-
-  *rest = tok->next;
+  consume(tok, rest, ";");
   return node;
 }
 

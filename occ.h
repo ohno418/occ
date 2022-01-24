@@ -29,7 +29,10 @@ Token *tokenize(char *input);
 
 /* parse.c */
 typedef enum {
-  ND_STMT, // statement
+  // statements
+  ND_STMT,   // expression statement
+  ND_RETURN, // return statement
+
   ND_NUM,  // number
   ND_ADD,  // +
   ND_SUB,  // -
