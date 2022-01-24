@@ -45,7 +45,7 @@ struct Node {
   NodeKind kind;
   Token *tok;
 
-  // statements
+  // statement
   Node *next;
   Node *body;
 
