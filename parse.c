@@ -130,12 +130,7 @@ Function *function(Token *tok, Token **rest) {
 
   for (; !equal(tok, "}");)
     cur = cur->next = stmt(tok, &tok);
-  tok = tok->next;
-
-  if (tok->kind != TK_EOF) {
-    fprintf(stderr, "expected TK_EOF token: %d\n", tok->kind);
-    exit(1);
-  }
+  *rest = tok->next;
 
   Function *func = calloc(1, sizeof(Function));
   func->body = head.next;
@@ -143,5 +138,12 @@ Function *function(Token *tok, Token **rest) {
 }
 
 Function *parse(Token *tok) {
-  return function(tok, &tok);
+  Function *func = function(tok, &tok);
+
+  if (tok->kind != TK_EOF) {
+    fprintf(stderr, "expected TK_EOF token: %d\n", tok->kind);
+    exit(1);
+  }
+
+  return func;
 }
