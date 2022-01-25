@@ -37,6 +37,14 @@ assert "main() { return 12+3*4/2-3; }" "15"
 assert "main() { return 1; 2; return 3; }" "1"
 assert "main() { 1; return 2; return 3; }" "2"
 assert "main() { 1; 2; return 3; }" "3"
+assert "main() { a=5; return a; }" "5"
+assert "main() { a=5+2; return a; }" "7"
+assert "main() { a=5; b=123; return a; }" "5"
+assert "main() { a=5; b=123; return b; }" "123"
+assert "main() { a=b=123; return a; }" "123"
+assert "main() { a=b=123; return b; }" "123"
+assert "main() { var=12; foo=23; return var; }" "12"
+assert "main() { var=12; foo=23; return foo; }" "23"
 
 echo OK
 exit 0

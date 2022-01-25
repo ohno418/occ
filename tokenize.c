@@ -3,7 +3,7 @@
 // Return keyword length if keyword,
 // otherwise return zero.
 int is_keyword(char *loc) {
-  char *keywords[] = {";", "(", ")", "{", "}", "return"};
+  char *keywords[] = {";", "(", ")", "{", "}", "=", "return"};
   for (int i = 0; i < sizeof(keywords) / sizeof(char*); i++) {
     char *kw = keywords[i];
     if (strncmp(loc, kw, strlen(kw)) == 0)

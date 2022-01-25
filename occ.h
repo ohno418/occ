@@ -28,16 +28,25 @@ struct Token {
 Token *tokenize(char *input);
 
 /* parse.c */
+typedef struct Var Var;
+struct Var {
+  Var *next;
+  char *name;
+  int offset;
+};
+
 typedef enum {
   // statements
   ND_EXPR_STMT, // expression statement
   ND_RETURN,    // return statement
 
   ND_NUM,       // number
+  ND_VAR,       // variable
   ND_ADD,       // +
   ND_SUB,       // -
   ND_MUL,       // *
   ND_DIV,       // /
+  ND_ASSIGN,    // =
 } NodeKind;
 
 typedef struct Node Node;
@@ -49,16 +58,21 @@ struct Node {
   Node *next;
   Node *body;
 
+  Node *lhs;
+  Node *rhs;
+
   // ND_NUM
   int num;
 
-  Node *lhs;
-  Node *rhs;
+  // ND_VAR
+  Var *var;
 };
 
 typedef struct Function Function;
 struct Function {
   Node *body;
+  // local variables
+  Var *vars;
 };
 
 Function *parse(Token *tok);

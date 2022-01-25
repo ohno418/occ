@@ -1,5 +1,24 @@
 #include "occ.h"
 
+// local variables
+Var *lvars = NULL;
+
+Var *register_lvar(char *name) {
+  // Does the name already exist?
+  for (Var *v = lvars; v; v = v->next) {
+    if (strlen(name) == strlen(v->name) &&
+        strncmp(name, v->name, strlen(name)) == 0) {
+      return v;
+    }
+  }
+
+  Var *var = calloc(1, sizeof(Var));
+  var->name = name;
+  var->next = lvars;
+  lvars = var;
+  return var;
+}
+
 bool equal(Token *tok, char *str) {
   if (!tok->loc) {
     return false;
@@ -28,8 +47,10 @@ Node *new_binary(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
 
 Node *stmt(Token *tok, Token **rest);
 Node *expr(Token *tok, Token **rest);
+Node *assign(Token *tok, Token **rest);
+Node *add(Token *tok, Token **rest);
 Node *mul(Token *tok, Token **rest);
-Node *num(Token *tok, Token **rest);
+Node *primary(Token *tok, Token **rest);
 
 // stmt = "return" expr ";"
 //      | expr ";"
@@ -51,8 +72,28 @@ Node *stmt(Token *tok, Token **rest) {
   return node;
 }
 
-// expr = mul (("+" | "-") mul)*
+// expr = assign
 Node *expr(Token *tok, Token **rest) {
+  return assign(tok, rest);
+}
+
+// assign = add ("=" assign)*
+Node *assign(Token *tok, Token **rest) {
+  Token *start = tok;
+  Node *node = add(tok, &tok);
+
+  for (; equal(tok, "=");) {
+    Node *rhs = assign(tok->next, &tok);
+    node = new_binary(ND_ASSIGN, node, rhs, start);
+    continue;
+  }
+
+  *rest = tok;
+  return node;
+}
+
+// add = mul (("+" | "-") mul)*
+Node *add(Token *tok, Token **rest) {
   Token *start = tok;
   Node *node = mul(tok, &tok);
 
@@ -76,20 +117,20 @@ Node *expr(Token *tok, Token **rest) {
   return node;
 }
 
-// mul = num (("*" | "/") num)*
+// mul = primary (("*" | "/") primary)*
 Node *mul(Token *tok, Token **rest) {
   Token *start = tok;
-  Node *node = num(tok, &tok);
+  Node *node = primary(tok, &tok);
 
   for (; tok->kind == TK_PUNCT;) {
-    if (strncmp(tok->loc, "*", tok->len) == 0) {
-      Node *rhs = num(tok->next, &tok);
+    if (equal(tok, "*")) {
+      Node *rhs = primary(tok->next, &tok);
       node = new_binary(ND_MUL, node, rhs, start);
       continue;
     }
 
-    if (strncmp(tok->loc, "/", tok->len) == 0) {
-      Node *rhs = num(tok->next, &tok);
+    if (equal(tok, "/")) {
+      Node *rhs = primary(tok->next, &tok);
       node = new_binary(ND_DIV, node, rhs, start);
       continue;
     }
@@ -101,18 +142,31 @@ Node *mul(Token *tok, Token **rest) {
   return node;
 }
 
-Node *num(Token *tok, Token **rest) {
-  if (tok->kind != TK_NUM) {
-    fprintf(stderr, "expected a number: %s\n", tok->loc);
-    exit(1);
+// primary = identifier
+//         | number
+Node *primary(Token *tok, Token **rest) {
+  // identifier
+  if (tok->kind == TK_IDENT) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_VAR;
+    node->tok = tok;
+    node->var = register_lvar(strndup(tok->loc, tok->len));
+    *rest = tok->next;
+    return node;
   }
 
-  Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_NUM;
-  node->tok = tok;
-  node->num = tok->num;
-  *rest = tok->next;
-  return node;
+  // number
+  if (tok->kind == TK_NUM) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_NUM;
+    node->tok = tok;
+    node->num = tok->num;
+    *rest = tok->next;
+    return node;
+  }
+
+  fprintf(stderr, "unknown primary expression: %s\n", tok->loc);
+  exit(1);
 }
 
 // function = "main" "(" ")" "{" stmt* "}"
@@ -125,15 +179,18 @@ Function *function(Token *tok, Token **rest) {
   }
   tok = tok->next->next->next->next;
 
+  Function *func = calloc(1, sizeof(Function));
+  lvars = NULL;
+
+  // AST of body
   Node head;
   Node *cur = &head;
-
   for (; !equal(tok, "}");)
     cur = cur->next = stmt(tok, &tok);
-  *rest = tok->next;
+  consume(tok, rest, "}");
 
-  Function *func = calloc(1, sizeof(Function));
   func->body = head.next;
+  func->vars = lvars;
   return func;
 }
 

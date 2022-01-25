@@ -41,6 +41,12 @@ static void print_node(Node *node, int depth) {
       print_tabs(depth);
       printf("num: %d\n", node->num);
       break;
+    case ND_VAR:
+      print_tabs(depth);
+      printf("kind: ND_VAR\n");
+      print_tabs(depth);
+      printf("loc: %s\n", node->tok->loc);
+      break;
     case ND_ADD:
       print_tabs(depth);
       printf("kind: ND_ADD\n");
@@ -59,6 +65,11 @@ static void print_node(Node *node, int depth) {
     case ND_DIV:
       print_tabs(depth);
       printf("kind: ND_DIV\n");
+      print_binary(node, depth);
+      break;
+    case ND_ASSIGN:
+      print_tabs(depth);
+      printf("kind: ND_ASSIGN\n");
       print_binary(node, depth);
       break;
     default:
