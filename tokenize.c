@@ -2,12 +2,14 @@
 
 // Return keyword length if keyword,
 // otherwise return zero.
-int is_keyword(char *loc) {
-  char *keywords[] = {";", "(", ")", "{", "}", "=", "return"};
+int is_keyword(Token *tok) {
+  char *keywords[] = {"return"};
   for (int i = 0; i < sizeof(keywords) / sizeof(char*); i++) {
     char *kw = keywords[i];
-    if (strncmp(loc, kw, strlen(kw)) == 0)
+    if (tok->len == strlen(kw) &&
+        strncmp(tok->loc, kw, strlen(kw)) == 0) {
       return strlen(kw);
+    }
   }
   return 0;
 }
@@ -38,19 +40,8 @@ Token *tokenize(char *input) {
       continue;
     }
 
-    // keyword
-    if (is_keyword(p)) {
-      Token *tok = calloc(1, sizeof(Token));
-      tok->kind = TK_KEYWORD;
-      tok->loc = p;
-      tok->len = is_keyword(p);
-      cur = cur->next = tok;
-      p += tok->len;
-      continue;
-    }
-
     // puctuator
-    if (*p == '+' || *p == '-' || *p == '*' || *p == '/') {
+    if (ispunct(*p)) {
       Token *tok = calloc(1, sizeof(Token));
       tok->kind = TK_PUNCT;
       tok->loc = p;
@@ -60,15 +51,19 @@ Token *tokenize(char *input) {
       continue;
     }
 
-    // identifier
+    // identifier or keyword
     if (isalnum(*p)) {
       char *start = p;
       for (; isalnum(*p); p++);
       Token *tok = calloc(1, sizeof(Token));
-      tok->kind = TK_IDENT;
       tok->loc = start;
       tok->len = p - start;
       cur = cur->next = tok;
+      if (is_keyword(tok)) {
+        tok->kind = TK_KEYWORD;
+      } else {
+        tok->kind = TK_IDENT;
+      }
       continue;
     }
 

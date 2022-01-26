@@ -97,7 +97,7 @@ Node *add(Token *tok, Token **rest) {
   Token *start = tok;
   Node *node = mul(tok, &tok);
 
-  for (; tok->kind == TK_PUNCT;) {
+  for (;;) {
     if (strncmp(tok->loc, "+", tok->len) == 0) {
       Node *rhs = mul(tok->next, &tok);
       node = new_binary(ND_ADD, node, rhs, start);
@@ -110,7 +110,7 @@ Node *add(Token *tok, Token **rest) {
       continue;
     }
 
-    assert(0);
+    break;
   }
 
   *rest = tok;
