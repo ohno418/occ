@@ -161,6 +161,7 @@ Node *mul(Token *tok, Token **rest) {
 // primary = type identifier
 //         | identifier
 //         | number
+//         | "sizeof" "(" (identifier | type) ")"
 Node *primary(Token *tok, Token **rest) {
   // declaration
   Type *ty = type_name(tok);
@@ -199,6 +200,33 @@ Node *primary(Token *tok, Token **rest) {
     node->tok = tok;
     node->num = tok->num;
     *rest = tok->next;
+    return node;
+  }
+
+  // sizeof
+  if (equal(tok, "sizeof")) {
+    consume(tok->next, &tok, "(");
+    Type *ty;
+    if (tok->kind == TK_IDENT) {
+      char *varname = strndup(tok->loc, tok->len);
+      Var *var = find_lvar(varname);
+      if (!var) {
+        fprintf(stderr, "unknown local variable \"%s\": %s\n", varname, tok->loc);
+        exit(1);
+      }
+    } else {
+      ty = type_name(tok);
+    }
+    if (!ty) {
+      fprintf(stderr, "unknown operand of sizeof: %s\n", tok->loc);
+      exit(1);
+    }
+    consume(tok->next, rest, ")");
+
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_NUM;
+    node->tok = tok;
+    node->num = ty->size;
     return node;
   }
 

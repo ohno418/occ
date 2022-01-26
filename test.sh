@@ -47,5 +47,9 @@ assert "int main() { int var=12; int foo=23; return var; }" "12"
 assert "int main() { int var=12; int foo=23; return foo; }" "23"
 assert "int main() { int a=5; a=6; return a; }" "6"
 
+# sizeof
+assert "int main() { int a; return sizeof(a); }" "8"
+assert "int main() { return sizeof(int); }" "8"
+
 echo OK
 exit 0

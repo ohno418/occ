@@ -90,6 +90,7 @@ typedef enum {
 
 struct Type {
   TypeKind kind;
+  int size;
 };
 
 Type *ty_int();
