@@ -243,13 +243,10 @@ Function *function(Token *tok, Token **rest) {
   }
   tok = tok->next;
 
-  if (!(equal(tok, "main") &&
-        equal(tok->next, "(") && equal(tok->next->next, ")") &&
-        equal(tok->next->next->next, "{"))) {
-    fprintf(stderr, "function format is wrong: %s\n", tok->loc);
-    exit(1);
-  }
-  tok = tok->next->next->next->next;
+  consume(tok, &tok, "main");
+  consume(tok, &tok, "(");
+  consume(tok, &tok, ")");
+  consume(tok, &tok, "{");
 
   Function *func = calloc(1, sizeof(Function));
   func->ty = ty;
@@ -260,6 +257,7 @@ Function *function(Token *tok, Token **rest) {
   Node *cur = &head;
   for (; !equal(tok, "}");)
     cur = cur->next = stmt(tok, &tok);
+
   consume(tok, rest, "}");
 
   func->body = head.next;
