@@ -32,8 +32,8 @@ typedef struct Type Type;
 typedef struct Var Var;
 struct Var {
   Var *next;
-  char *name;
   Type *ty;
+  char *name;
   int offset;
 };
 
