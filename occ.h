@@ -72,6 +72,7 @@ struct Node {
 
 typedef struct Function Function;
 struct Function {
+  Type *ty;
   Node *body;
   // local variables
   Var *vars;

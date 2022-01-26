@@ -206,8 +206,15 @@ Node *primary(Token *tok, Token **rest) {
   exit(1);
 }
 
-// function = "main" "(" ")" "{" stmt* "}"
+// function = type "main" "(" ")" "{" stmt* "}"
 Function *function(Token *tok, Token **rest) {
+  Type *ty = type_name(tok);
+  if (!ty) {
+    fprintf(stderr, "type name required for function: %s\n", tok->loc);
+    exit(1);
+  }
+  tok = tok->next;
+
   if (!(equal(tok, "main") &&
         equal(tok->next, "(") && equal(tok->next->next, ")") &&
         equal(tok->next->next->next, "{"))) {
@@ -217,6 +224,7 @@ Function *function(Token *tok, Token **rest) {
   tok = tok->next->next->next->next;
 
   Function *func = calloc(1, sizeof(Function));
+  func->ty = ty;
   lvars = NULL;
 
   // AST of body
