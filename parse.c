@@ -3,18 +3,27 @@
 // local variables
 Var *lvars = NULL;
 
-Var *register_lvar(char *name) {
-  // Does the name already exist?
+Var *find_lvar(char *name) {
   for (Var *v = lvars; v; v = v->next) {
     if (strlen(name) == strlen(v->name) &&
         strncmp(name, v->name, strlen(name)) == 0) {
       return v;
     }
   }
+  return NULL;
+}
+
+Var *register_lvar(char *name, Type *ty) {
+  // Does the name already exist?
+  if (find_lvar(name)) {
+    fprintf(stderr, "variable \"%s\" is already declared\n", name);
+    exit(1);
+  }
 
   Var *var = calloc(1, sizeof(Var));
   var->name = name;
   var->next = lvars;
+  var->ty = ty;
   lvars = var;
   return var;
 }
@@ -43,6 +52,13 @@ Node *new_binary(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
   node->rhs = rhs;
   node->tok = tok;
   return node;
+}
+
+Type *type_name(Token *tok) {
+  if (equal(tok, "int"))
+    return ty_int();
+
+  return NULL;
 }
 
 Node *stmt(Token *tok, Token **rest);
@@ -142,15 +158,36 @@ Node *mul(Token *tok, Token **rest) {
   return node;
 }
 
-// primary = identifier
+// primary = type identifier
+//         | identifier
 //         | number
 Node *primary(Token *tok, Token **rest) {
-  // identifier
-  if (tok->kind == TK_IDENT) {
+  // declaration
+  Type *ty = type_name(tok);
+  if (ty) {
+    tok = tok->next;
+    Var *var = register_lvar(strndup(tok->loc, tok->len), ty);
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
     node->tok = tok;
-    node->var = register_lvar(strndup(tok->loc, tok->len));
+    node->var = var;
+    *rest = tok->next;
+    return node;
+  }
+
+  // identifier
+  if (tok->kind == TK_IDENT) {
+    char *varname = strndup(tok->loc, tok->len);
+    Var *var = find_lvar(varname);
+    if (!var) {
+      fprintf(stderr, "unknown local variable \"%s\": %s\n", varname, tok->loc);
+      exit(1);
+    }
+
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_VAR;
+    node->tok = tok;
+    node->var = var;
     *rest = tok->next;
     return node;
   }

@@ -28,10 +28,12 @@ struct Token {
 Token *tokenize(char *input);
 
 /* parse.c */
+typedef struct Type Type;
 typedef struct Var Var;
 struct Var {
   Var *next;
   char *name;
+  Type *ty;
   int offset;
 };
 
@@ -79,6 +81,17 @@ Function *parse(Token *tok);
 
 /* codegen.c */
 void codegen(Function *func);
+
+/* type.c */
+typedef enum {
+  TY_INT, // int
+} TypeKind;
+
+struct Type {
+  TypeKind kind;
+};
+
+Type *ty_int();
 
 /* debug.c */
 void debug_node(Node *node);
