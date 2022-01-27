@@ -51,6 +51,7 @@ assert "int main() { int a=5; a=6; return a; }" "6"
 assert "int ret42() { return 42; } int main() { return ret42(); }" "42"
 assert "int main() { { 1; 2; 3; } return 4; }" "4"
 assert "int main() { { 1; return 2; 3; } return 4; }" "2"
+assert "int main() { ; return 3; }" "3"
 
 # sizeof
 assert "int main() { int a; return sizeof(a); }" "8"
