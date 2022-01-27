@@ -72,6 +72,7 @@ Node *primary(Token *tok, Token **rest);
 //      | "{" stmt* "}"
 //      | expr? ";"
 Node *stmt(Token *tok, Token **rest) {
+  // return statement
   if (equal(tok, "return")) {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_RETURN;
@@ -81,6 +82,7 @@ Node *stmt(Token *tok, Token **rest) {
     return node;
   }
 
+  // compound statement
   if (equal(tok, "{")) {
     Token *start = tok;
     tok = tok->next;
@@ -97,6 +99,7 @@ Node *stmt(Token *tok, Token **rest) {
     return node;
   }
 
+  // expression statement
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_EXPR_STMT;
   node->tok = tok;
