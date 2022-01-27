@@ -206,7 +206,7 @@ Node *primary(Token *tok, Token **rest) {
   // sizeof
   if (equal(tok, "sizeof")) {
     consume(tok->next, &tok, "(");
-    Type *ty;
+    Type *ty = NULL;
     if (tok->kind == TK_IDENT) {
       char *varname = strndup(tok->loc, tok->len);
       Var *var = find_lvar(varname);
@@ -214,6 +214,7 @@ Node *primary(Token *tok, Token **rest) {
         fprintf(stderr, "unknown local variable \"%s\": %s\n", varname, tok->loc);
         exit(1);
       }
+      ty = var->ty;
     } else {
       ty = type_name(tok);
     }
