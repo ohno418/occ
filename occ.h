@@ -72,6 +72,8 @@ struct Node {
 
 typedef struct Function Function;
 struct Function {
+  Function *next;
+  char *name;
   Type *ty;
   Node *body;
   // local variables

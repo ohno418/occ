@@ -235,23 +235,28 @@ Node *primary(Token *tok, Token **rest) {
   exit(1);
 }
 
-// function = type "main" "(" ")" "{" stmt* "}"
+// function = type name "(" ")" "{" stmt* "}"
 Function *function(Token *tok, Token **rest) {
-  Type *ty = type_name(tok);
-  if (!ty) {
+  Function *func = calloc(1, sizeof(Function));
+  lvars = NULL;
+
+  func->ty = type_name(tok);
+  if (!func->ty) {
     fprintf(stderr, "type name required for function: %s\n", tok->loc);
     exit(1);
   }
   tok = tok->next;
 
-  consume(tok, &tok, "main");
+  if (tok->kind != TK_IDENT) {
+    fprintf(stderr, "expected function name: %s\n", tok->loc);
+    exit(1);
+  }
+  func->name = strndup(tok->loc, tok->len);
+  tok = tok->next;
+
   consume(tok, &tok, "(");
   consume(tok, &tok, ")");
   consume(tok, &tok, "{");
-
-  Function *func = calloc(1, sizeof(Function));
-  func->ty = ty;
-  lvars = NULL;
 
   // AST of body
   Node head;
@@ -266,13 +271,13 @@ Function *function(Token *tok, Token **rest) {
   return func;
 }
 
+// program = function*
 Function *parse(Token *tok) {
-  Function *func = function(tok, &tok);
+  Function head;
+  Function *cur = &head;
 
-  if (tok->kind != TK_EOF) {
-    fprintf(stderr, "expected TK_EOF token: %d\n", tok->kind);
-    exit(1);
-  }
+  for (; tok->kind != TK_EOF;)
+    cur = cur->next = function(tok, &tok);
 
-  return func;
+  return head.next;
 }

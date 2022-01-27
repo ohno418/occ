@@ -1,5 +1,7 @@
 #include "occ.h"
 
+Function *current_func;
+
 // Push an address of a lvalue on stack top.
 void gen_addr(Node *node) {
   if (!node->var) {
@@ -81,7 +83,7 @@ void gen_stmt(Node *node) {
     case ND_RETURN:
       gen_expr(node->body);
       printf("  pop rax\n");
-      printf("  jmp .L.end\n");
+      printf("  jmp .L.%s.end\n", current_func->name);
       return;
     default:
       fprintf(stderr, "unknown kind of statement node: %d\n", node->kind);
@@ -105,17 +107,20 @@ void codegen(Function *func) {
   printf("  .intel_syntax noprefix\n");
   printf("  .text\n");
   printf("  .globl main\n");
-  printf("main:\n");
-  printf("  push rbp\n");
-  printf("  mov rbp, rsp\n");
 
-  assign_lvar_offset(func->vars);
+  for (current_func = func; current_func; current_func = current_func->next) {
+    printf("%s:\n", current_func->name);
+    printf("  push rbp\n");
+    printf("  mov rbp, rsp\n");
 
-  for (Node *node = func->body; node; node = node->next)
-    gen_stmt(node);
+    assign_lvar_offset(current_func->vars);
 
-  printf(".L.end:\n");
-  printf("  mov rsp, rbp\n");
-  printf("  pop rbp\n");
-  printf("  ret\n");
+    for (Node *node = current_func->body; node; node = node->next)
+      gen_stmt(node);
+
+    printf(".L.%s.end:\n", current_func->name);
+    printf("  mov rsp, rbp\n");
+    printf("  pop rbp\n");
+    printf("  ret\n");
+  }
 }

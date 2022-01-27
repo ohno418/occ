@@ -46,6 +46,8 @@ assert "int main() { int a; int b; a=b=123; return b; }" "123"
 assert "int main() { int var=12; int foo=23; return var; }" "12"
 assert "int main() { int var=12; int foo=23; return foo; }" "23"
 assert "int main() { int a=5; a=6; return a; }" "6"
+assert "int ret42() { return 42; } int main() { return 42; }" "42"
+# assert "int ret42() { return 42; } int main() { return ret42(); }" "42"
 
 # sizeof
 assert "int main() { int a; return sizeof(a); }" "8"
