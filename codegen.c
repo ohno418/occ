@@ -84,6 +84,10 @@ void gen_stmt(Node *node) {
       gen_expr(node->body);
       printf("  pop rax\n");
       return;
+    case ND_BLOCK:
+      for (Node *s = node->body; s; s = s->next)
+        gen_stmt(s);
+      return;
     case ND_RETURN:
       gen_expr(node->body);
       printf("  pop rax\n");

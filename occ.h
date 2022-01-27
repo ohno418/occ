@@ -40,6 +40,7 @@ struct Var {
 typedef enum {
   // statements
   ND_EXPR_STMT, // expression statement
+  ND_BLOCK,     // compound statement
   ND_RETURN,    // return statement
 
   ND_NUM,       // number

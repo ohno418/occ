@@ -69,6 +69,7 @@ Node *mul(Token *tok, Token **rest);
 Node *primary(Token *tok, Token **rest);
 
 // stmt = "return" expr ";"
+//      | "{" stmt* "}"
 //      | expr ";"
 Node *stmt(Token *tok, Token **rest) {
   if (equal(tok, "return")) {
@@ -77,6 +78,22 @@ Node *stmt(Token *tok, Token **rest) {
     node->tok = tok;
     node->body = expr(tok->next, &tok);
     consume(tok, rest, ";");
+    return node;
+  }
+
+  if (equal(tok, "{")) {
+    Token *start = tok;
+    tok = tok->next;
+    Node head;
+    Node *cur = &head;
+    for (; !equal(tok, "}");)
+      cur = cur->next = stmt(tok, &tok);
+    consume(tok, rest, "}");
+
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_BLOCK;
+    node->tok = start;
+    node->body = head.next;
     return node;
   }
 
