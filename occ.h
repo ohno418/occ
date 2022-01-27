@@ -42,6 +42,7 @@ typedef enum {
   ND_EXPR_STMT, // expression statement
   ND_BLOCK,     // compound statement
   ND_RETURN,    // return statement
+  ND_NULL_STMT, // null statement
 
   ND_NUM,       // number
   ND_VAR,       // variable

@@ -70,7 +70,8 @@ Node *primary(Token *tok, Token **rest);
 
 // stmt = "return" expr ";"
 //      | "{" stmt* "}"
-//      | expr? ";"
+//      | ";"
+//      | expr ";"
 Node *stmt(Token *tok, Token **rest) {
   // return statement
   if (equal(tok, "return")) {
@@ -99,15 +100,21 @@ Node *stmt(Token *tok, Token **rest) {
     return node;
   }
 
+  // null statement
+  if (equal(tok, ";")) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_NULL_STMT;
+    node->tok = tok;
+    node->body = NULL;
+    *rest = tok->next;
+    return node;
+  }
+
   // expression statement
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_EXPR_STMT;
   node->tok = tok;
-  if (equal(tok, ";")) {
-    node->body = NULL;
-  } else {
-    node->body = expr(tok, &tok);
-  }
+  node->body = expr(tok, &tok);
   consume(tok, rest, ";");
   return node;
 }
