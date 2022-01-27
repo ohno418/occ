@@ -159,6 +159,7 @@ Node *mul(Token *tok, Token **rest) {
 }
 
 // primary = type identifier
+//         | identifier "(" ")"
 //         | identifier
 //         | number
 //         | "sizeof" "(" (identifier | type) ")"
@@ -173,6 +174,18 @@ Node *primary(Token *tok, Token **rest) {
     node->tok = tok;
     node->var = var;
     *rest = tok->next;
+    return node;
+  }
+
+  // function call
+  if (tok->kind == TK_IDENT &&
+      equal(tok->next, "(") && equal(tok->next->next, ")")) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_FUNCALL;
+    node->tok = tok;
+    // didn't check if function exists
+    node->func_name = strndup(tok->loc, tok->len);
+    *rest = tok->next->next->next;
     return node;
   }
 

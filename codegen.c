@@ -66,6 +66,10 @@ void gen_expr(Node *node) {
       printf("  mov [rax], rdi\n");
       printf("  push rdi\n");
       return;
+    case ND_FUNCALL:
+      printf("  call %s\n", node->func_name);
+      printf("  push rax\n");
+      return;
     default:
       fprintf(stderr, "unknown kind of expr node: %d\n", node->kind);
       exit(1);

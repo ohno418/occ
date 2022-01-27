@@ -49,6 +49,7 @@ typedef enum {
   ND_MUL,       // *
   ND_DIV,       // /
   ND_ASSIGN,    // =
+  ND_FUNCALL,   // function call
 } NodeKind;
 
 typedef struct Node Node;
@@ -68,6 +69,9 @@ struct Node {
 
   // ND_VAR
   Var *var;
+
+  // ND_FUNCALL
+  char *func_name;
 };
 
 typedef struct Function Function;
