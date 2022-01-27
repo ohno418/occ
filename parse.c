@@ -163,6 +163,7 @@ Node *mul(Token *tok, Token **rest) {
 //         | identifier
 //         | number
 //         | "sizeof" "(" (identifier | type) ")"
+//         | "(" expr ")"
 Node *primary(Token *tok, Token **rest) {
   // declaration
   Type *ty = type_name(tok);
@@ -241,6 +242,13 @@ Node *primary(Token *tok, Token **rest) {
     node->kind = ND_NUM;
     node->tok = tok;
     node->num = ty->size;
+    return node;
+  }
+
+  // parenthesis expression
+  if (equal(tok, "(")) {
+    Node *node = expr(tok->next, &tok);
+    consume(tok, rest, ")");
     return node;
   }
 
