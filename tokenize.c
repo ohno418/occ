@@ -52,7 +52,7 @@ Token *tokenize(char *input) {
     }
 
     // identifier or keyword
-    if (isalnum(*p)) {
+    if (isalpha(*p)) {
       char *start = p;
       for (; isalnum(*p); p++);
       Token *tok = calloc(1, sizeof(Token));
