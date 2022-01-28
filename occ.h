@@ -41,6 +41,7 @@ typedef enum {
   // statements
   ND_EXPR_STMT, // expression statement
   ND_BLOCK,     // compound statement
+  ND_IF,        // if statement
   ND_RETURN,    // return statement
   ND_NULL_STMT, // null statement
 
@@ -62,6 +63,9 @@ struct Node {
   // statement
   Node *next;
   Node *body;
+
+  // ND_IF
+  Node *cond;
 
   Node *lhs;
   Node *rhs;

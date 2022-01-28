@@ -2,6 +2,8 @@
 
 Function *current_func;
 
+int label_counter = 0;
+
 // Push an address of a lvalue on stack top.
 void gen_addr(Node *node) {
   if (!node->var) {
@@ -88,6 +90,16 @@ void gen_stmt(Node *node) {
       for (Node *s = node->body; s; s = s->next)
         gen_stmt(s);
       return;
+    case ND_IF: {
+      int cnt = ++label_counter;
+      gen_expr(node->cond);
+      printf("  pop rax\n");
+      printf("  test rax, rax\n");
+      printf("  jz .L.if.%d.end\n", cnt);
+      gen_stmt(node->body);
+      printf(".L.if.%d.end:\n", cnt);
+      return;
+    }
     case ND_RETURN:
       gen_expr(node->body);
       printf("  pop rax\n");
