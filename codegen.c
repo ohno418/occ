@@ -95,9 +95,11 @@ void gen_stmt(Node *node) {
       gen_expr(node->cond);
       printf("  pop rax\n");
       printf("  test rax, rax\n");
-      printf("  jz .L.if.%d.end\n", cnt);
+      printf("  jz .L.if.%d.else\n", cnt);
       gen_stmt(node->body);
-      printf(".L.if.%d.end:\n", cnt);
+      printf(".L.if.%d.else:\n", cnt);
+      if (node->els)
+        gen_stmt(node->els);
       return;
     }
     case ND_RETURN:

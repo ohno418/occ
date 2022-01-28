@@ -62,6 +62,10 @@ assert "int main() { int cond=1; if (cond) { return 12; } return 23; }" "12"
 assert "int main() { if (1) { if (1) return 12; return 23; } return 34; }" "12"
 assert "int main() { if (1) { if (0) return 12; return 23; } return 34; }" "23"
 assert "int main() { if (0) { if (0) return 12; return 23; } return 34; }" "34"
+assert "int main() { if (0) return 12; else return 23; return 34; }" "23"
+assert "int main() { if (1) return 12; else return 23; return 34; }" "12"
+assert "int main() { if (0) { return 12; } else { return 23; } return 34; }" "23"
+assert "int main() { if (1) { return 12; } else { return 23; } return 34; }" "12"
 
 # sizeof
 assert "int main() { int a; return sizeof(a); }" "8"

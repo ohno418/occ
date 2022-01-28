@@ -69,7 +69,7 @@ Node *mul(Token *tok, Token **rest);
 Node *primary(Token *tok, Token **rest);
 
 // stmt = "return" expr ";"
-//      | "if" "(" expr ")" stmt
+//      | "if" "(" expr ")" stmt ("else" stmt)?
 //      | "{" stmt* "}"
 //      | ";"
 //      | expr ";"
@@ -89,11 +89,16 @@ Node *stmt(Token *tok, Token **rest) {
     node->kind = ND_IF;
     node->tok = tok;
     consume(tok->next, &tok, "(");
-
     node->cond = expr(tok, &tok);
     consume(tok, &tok, ")");
+    node->body = stmt(tok, &tok);
 
-    node->body = stmt(tok, rest);
+    if (equal(tok, "else")) {
+      node->els = stmt(tok->next, &tok);
+    } else {
+      node->els = NULL;
+    }
+    *rest = tok;
     return node;
   }
 

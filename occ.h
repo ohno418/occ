@@ -66,6 +66,7 @@ struct Node {
 
   // ND_IF
   Node *cond;
+  Node *els;
 
   Node *lhs;
   Node *rhs;
