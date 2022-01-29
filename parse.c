@@ -232,9 +232,9 @@ Node *postfix(Token *tok, Token **rest) {
       fprintf(stderr, "unkown variable: %s\n", varname);
       exit(1);
     }
-    tok = tok->next;
+    *rest = tok->next;
 
-    Node *node = new_binary(
+    return new_binary(
         ND_ASSIGN,
         var_node,
         new_binary(ND_ADD,
@@ -242,8 +242,6 @@ Node *postfix(Token *tok, Token **rest) {
                    new_num(1, start),
                    start),
         start);
-    *rest = tok;
-    return node;
   }
 
   if (equal(tok, "--")) {
@@ -259,9 +257,9 @@ Node *postfix(Token *tok, Token **rest) {
       fprintf(stderr, "unkown variable: %s\n", varname);
       exit(1);
     }
-    tok = tok->next;
+    *rest = tok->next;
 
-    Node *node = new_binary(
+    return new_binary(
         ND_ASSIGN,
         var_node,
         new_binary(ND_SUB,
@@ -269,8 +267,6 @@ Node *postfix(Token *tok, Token **rest) {
                    new_num(1, start),
                    start),
         start);
-    *rest = tok;
-    return node;
   }
 
   return primary(tok, rest);
