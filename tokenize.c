@@ -16,7 +16,7 @@ int is_keyword(Token *tok) {
 
 // Read a punctuator token from p and return its length.
 int read_punct(char *p) {
-  char *kw[] = {"++"};
+  char *kw[] = {"++", "--"};
   for (int i = 0; i < sizeof(kw) / sizeof(char*); i++)
     if (strncmp(p, kw[i], strlen(kw[i])) == 0)
       return strlen(kw[i]);

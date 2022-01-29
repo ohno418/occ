@@ -217,7 +217,7 @@ Node *mul(Token *tok, Token **rest) {
   return node;
 }
 
-// postfix == ("++")? primary
+// postfix == ("++" | "--")? primary
 Node *postfix(Token *tok, Token **rest) {
   if (equal(tok, "++")) {
     Token *start = tok;
@@ -238,6 +238,33 @@ Node *postfix(Token *tok, Token **rest) {
         ND_ASSIGN,
         var_node,
         new_binary(ND_ADD,
+                   var_node,
+                   new_num(1, start),
+                   start),
+        start);
+    *rest = tok;
+    return node;
+  }
+
+  if (equal(tok, "--")) {
+    Token *start = tok;
+    tok = tok->next;
+
+    Node *var_node = calloc(1, sizeof(Node));
+    var_node->kind = ND_VAR;
+    var_node->tok = tok;
+    char *varname = strndup(tok->loc, tok->len);
+    var_node->var = find_lvar(varname);
+    if (!var_node->var) {
+      fprintf(stderr, "unkown variable: %s\n", varname);
+      exit(1);
+    }
+    tok = tok->next;
+
+    Node *node = new_binary(
+        ND_ASSIGN,
+        var_node,
+        new_binary(ND_SUB,
                    var_node,
                    new_num(1, start),
                    start),

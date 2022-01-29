@@ -69,6 +69,9 @@ assert "int main() { if (1) { return 12; } else { return 23; } return 34; }" "12
 assert "int main() { int i = 3; ++i; return i; }" "4"
 assert "int main() { int i = 3; ++i; ++i; return i; }" "5"
 assert "int main() { int i = 3; ++i; return ++i; }" "5"
+assert "int main() { int i = 3; --i; return i; }" "2"
+assert "int main() { int i = 3; --i; --i; return i; }" "1"
+assert "int main() { int i = 3; --i; return --i; }" "1"
 
 # sizeof
 assert "int main() { int a; return sizeof(a); }" "8"
