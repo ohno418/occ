@@ -45,6 +45,14 @@ void consume(Token *tok, Token **rest, char *str) {
   }
 }
 
+Node *new_num(int num, Token *tok) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_NUM;
+  node->tok = tok;
+  node->num = num;
+  return node;
+}
+
 Node *new_binary(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
@@ -226,17 +234,12 @@ Node *postfix(Token *tok, Token **rest) {
     }
     tok = tok->next;
 
-    Node *num_node = calloc(1, sizeof(Node));
-    num_node->kind = ND_NUM;
-    num_node->tok = start;
-    num_node->num = 1;
-
     Node *node = new_binary(
         ND_ASSIGN,
         var_node,
         new_binary(ND_ADD,
                    var_node,
-                   num_node,
+                   new_num(1, start),
                    start),
         start);
     *rest = tok;
@@ -297,10 +300,7 @@ Node *primary(Token *tok, Token **rest) {
 
   // number
   if (tok->kind == TK_NUM) {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_NUM;
-    node->tok = tok;
-    node->num = tok->num;
+    Node *node = new_num(tok->num, tok);
     *rest = tok->next;
     return node;
   }
@@ -326,11 +326,7 @@ Node *primary(Token *tok, Token **rest) {
     }
     consume(tok->next, rest, ")");
 
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_NUM;
-    node->tok = tok;
-    node->num = ty->size;
-    return node;
+    return new_num(ty->size, tok);
   }
 
   // parenthesis expression
