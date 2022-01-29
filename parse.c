@@ -66,6 +66,7 @@ Node *expr(Token *tok, Token **rest);
 Node *assign(Token *tok, Token **rest);
 Node *add(Token *tok, Token **rest);
 Node *mul(Token *tok, Token **rest);
+Node *postfix(Token *tok, Token **rest);
 Node *primary(Token *tok, Token **rest);
 
 // stmt = "return" expr ";"
@@ -183,20 +184,20 @@ Node *add(Token *tok, Token **rest) {
   return node;
 }
 
-// mul = primary (("*" | "/") primary)*
+// mul = postfix (("*" | "/") postfix)*
 Node *mul(Token *tok, Token **rest) {
   Token *start = tok;
-  Node *node = primary(tok, &tok);
+  Node *node = postfix(tok, &tok);
 
   for (; tok->kind == TK_PUNCT;) {
     if (equal(tok, "*")) {
-      Node *rhs = primary(tok->next, &tok);
+      Node *rhs = postfix(tok->next, &tok);
       node = new_binary(ND_MUL, node, rhs, start);
       continue;
     }
 
     if (equal(tok, "/")) {
-      Node *rhs = primary(tok->next, &tok);
+      Node *rhs = postfix(tok->next, &tok);
       node = new_binary(ND_DIV, node, rhs, start);
       continue;
     }
@@ -206,6 +207,43 @@ Node *mul(Token *tok, Token **rest) {
 
   *rest = tok;
   return node;
+}
+
+// postfix == ("++")? primary
+Node *postfix(Token *tok, Token **rest) {
+  if (equal(tok, "++")) {
+    Token *start = tok;
+    tok = tok->next;
+
+    Node *var_node = calloc(1, sizeof(Node));
+    var_node->kind = ND_VAR;
+    var_node->tok = tok;
+    char *varname = strndup(tok->loc, tok->len);
+    var_node->var = find_lvar(varname);
+    if (!var_node->var) {
+      fprintf(stderr, "unkown variable: %s\n", varname);
+      exit(1);
+    }
+    tok = tok->next;
+
+    Node *num_node = calloc(1, sizeof(Node));
+    num_node->kind = ND_NUM;
+    num_node->tok = start;
+    num_node->num = 1;
+
+    Node *node = new_binary(
+        ND_ASSIGN,
+        var_node,
+        new_binary(ND_ADD,
+                   var_node,
+                   num_node,
+                   start),
+        start);
+    *rest = tok;
+    return node;
+  }
+
+  return primary(tok, rest);
 }
 
 // primary = type identifier

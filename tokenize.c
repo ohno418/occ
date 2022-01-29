@@ -14,6 +14,19 @@ int is_keyword(Token *tok) {
   return 0;
 }
 
+// Read a punctuator token from p and return its length.
+int read_punct(char *p) {
+  char *kw[] = {"++"};
+  for (int i = 0; i < sizeof(kw) / sizeof(char*); i++)
+    if (strncmp(p, kw[i], strlen(kw[i])) == 0)
+      return strlen(kw[i]);
+
+  if (ispunct(*p))
+    return 1;
+
+  return 0;
+}
+
 Token *tokenize(char *input) {
   Token head = {};
   Token *cur = &head;
@@ -40,17 +53,6 @@ Token *tokenize(char *input) {
       continue;
     }
 
-    // puctuator
-    if (ispunct(*p)) {
-      Token *tok = calloc(1, sizeof(Token));
-      tok->kind = TK_PUNCT;
-      tok->loc = p;
-      tok->len = 1;
-      cur = cur->next = tok;
-      p++;
-      continue;
-    }
-
     // identifier or keyword
     if (isalpha(*p)) {
       char *start = p;
@@ -64,6 +66,18 @@ Token *tokenize(char *input) {
       } else {
         tok->kind = TK_IDENT;
       }
+      continue;
+    }
+
+    // puctuator
+    int punct_len = read_punct(p);
+    if (punct_len) {
+      Token *tok = calloc(1, sizeof(Token));
+      tok->kind = TK_PUNCT;
+      tok->loc = p;
+      tok->len = punct_len;
+      cur = cur->next = tok;
+      p += punct_len;
       continue;
     }
 
