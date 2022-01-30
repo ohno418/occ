@@ -147,9 +147,18 @@ Node *stmt(Token *tok, Token **rest) {
   return node;
 }
 
-// expr = assign
+// expr = assign ("," expr)*
 Node *expr(Token *tok, Token **rest) {
-  return assign(tok, rest);
+  Token *start = tok;
+  Node *node = assign(tok, &tok);
+
+  for (; equal(tok, ",");) {
+    tok = tok->next;
+    node = new_binary(ND_COMMA, node, expr(tok, &tok), start);
+  }
+
+  *rest = tok;
+  return node;
 }
 
 // assign = add ("=" assign)*
