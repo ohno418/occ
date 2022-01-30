@@ -75,6 +75,7 @@ Node *assign(Token *tok, Token **rest);
 Node *add(Token *tok, Token **rest);
 Node *mul(Token *tok, Token **rest);
 Node *prefix(Token *tok, Token **rest);
+Node *postfix(Token *tok, Token **rest);
 Node *primary(Token *tok, Token **rest);
 
 // stmt = "return" expr ";"
@@ -226,7 +227,7 @@ Node *mul(Token *tok, Token **rest) {
   return node;
 }
 
-// prefix == ("++" | "--")? primary
+// prefix == ("++" | "--")? postfix
 Node *prefix(Token *tok, Token **rest) {
   if (equal(tok, "++")) {
     Token *start = tok;
@@ -278,7 +279,40 @@ Node *prefix(Token *tok, Token **rest) {
         start);
   }
 
-  return primary(tok, rest);
+  return postfix(tok, rest);
+}
+
+// postfix = primary ("++")?
+Node *postfix(Token *tok, Token **rest) {
+  Token *start = tok;
+  Node *node = primary(tok, &tok);
+
+  if (equal(tok, "++")) {
+    if (node->kind != ND_VAR || !node->var) {
+      fprintf(stderr, "expected a variable: %s\n", start->loc);
+      exit(1);
+    }
+
+    // `var++` is equal to `var = var + 1, var - 1`
+    Node *assign_node = new_binary(
+        ND_ASSIGN,
+        node,
+        new_binary(ND_ADD,
+                   node,
+                   new_num(1, start),
+                   start),
+        start);
+    Node *sub_node = new_binary(
+        ND_SUB,
+        node,
+        new_num(1, start),
+        start);
+    node = new_binary(ND_COMMA, assign_node, sub_node, start);
+    tok = tok->next;
+  }
+
+  *rest = tok;
+  return node;
 }
 
 // primary = type identifier
