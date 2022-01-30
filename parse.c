@@ -74,7 +74,7 @@ Node *expr(Token *tok, Token **rest);
 Node *assign(Token *tok, Token **rest);
 Node *add(Token *tok, Token **rest);
 Node *mul(Token *tok, Token **rest);
-Node *postfix(Token *tok, Token **rest);
+Node *prefix(Token *tok, Token **rest);
 Node *primary(Token *tok, Token **rest);
 
 // stmt = "return" expr ";"
@@ -201,20 +201,20 @@ Node *add(Token *tok, Token **rest) {
   return node;
 }
 
-// mul = postfix (("*" | "/") postfix)*
+// mul = prefix (("*" | "/") prefix)*
 Node *mul(Token *tok, Token **rest) {
   Token *start = tok;
-  Node *node = postfix(tok, &tok);
+  Node *node = prefix(tok, &tok);
 
   for (; tok->kind == TK_PUNCT;) {
     if (equal(tok, "*")) {
-      Node *rhs = postfix(tok->next, &tok);
+      Node *rhs = prefix(tok->next, &tok);
       node = new_binary(ND_MUL, node, rhs, start);
       continue;
     }
 
     if (equal(tok, "/")) {
-      Node *rhs = postfix(tok->next, &tok);
+      Node *rhs = prefix(tok->next, &tok);
       node = new_binary(ND_DIV, node, rhs, start);
       continue;
     }
@@ -226,8 +226,8 @@ Node *mul(Token *tok, Token **rest) {
   return node;
 }
 
-// postfix == ("++" | "--")? primary
-Node *postfix(Token *tok, Token **rest) {
+// prefix == ("++" | "--")? primary
+Node *prefix(Token *tok, Token **rest) {
   if (equal(tok, "++")) {
     Token *start = tok;
     tok = tok->next;
