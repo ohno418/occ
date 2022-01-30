@@ -76,6 +76,8 @@ assert "int main() { int i = 7; ++i, ++i; return i; }" "9"
 assert "int main() { int i = 7; ++i, i = 42, ++i; return i; }" "43"
 assert "int main() { int i = 3; i++; return i; }" "4"
 assert "int main() { int i = 3; return i++; }" "3"
+assert "int main() { int i = 3; i--; return i; }" "2"
+assert "int main() { int i = 3; return i--; }" "3"
 
 # sizeof
 assert "int main() { int a; return sizeof(a); }" "8"

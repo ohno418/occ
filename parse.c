@@ -311,6 +311,30 @@ Node *postfix(Token *tok, Token **rest) {
     tok = tok->next;
   }
 
+  if (equal(tok, "--")) {
+    if (node->kind != ND_VAR || !node->var) {
+      fprintf(stderr, "expected a variable: %s\n", start->loc);
+      exit(1);
+    }
+
+    // `var--` is equal to `var = var - 1, var + 1`
+    Node *assign_node = new_binary(
+        ND_ASSIGN,
+        node,
+        new_binary(ND_SUB,
+                   node,
+                   new_num(1, start),
+                   start),
+        start);
+    Node *add_node = new_binary(
+        ND_ADD,
+        node,
+        new_num(1, start),
+        start);
+    node = new_binary(ND_COMMA, assign_node, add_node, start);
+    tok = tok->next;
+  }
+
   *rest = tok;
   return node;
 }
