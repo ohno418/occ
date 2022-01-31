@@ -78,6 +78,14 @@ assert "int main() { int i = 3; i++; return i; }" "4"
 assert "int main() { int i = 3; return i++; }" "3"
 assert "int main() { int i = 3; i--; return i; }" "2"
 assert "int main() { int i = 3; return i--; }" "3"
+assert "int main() { for(;;) return 12; return 23; }" "12"
+# TODO: for statement
+# assert "int main() { int i=0; for(; i<10; i++); return i; }" "10"
+# assert "int main() { int i=0; for(; i<10; i++) { if (i == 5) return i; } return i; }" "5"
+# assert "int main() { int i=0; for(i=3; i<10; i++) { if (i == 5) return i; } return i; }" "5"
+# assert "int main() { int i=0; for(i=6; i<10; i++) { if (i == 5) return i; } return i; }" "10"
+# assert "int main() { int k=10; for(int i=0; i<3; i++) k++; return k; }" "13"
+# assert "int main() { int k=10; for(int i=0; i<3; i++) { for(int j=0; j<2; j++) k++; } return k; }" "16"
 
 # sizeof
 assert "int main() { int a; return sizeof(a); }" "8"

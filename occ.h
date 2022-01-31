@@ -42,6 +42,11 @@ typedef enum {
   ND_EXPR_STMT, // expression statement
   ND_BLOCK,     // compound statement
   ND_IF,        // if statement
+                // (with `cond` and `els` fields)
+  /*
+  ND_FOR,       // for statement
+                // (with `init`, `cond`, `inc` fields)
+  */
   ND_RETURN,    // return statement
   ND_NULL_STMT, // null statement
 
@@ -68,6 +73,10 @@ struct Node {
   // ND_IF
   Node *cond;
   Node *els;
+
+  // ND_FOR
+  // Node *init;
+  // Node *inc;
 
   Node *lhs;
   Node *rhs;

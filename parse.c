@@ -80,6 +80,7 @@ Node *primary(Token *tok, Token **rest);
 
 // stmt = "return" expr ";"
 //      | "if" "(" expr ")" stmt ("else" stmt)?
+//      | "for" "(" expr? ";" expr? ";" expr? ")" stmt
 //      | "{" stmt* "}"
 //      | ";"
 //      | expr ";"
@@ -111,6 +112,34 @@ Node *stmt(Token *tok, Token **rest) {
     *rest = tok;
     return node;
   }
+
+  /*
+  if (equal(tok, "for")) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_FOR;
+    node->tok = tok;
+    consume(tok->next, &tok, "(");
+
+    printf("d/0\n");
+    if (!equal(tok, ";"))
+      node->init = expr(tok, &tok);
+    consume(tok, &tok, ";");
+
+    printf("d/1: %s\n", tok->loc);
+    if (!equal(tok, ";"))
+      node->cond = expr(tok, &tok);
+    printf("d/00: %s\n", tok->loc);
+    consume(tok, &tok, ";");
+
+    printf("d/2\n");
+    if (!equal(tok, ")"))
+      node->inc = expr(tok, &tok);
+    consume(tok, &tok, ")");
+
+    node->body = stmt(tok, rest);
+    return node;
+  }
+  */
 
   // compound statement
   if (equal(tok, "{")) {
