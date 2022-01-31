@@ -175,16 +175,17 @@ void gen_stmt(Node *node) {
         gen_stmt(node->els);
       return;
     }
-    /*
     case ND_FOR: {
       int cnt = ++label_counter;
-      if (node->init)
+      if (node->init) {
         gen_expr(node->init);
-      printf("  pop rax\n");
+        printf("  pop rax\n");
+      }
+      printf(".L.for.%d.start:\n", cnt);
       if (node->cond) {
         gen_expr(node->cond);
         printf("  pop rax\n");
-        printf("  tmp rax, rax\n");
+        printf("  test rax, rax\n");
         printf("  jz .L.for.%d.end\n", cnt);
       }
       gen_stmt(node->body);
@@ -192,10 +193,10 @@ void gen_stmt(Node *node) {
         gen_expr(node->inc);
         printf("  pop rax\n");
       }
+      printf("  jmp .L.for.%d.start\n", cnt);
       printf(".L.for.%d.end:\n", cnt);
       return;
     }
-    */
     case ND_RETURN:
       gen_expr(node->body);
       printf("  pop rax\n");
