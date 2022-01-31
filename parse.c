@@ -45,20 +45,23 @@ void consume(Token *tok, Token **rest, char *str) {
   }
 }
 
-Node *new_num(int num, Token *tok) {
+Node *new_node(NodeKind kind, Token *tok) {
   Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_NUM;
+  node->kind = kind;
   node->tok = tok;
+  return node;
+}
+
+Node *new_num(int num, Token *tok) {
+  Node *node = new_node(ND_NUM, tok);
   node->num = num;
   return node;
 }
 
 Node *new_binary(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
-  Node *node = calloc(1, sizeof(Node));
-  node->kind = kind;
+  Node *node = new_node(kind, tok);
   node->lhs = lhs;
   node->rhs = rhs;
-  node->tok = tok;
   return node;
 }
 
@@ -89,18 +92,14 @@ Node *primary(Token *tok, Token **rest);
 Node *stmt(Token *tok, Token **rest) {
   // return statement
   if (equal(tok, "return")) {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_RETURN;
-    node->tok = tok;
+    Node *node = new_node(ND_RETURN, tok);
     node->body = expr(tok->next, &tok);
     consume(tok, rest, ";");
     return node;
   }
 
   if (equal(tok, "if")) {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_IF;
-    node->tok = tok;
+    Node *node = new_node(ND_IF, tok);
     consume(tok->next, &tok, "(");
     node->cond = expr(tok, &tok);
     consume(tok, &tok, ")");
@@ -116,9 +115,7 @@ Node *stmt(Token *tok, Token **rest) {
   }
 
   if (equal(tok, "for")) {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_FOR;
-    node->tok = tok;
+    Node *node = new_node(ND_FOR, tok);
     consume(tok->next, &tok, "(");
 
     if (!equal(tok, ";"))
@@ -147,27 +144,21 @@ Node *stmt(Token *tok, Token **rest) {
       cur = cur->next = stmt(tok, &tok);
     consume(tok, rest, "}");
 
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_BLOCK;
-    node->tok = start;
+    Node *node = new_node(ND_BLOCK, start);
     node->body = head.next;
     return node;
   }
 
   // null statement
   if (equal(tok, ";")) {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_NULL_STMT;
-    node->tok = tok;
+    Node *node = new_node(ND_NULL_STMT, tok);
     node->body = NULL;
     *rest = tok->next;
     return node;
   }
 
   // expression statement
-  Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_EXPR_STMT;
-  node->tok = tok;
+  Node *node = new_node(ND_EXPR_STMT, tok);
   node->body = expr(tok, &tok);
   consume(tok, rest, ";");
   return node;
@@ -302,9 +293,7 @@ Node *prefix(Token *tok, Token **rest) {
     Token *start = tok;
     tok = tok->next;
 
-    Node *var_node = calloc(1, sizeof(Node));
-    var_node->kind = ND_VAR;
-    var_node->tok = tok;
+    Node *var_node = new_node(ND_VAR, tok);
     char *varname = strndup(tok->loc, tok->len);
     var_node->var = find_lvar(varname);
     if (!var_node->var) {
@@ -327,9 +316,7 @@ Node *prefix(Token *tok, Token **rest) {
     Token *start = tok;
     tok = tok->next;
 
-    Node *var_node = calloc(1, sizeof(Node));
-    var_node->kind = ND_VAR;
-    var_node->tok = tok;
+    Node *var_node = new_node(ND_VAR, tok);
     char *varname = strndup(tok->loc, tok->len);
     var_node->var = find_lvar(varname);
     if (!var_node->var) {
@@ -420,9 +407,7 @@ Node *primary(Token *tok, Token **rest) {
   if (ty) {
     tok = tok->next;
     Var *var = register_lvar(strndup(tok->loc, tok->len), ty);
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_VAR;
-    node->tok = tok;
+    Node *node = new_node(ND_VAR, tok);
     node->var = var;
     *rest = tok->next;
     return node;
@@ -431,9 +416,7 @@ Node *primary(Token *tok, Token **rest) {
   // function call
   if (tok->kind == TK_IDENT &&
       equal(tok->next, "(") && equal(tok->next->next, ")")) {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_FUNCALL;
-    node->tok = tok;
+    Node *node = new_node(ND_FUNCALL, tok);
     // didn't check if function exists
     node->func_name = strndup(tok->loc, tok->len);
     *rest = tok->next->next->next;
@@ -449,9 +432,7 @@ Node *primary(Token *tok, Token **rest) {
       exit(1);
     }
 
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_VAR;
-    node->tok = tok;
+    Node *node = new_node(ND_VAR, tok);
     node->var = var;
     *rest = tok->next;
     return node;
