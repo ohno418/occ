@@ -53,7 +53,7 @@ typedef enum {
   ND_DIV,       // /
   ND_ASSIGN,    // =
   ND_FUNCALL,   // function call
-  ND_COMMA,     // comma expression (with `next` field)
+  ND_COMMA,     // comma expression
 } NodeKind;
 
 typedef struct Node Node;
