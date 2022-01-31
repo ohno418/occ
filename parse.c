@@ -72,6 +72,7 @@ Type *type_name(Token *tok) {
 Node *stmt(Token *tok, Token **rest);
 Node *expr(Token *tok, Token **rest);
 Node *assign(Token *tok, Token **rest);
+Node *relational(Token *tok, Token **rest);
 Node *add(Token *tok, Token **rest);
 Node *mul(Token *tok, Token **rest);
 Node *prefix(Token *tok, Token **rest);
@@ -191,15 +192,40 @@ Node *expr(Token *tok, Token **rest) {
   return node;
 }
 
-// assign = add ("=" assign)*
+// assign = relational ("=" assign)*
 Node *assign(Token *tok, Token **rest) {
   Token *start = tok;
-  Node *node = add(tok, &tok);
+  Node *node = relational(tok, &tok);
 
   for (; equal(tok, "=");) {
     Node *rhs = assign(tok->next, &tok);
     node = new_binary(ND_ASSIGN, node, rhs, start);
     continue;
+  }
+
+  *rest = tok;
+  return node;
+}
+
+// relational = add (("<" | ">" | "<=" | ">=") add)*
+Node *relational(Token *tok, Token **rest) {
+  Token *start = tok;
+  Node *node = add(tok, &tok);
+
+  for (;;) {
+    if (equal(tok, "<"))
+      node = new_binary(ND_LT, node, add(tok->next, &tok), start);
+
+    if (equal(tok, ">"))
+      node = new_binary(ND_LT, add(tok->next, &tok), node, start);
+
+    if (equal(tok, "<="))
+      node = new_binary(ND_LTE, node, add(tok->next, &tok), start);
+
+    if (equal(tok, ">="))
+      node = new_binary(ND_LTE, add(tok->next, &tok), node, start);
+
+    break;
   }
 
   *rest = tok;

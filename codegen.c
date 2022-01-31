@@ -60,6 +60,40 @@ void gen_expr(Node *node) {
       printf("  idiv rdi\n");
       printf("  push rax\n");
       return;
+    case ND_LT: {
+      int cnt = ++label_counter;
+      gen_expr(node->lhs);
+      gen_expr(node->rhs);
+      printf("  pop rdi\n");
+      printf("  pop rax\n");
+      printf("  cmp rax, rdi\n");
+      printf("  jl .L.lt.%d.true\n", cnt);
+      printf("  jmp .L.lt.%d.false\n", cnt);
+      printf(".L.lt.%d.true:\n", cnt);
+      printf("  push 1\n");
+      printf("  jmp .L.lt.%d.end\n", cnt);
+      printf(".L.lt.%d.false:\n", cnt);
+      printf("  push 0\n");
+      printf(".L.lt.%d.end:\n", cnt);
+      return;
+    }
+    case ND_LTE: {
+      int cnt = ++label_counter;
+      gen_expr(node->lhs);
+      gen_expr(node->rhs);
+      printf("  pop rdi\n");
+      printf("  pop rax\n");
+      printf("  cmp rax, rdi\n");
+      printf("  jle .L.lte.%d.true\n", cnt);
+      printf("  jmp .L.lte.%d.false\n", cnt);
+      printf(".L.lte.%d.true:\n", cnt);
+      printf("  push 1\n");
+      printf("  jmp .L.lte.%d.end\n", cnt);
+      printf(".L.lte.%d.false:\n", cnt);
+      printf("  push 0\n");
+      printf(".L.lte.%d.end:\n", cnt);
+      return;
+    }
     case ND_ASSIGN:
       gen_addr(node->lhs);
       gen_expr(node->rhs);
