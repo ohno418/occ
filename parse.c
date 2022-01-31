@@ -33,7 +33,7 @@ bool equal(Token *tok, char *str) {
     return false;
   }
 
-  return strncmp(tok->loc, str, strlen(str)) == 0;
+  return tok->len == strlen(str) && strncmp(tok->loc, str, strlen(str)) == 0;
 }
 
 void consume(Token *tok, Token **rest, char *str) {
