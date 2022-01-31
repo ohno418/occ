@@ -94,6 +94,40 @@ void gen_expr(Node *node) {
       printf(".L.lte.%d.end:\n", cnt);
       return;
     }
+    case ND_EQ: {
+      int cnt = ++label_counter;
+      gen_expr(node->lhs);
+      gen_expr(node->rhs);
+      printf("  pop rdi\n");
+      printf("  pop rax\n");
+      printf("  cmp rax, rdi\n");
+      printf("  je .L.eq.%d.true\n", cnt);
+      printf("  jmp .L.eq.%d.false\n", cnt);
+      printf(".L.eq.%d.true:\n", cnt);
+      printf("  push 1\n");
+      printf("  jmp .L.eq.%d.end\n", cnt);
+      printf(".L.eq.%d.false:\n", cnt);
+      printf("  push 0\n");
+      printf(".L.eq.%d.end:\n", cnt);
+      return;
+    }
+    case ND_NEQ: {
+      int cnt = ++label_counter;
+      gen_expr(node->lhs);
+      gen_expr(node->rhs);
+      printf("  pop rdi\n");
+      printf("  pop rax\n");
+      printf("  cmp rax, rdi\n");
+      printf("  jne .L.eq.%d.true\n", cnt);
+      printf("  jmp .L.eq.%d.false\n", cnt);
+      printf(".L.eq.%d.true:\n", cnt);
+      printf("  push 1\n");
+      printf("  jmp .L.eq.%d.end\n", cnt);
+      printf(".L.eq.%d.false:\n", cnt);
+      printf("  push 0\n");
+      printf(".L.eq.%d.end:\n", cnt);
+      return;
+    }
     case ND_ASSIGN:
       gen_addr(node->lhs);
       gen_expr(node->rhs);

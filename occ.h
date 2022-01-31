@@ -58,6 +58,8 @@ typedef enum {
   ND_DIV,       // /
   ND_LT,        // <
   ND_LTE,       // <=
+  ND_EQ,        // ==
+  ND_NEQ,       // !=
   ND_ASSIGN,    // =
   ND_FUNCALL,   // function call
   ND_COMMA,     // comma expression
