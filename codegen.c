@@ -1,8 +1,10 @@
 #include "occ.h"
 
+// currently processing function
 Function *current_func;
 
-int label_counter = 0;
+// Label index, used to identify labels.
+int label_idx = 0;
 
 // nested loop structure
 // (used by `break` and `continue` statements)
@@ -37,7 +39,7 @@ void gen_stmt(Node *node) {
         gen_stmt(s);
       return;
     case ND_IF: {
-      int cnt = ++label_counter;
+      int cnt = ++label_idx;
       gen_expr(node->cond);
       printf("  pop rax\n");
       printf("  test rax, rax\n");
@@ -49,7 +51,7 @@ void gen_stmt(Node *node) {
       return;
     }
     case ND_FOR: {
-      int cnt = ++label_counter;
+      int cnt = ++label_idx;
       char break_label[124];
       sprintf(break_label, ".L.for.%d.end", cnt);
       go_inner_loop(break_label);
@@ -155,7 +157,7 @@ void gen_expr(Node *node) {
       printf("  push rax\n");
       return;
     case ND_LT: {
-      int cnt = ++label_counter;
+      int cnt = ++label_idx;
       gen_expr(node->lhs);
       gen_expr(node->rhs);
       printf("  pop rdi\n");
@@ -172,7 +174,7 @@ void gen_expr(Node *node) {
       return;
     }
     case ND_LTE: {
-      int cnt = ++label_counter;
+      int cnt = ++label_idx;
       gen_expr(node->lhs);
       gen_expr(node->rhs);
       printf("  pop rdi\n");
@@ -189,7 +191,7 @@ void gen_expr(Node *node) {
       return;
     }
     case ND_EQ: {
-      int cnt = ++label_counter;
+      int cnt = ++label_idx;
       gen_expr(node->lhs);
       gen_expr(node->rhs);
       printf("  pop rdi\n");
@@ -206,7 +208,7 @@ void gen_expr(Node *node) {
       return;
     }
     case ND_NEQ: {
-      int cnt = ++label_counter;
+      int cnt = ++label_idx;
       gen_expr(node->lhs);
       gen_expr(node->rhs);
       printf("  pop rdi\n");
