@@ -1,12 +1,12 @@
 #include "occ.h"
 
-// currently processing function
+// Currently processed function.
 Function *current_func;
 
 // Label index, used to identify labels.
 int label_idx = 0;
 
-// nested loop structure
+// Nested loop structure.
 // (used by `break` and `continue` statements)
 struct Loop {
   char *break_label;
