@@ -46,6 +46,7 @@ typedef enum {
   ND_FOR,       // for statement
                 // (with `init`, `cond`, `inc` fields)
   ND_BREAK,     // break statement
+  ND_CONTINUE,  // continue statement
   ND_RETURN,    // return statement
   ND_NULL_STMT, // null statement
 

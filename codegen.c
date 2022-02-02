@@ -9,14 +9,16 @@ int label_idx = 0;
 // Nested loop structure.
 // (used by `break` and `continue` statements)
 struct Loop {
+  char *continue_label;
   char *break_label;
   struct Loop *outer;
 };
 
 struct Loop *current_loop = NULL;
 
-void go_inner_loop(char *break_label) {
+void go_inner_loop(char *continue_label, char *break_label) {
   struct Loop *l = calloc(1, sizeof(struct Loop));
+  l->continue_label = continue_label;
   l->break_label = break_label;
   l->outer = current_loop;
   current_loop = l;
@@ -54,8 +56,10 @@ void gen_stmt(Node *node) {
     case ND_FOR: {
       int cnt = ++label_idx;
       char break_label[124];
+      char continue_label[124];
       sprintf(break_label, ".L.for.%d.end", cnt);
-      go_inner_loop(break_label);
+      sprintf(continue_label, ".L.for.%d.increment", cnt);
+      go_inner_loop(continue_label, break_label);
 
       if (node->init) {
         gen_expr(node->init);
@@ -69,6 +73,7 @@ void gen_stmt(Node *node) {
         printf("  jz .L.for.%d.end\n", cnt);
       }
       gen_stmt(node->body);
+      printf("%s:\n", continue_label);
       if (node->inc) {
         gen_expr(node->inc);
         printf("  pop rax\n");
@@ -85,6 +90,13 @@ void gen_stmt(Node *node) {
          exit(1);
        }
        printf("  jmp %s\n", current_loop->break_label);
+       return;
+    case ND_CONTINUE:
+       if (!current_loop || !current_loop->continue_label) {
+         fprintf(stderr, "continue out of loop\n");
+         exit(1);
+       }
+       printf("  jmp %s\n", current_loop->continue_label);
        return;
     case ND_RETURN:
       gen_expr(node->body);

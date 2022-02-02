@@ -3,7 +3,8 @@
 // Return keyword length if keyword,
 // otherwise return zero.
 int is_keyword(Token *tok) {
-  char *keywords[] = {"return", "if", "else", "for", "break", "sizeof", "int"};
+  char *keywords[] = {"return", "if", "else", "for", "break", "continue",
+                      "sizeof", "int"};
   for (int i = 0; i < sizeof(keywords) / sizeof(char*); i++) {
     char *kw = keywords[i];
     if (tok->len == strlen(kw) &&
