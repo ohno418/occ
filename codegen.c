@@ -28,6 +28,7 @@ void go_outer_loop() {
 
 void gen_expr(Node *node);
 
+// Generate assembly code from statement nodes.
 void gen_stmt(Node *node) {
   switch (node->kind) {
     case ND_EXPR_STMT:
@@ -111,7 +112,8 @@ void gen_addr(Node *node) {
   printf("  push rax\n");
 }
 
-// Push a result on stack top.
+// Generate assembly code from expression nodes.
+// (Each generated code intends to leave a result of an expression on the stack top.)
 void gen_expr(Node *node) {
   switch (node->kind) {
     case ND_NUM:
