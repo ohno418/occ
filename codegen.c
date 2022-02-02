@@ -4,6 +4,67 @@ Function *current_func;
 
 int label_counter = 0;
 
+void gen_expr(Node *node);
+
+void gen_stmt(Node *node) {
+  switch (node->kind) {
+    case ND_EXPR_STMT:
+      gen_expr(node->body);
+      printf("  pop rax\n");
+      return;
+    case ND_BLOCK:
+      for (Node *s = node->body; s; s = s->next)
+        gen_stmt(s);
+      return;
+    case ND_IF: {
+      int cnt = ++label_counter;
+      gen_expr(node->cond);
+      printf("  pop rax\n");
+      printf("  test rax, rax\n");
+      printf("  jz .L.if.%d.else\n", cnt);
+      gen_stmt(node->body);
+      printf(".L.if.%d.else:\n", cnt);
+      if (node->els)
+        gen_stmt(node->els);
+      return;
+    }
+    case ND_FOR: {
+      int cnt = ++label_counter;
+      if (node->init) {
+        gen_expr(node->init);
+        printf("  pop rax\n");
+      }
+      printf(".L.for.%d.start:\n", cnt);
+      if (node->cond) {
+        gen_expr(node->cond);
+        printf("  pop rax\n");
+        printf("  test rax, rax\n");
+        printf("  jz .L.for.%d.end\n", cnt);
+      }
+      gen_stmt(node->body);
+      if (node->inc) {
+        gen_expr(node->inc);
+        printf("  pop rax\n");
+      }
+      printf("  jmp .L.for.%d.start\n", cnt);
+      printf(".L.for.%d.end:\n", cnt);
+      return;
+    }
+    case ND_RETURN:
+      gen_expr(node->body);
+      printf("  pop rax\n");
+      printf("  jmp .L.%s.end\n", current_func->name);
+      return;
+    case ND_NULL_STMT:
+      return;
+    default:
+      fprintf(stderr, "unknown kind of statement node: %d\n", node->kind);
+      exit(1);
+  }
+
+  assert(0);
+}
+
 // Push an address of a lvalue on stack top.
 void gen_addr(Node *node) {
   if (!node->var) {
@@ -147,65 +208,6 @@ void gen_expr(Node *node) {
       return;
     default:
       fprintf(stderr, "unknown kind of expr node: %d\n", node->kind);
-      exit(1);
-  }
-
-  assert(0);
-}
-
-void gen_stmt(Node *node) {
-  switch (node->kind) {
-    case ND_EXPR_STMT:
-      gen_expr(node->body);
-      printf("  pop rax\n");
-      return;
-    case ND_BLOCK:
-      for (Node *s = node->body; s; s = s->next)
-        gen_stmt(s);
-      return;
-    case ND_IF: {
-      int cnt = ++label_counter;
-      gen_expr(node->cond);
-      printf("  pop rax\n");
-      printf("  test rax, rax\n");
-      printf("  jz .L.if.%d.else\n", cnt);
-      gen_stmt(node->body);
-      printf(".L.if.%d.else:\n", cnt);
-      if (node->els)
-        gen_stmt(node->els);
-      return;
-    }
-    case ND_FOR: {
-      int cnt = ++label_counter;
-      if (node->init) {
-        gen_expr(node->init);
-        printf("  pop rax\n");
-      }
-      printf(".L.for.%d.start:\n", cnt);
-      if (node->cond) {
-        gen_expr(node->cond);
-        printf("  pop rax\n");
-        printf("  test rax, rax\n");
-        printf("  jz .L.for.%d.end\n", cnt);
-      }
-      gen_stmt(node->body);
-      if (node->inc) {
-        gen_expr(node->inc);
-        printf("  pop rax\n");
-      }
-      printf("  jmp .L.for.%d.start\n", cnt);
-      printf(".L.for.%d.end:\n", cnt);
-      return;
-    }
-    case ND_RETURN:
-      gen_expr(node->body);
-      printf("  pop rax\n");
-      printf("  jmp .L.%s.end\n", current_func->name);
-      return;
-    case ND_NULL_STMT:
-      return;
-    default:
-      fprintf(stderr, "unknown kind of statement node: %d\n", node->kind);
       exit(1);
   }
 
