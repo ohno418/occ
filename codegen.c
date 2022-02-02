@@ -13,17 +13,15 @@ struct Loop {
 
 struct Loop *current_loop = NULL;
 
-struct Loop *go_inner_loop(char *break_label) {
+void go_inner_loop(char *break_label) {
   struct Loop *l = calloc(1, sizeof(struct Loop));
   l->break_label = break_label;
   l->outer = current_loop;
   current_loop = l;
-  return current_loop;
 }
 
-struct Loop *go_outer_loop() {
+void go_outer_loop() {
   current_loop = current_loop->outer;
-  return current_loop;
 }
 
 void gen_expr(Node *node);
