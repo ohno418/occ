@@ -86,6 +86,7 @@ Node *primary(Token *tok, Token **rest);
 // stmt = "return" expr ";"
 //      | "if" "(" expr ")" stmt ("else" stmt)?
 //      | "for" "(" expr? ";" expr? ";" expr? ")" stmt
+//      | "break" ";"
 //      | "{" stmt* "}"
 //      | ";"
 //      | expr ";"
@@ -131,6 +132,12 @@ Node *stmt(Token *tok, Token **rest) {
     consume(tok, &tok, ")");
 
     node->body = stmt(tok, rest);
+    return node;
+  }
+
+  if (equal(tok, "break")) {
+    Node *node = new_node(ND_BREAK, tok);
+    consume(tok->next, rest, ";");
     return node;
   }
 
