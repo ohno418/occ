@@ -86,6 +86,7 @@ Node *primary(Token *tok, Token **rest);
 // stmt = "return" expr ";"
 //      | "if" "(" expr ")" stmt ("else" stmt)?
 //      | "for" "(" expr? ";" expr? ";" expr? ")" stmt
+//      | "while" "(" expr ")" stmt
 //      | "break" ";"
 //      | "continue" ";"
 //      | "{" stmt* "}"
@@ -130,6 +131,17 @@ Node *stmt(Token *tok, Token **rest) {
 
     if (!equal(tok, ")"))
       node->inc = expr(tok, &tok);
+    consume(tok, &tok, ")");
+
+    node->body = stmt(tok, rest);
+    return node;
+  }
+
+  if (equal(tok, "while")) {
+    Node *node = new_node(ND_FOR, tok);
+    consume(tok->next, &tok, "(");
+
+    node->cond = expr(tok, &tok);
     consume(tok, &tok, ")");
 
     node->body = stmt(tok, rest);
