@@ -87,6 +87,7 @@ Node *primary(Token *tok, Token **rest);
 //      | "if" "(" expr ")" stmt ("else" stmt)?
 //      | "for" "(" expr? ";" expr? ";" expr? ")" stmt
 //      | "while" "(" expr ")" stmt
+//      | "do" stmt "while" "(" expr ")" ";"
 //      | "break" ";"
 //      | "continue" ";"
 //      | "{" stmt* "}"
@@ -145,6 +146,18 @@ Node *stmt(Token *tok, Token **rest) {
     consume(tok, &tok, ")");
 
     node->body = stmt(tok, rest);
+    return node;
+  }
+
+  if (equal(tok, "do")) {
+    Node *node = new_node(ND_DO, tok);
+    tok = tok->next;
+    node->body = stmt(tok, &tok);
+    consume(tok, &tok, "while");
+    consume(tok, &tok, "(");
+    node->cond = expr(tok, &tok);
+    consume(tok, &tok, ")");
+    consume(tok, rest, ";");
     return node;
   }
 

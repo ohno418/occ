@@ -43,8 +43,9 @@ typedef enum {
   ND_BLOCK,     // compound statement
   ND_IF,        // if statement
                 // (with `cond` and `els` fields)
-  ND_FOR,       // for statement
+  ND_FOR,       // for/while statement
                 // (with `init`, `cond`, `inc` fields)
+  ND_DO,        // do-while statement
   ND_BREAK,     // break statement
   ND_CONTINUE,  // continue statement
   ND_RETURN,    // return statement

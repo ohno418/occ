@@ -55,8 +55,8 @@ void gen_stmt(Node *node) {
     }
     case ND_FOR: {
       int cnt = ++label_idx;
-      char break_label[124];
-      char continue_label[124];
+      char break_label[128];
+      char continue_label[128];
       sprintf(break_label, ".L.for.%d.end", cnt);
       sprintf(continue_label, ".L.for.%d.increment", cnt);
       go_inner_loop(continue_label, break_label);
@@ -79,6 +79,26 @@ void gen_stmt(Node *node) {
         printf("  pop rax\n");
       }
       printf("  jmp .L.for.%d.start\n", cnt);
+      printf("%s:\n", break_label);
+
+      go_outer_loop();
+      return;
+    }
+    case ND_DO: {
+      int cnt = ++label_idx;
+      char break_label[128];
+      char continue_label[128];
+      sprintf(break_label, ".L.do.%d.end", cnt);
+      sprintf(continue_label, ".L.do.%d.start", cnt);
+      go_inner_loop(continue_label, break_label);
+
+      printf("%s:\n", continue_label);
+      gen_stmt(node->body);
+      gen_expr(node->cond);
+      printf("  pop rax\n");
+      printf("  test rax, rax\n");
+      printf("  jz %s\n", break_label);
+      printf("  jmp %s\n", continue_label);
       printf("%s:\n", break_label);
 
       go_outer_loop();

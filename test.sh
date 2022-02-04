@@ -119,6 +119,9 @@ assert "int main() { for(;;) { for(;;) { break; return 12; } return 23; } return
 assert "int main() { int n=1; for(int i=0; i<5; i++) { if (i>3) continue; n=n*2; } return n; }" "16"
 assert "int main() { int i=0; while(i<3) i++; return i; }" "3"
 assert "int main() { int i=0; while(i<3) { break; i++; } return i; }" "0"
+assert "int main() { int i=0; do i++; while (i<10); return i; }" "10"
+assert "int main() { int i=0; int j=1; do { j=j*2; i++; } while (i<3); return j; }" "8"
+assert "int main() { int i=3; do { break; i++; } while (i<10); return i; }" "3"
 
 # sizeof
 assert "int main() { int a; return sizeof(a); }" "8"
