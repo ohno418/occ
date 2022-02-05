@@ -6,6 +6,7 @@ Function *current_func;
 // Label index, used to identify labels.
 int label_idx = 0;
 
+// TODO: Process on parse.c
 // Nested loop structure.
 // (used by `break` and `continue` statements)
 struct Loop {
