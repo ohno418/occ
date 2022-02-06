@@ -1,7 +1,7 @@
 #include "occ.h"
 
 // Currently processed function.
-Function *current_func;
+static Function *current_func;
 
 // Registers where put arguments.
 char *arg_regs[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
@@ -278,13 +278,32 @@ void gen_expr(Node *node) {
 }
 
 // Assign offset to local variables and stack area for them.
-void assign_lvar_offset(Var *vars) {
+void assign_lvar_offset(Function *func) {
   int offset = 0;
-  for (Var *v = vars; v; v = v->next) {
+
+  // arguments
+  for (Var *arg = func->args; arg; arg = arg->next) {
+    offset += 8;
+    arg->offset = offset;
+  }
+
+  // local variables
+  for (Var *v = func->vars; v; v = v->next) {
     offset += 8;
     v->offset = offset;
   }
+
   printf("  sub rsp, %d\n", offset);
+}
+
+// Assign arguments to memory according to their offsets.
+void assign_args_to_mem(Var *args) {
+  int i = 0;
+  for (Var *arg = args; arg; arg = arg->next) {
+    printf("  lea rax, [rbp - %d]\n", arg->offset);
+    printf("  mov [rax], %s\n", arg_regs[i]);
+    ++i;
+  }
 }
 
 void codegen(Function *func) {
@@ -297,7 +316,8 @@ void codegen(Function *func) {
     printf("  push rbp\n");
     printf("  mov rbp, rsp\n");
 
-    assign_lvar_offset(current_func->vars);
+    assign_lvar_offset(current_func);
+    assign_args_to_mem(current_func->args);
 
     for (Node *node = current_func->body; node; node = node->next)
       gen_stmt(node);

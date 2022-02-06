@@ -1,15 +1,30 @@
 #include "occ.h"
 
-// local variables
+// Currently processed function.
+static Function *current_func;
+
+// TODO: Not necessary?
+//       Is it enough to register as lvars of current function in `register_lvar`?
+// arguments and local variables
 Var *lvars = NULL;
 
 Var *find_lvar(char *name) {
+  // Search from arguments.
+  for (Var *arg = current_func->args; arg; arg = arg->next) {
+    if (strlen(name) == strlen(arg->name) &&
+        strncmp(name, arg->name, strlen(name)) == 0) {
+      return arg;
+    }
+  }
+
+  // Search from local variables.
   for (Var *v = lvars; v; v = v->next) {
     if (strlen(name) == strlen(v->name) &&
         strncmp(name, v->name, strlen(name)) == 0) {
       return v;
     }
   }
+
   return NULL;
 }
 
@@ -531,9 +546,33 @@ Node *primary(Token *tok, Token **rest) {
   exit(1);
 }
 
-// function = type name "(" ")" "{" stmt* "}"
+// func_args = type_name arg_name ("," type_name arg_name)*
+Var *func_args(Token *tok, Token **rest) {
+  Var head = {};
+  Var *cur = &head;
+  for (int i = 0; !equal(tok, ")"); ++i) {
+    if (i != 0)
+      consume(tok, &tok, ",");
+
+    Var *arg = calloc(1, sizeof(Var));
+    arg->ty = type_name(tok);
+    if (!arg->ty) {
+      fprintf(stderr, "expected type name: %s\n", tok->loc);
+      exit(1);
+    }
+    tok = tok->next;
+    arg->name = strndup(tok->loc, tok->len);
+    cur = cur->next = arg;
+    tok = tok->next;
+  }
+  *rest = tok;
+  return head.next;
+}
+
+// function = type name "(" func_args? ")" "{" stmt* "}"
 Function *function(Token *tok, Token **rest) {
   Function *func = calloc(1, sizeof(Function));
+  current_func = func;
   lvars = NULL;
 
   func->ty = type_name(tok);
@@ -551,6 +590,8 @@ Function *function(Token *tok, Token **rest) {
   tok = tok->next;
 
   consume(tok, &tok, "(");
+  if (!equal(tok, ")"))
+    func->args = func_args(tok, &tok);
   consume(tok, &tok, ")");
   consume(tok, &tok, "{");
 

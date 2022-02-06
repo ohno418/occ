@@ -100,9 +100,12 @@ struct Node {
 typedef struct Function Function;
 struct Function {
   Function *next;
-  char *name;
   Type *ty;
+  char *name;
+  Var *args;
   Node *body;
+
+  // TODO: Rename `vars` to `lvars`.
   // local variables
   Var *vars;
 };
