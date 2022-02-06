@@ -604,7 +604,7 @@ Function *function(Token *tok, Token **rest) {
   consume(tok, rest, "}");
 
   func->body = head.next;
-  func->vars = lvars;
+  func->lvars = lvars;
   return func;
 }
 

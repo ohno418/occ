@@ -288,7 +288,7 @@ void assign_lvar_offset(Function *func) {
   }
 
   // local variables
-  for (Var *v = func->vars; v; v = v->next) {
+  for (Var *v = func->lvars; v; v = v->next) {
     offset += 8;
     v->offset = offset;
   }

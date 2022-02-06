@@ -105,9 +105,8 @@ struct Function {
   Var *args;
   Node *body;
 
-  // TODO: Rename `vars` to `lvars`.
   // local variables
-  Var *vars;
+  Var *lvars;
 };
 
 Function *parse(Token *tok);
