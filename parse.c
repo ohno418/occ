@@ -3,11 +3,6 @@
 // Currently processed function.
 static Function *current_func;
 
-// TODO: Not necessary?
-//       Is it enough to register as lvars of current function in `register_lvar`?
-// arguments and local variables
-Var *lvars = NULL;
-
 Var *find_lvar(char *name) {
   // Search from arguments.
   for (Var *arg = current_func->args; arg; arg = arg->next) {
@@ -18,7 +13,7 @@ Var *find_lvar(char *name) {
   }
 
   // Search from local variables.
-  for (Var *v = lvars; v; v = v->next) {
+  for (Var *v = current_func->lvars; v; v = v->next) {
     if (strlen(name) == strlen(v->name) &&
         strncmp(name, v->name, strlen(name)) == 0) {
       return v;
@@ -37,9 +32,9 @@ Var *register_lvar(char *name, Type *ty) {
 
   Var *var = calloc(1, sizeof(Var));
   var->name = name;
-  var->next = lvars;
+  var->next = current_func->lvars;
   var->ty = ty;
-  lvars = var;
+  current_func->lvars = var;
   return var;
 }
 
@@ -573,7 +568,6 @@ Var *func_args(Token *tok, Token **rest) {
 Function *function(Token *tok, Token **rest) {
   Function *func = calloc(1, sizeof(Function));
   current_func = func;
-  lvars = NULL;
 
   func->ty = type_name(tok);
   if (!func->ty) {
@@ -604,7 +598,6 @@ Function *function(Token *tok, Token **rest) {
   consume(tok, rest, "}");
 
   func->body = head.next;
-  func->lvars = lvars;
   return func;
 }
 
