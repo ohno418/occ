@@ -569,6 +569,7 @@ Function *function(Token *tok, Token **rest) {
   Function *func = calloc(1, sizeof(Function));
   current_func = func;
 
+  // type
   func->ty = type_name(tok);
   if (!func->ty) {
     fprintf(stderr, "type name required for function: %s\n", tok->loc);
@@ -576,6 +577,7 @@ Function *function(Token *tok, Token **rest) {
   }
   tok = tok->next;
 
+  // name
   if (tok->kind != TK_IDENT) {
     fprintf(stderr, "expected function name: %s\n", tok->loc);
     exit(1);
@@ -583,21 +585,20 @@ Function *function(Token *tok, Token **rest) {
   func->name = strndup(tok->loc, tok->len);
   tok = tok->next;
 
+  // arguments
   consume(tok, &tok, "(");
   if (!equal(tok, ")"))
     func->args = func_args(tok, &tok);
   consume(tok, &tok, ")");
   consume(tok, &tok, "{");
 
-  // AST of body
+  // body
   Node head;
   Node *cur = &head;
   for (; !equal(tok, "}");)
     cur = cur->next = stmt(tok, &tok);
-
-  consume(tok, rest, "}");
-
   func->body = head.next;
+  consume(tok, rest, "}");
   return func;
 }
 
