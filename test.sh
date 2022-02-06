@@ -1,11 +1,13 @@
 #!/bin/bash
 
+echo "int ret(int n) { return n; } int ret_add(int a, int b) { return a+b; }" | gcc -xc -S -o func.s -
+
 assert() {
   input=$1
   expected=$2
 
   ./occ "$input" > tmp.s
-  gcc -o tmp tmp.s
+  gcc -o tmp tmp.s func.s
   ./tmp
   actual=$?
 
@@ -122,6 +124,10 @@ assert "int main() { int i=0; while(i<3) { break; i++; } return i; }" "0"
 assert "int main() { int i=0; do i++; while (i<10); return i; }" "10"
 assert "int main() { int i=0; int j=1; do { j=j*2; i++; } while (i<3); return j; }" "8"
 assert "int main() { int i=3; do { break; i++; } while (i<10); return i; }" "3"
+assert "int main() { return ret(123); }" "123"
+assert "int main() { int var=42; return ret(var); }" "42"
+assert "int main() { int var=24; int foo=ret(var); return foo; }" "24"
+assert "int main() { return ret_add(3, 4); }" "7"
 
 # sizeof
 assert "int main() { int a; return sizeof(a); }" "8"

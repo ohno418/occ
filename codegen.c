@@ -3,6 +3,9 @@
 // Currently processed function.
 Function *current_func;
 
+// Registers where put arguments.
+char *arg_regs[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+
 // Label index, used to identify labels.
 int label_idx = 0;
 
@@ -250,9 +253,17 @@ void gen_expr(Node *node) {
       printf("  push rdi\n");
       return;
     case ND_FUNCALL:
+    {
+      int i = 0;
+      for (Node *arg = node->args; arg; arg = arg->next) {
+        gen_expr(arg);
+        printf("  pop %s\n", arg_regs[i]);
+        ++i;
+      }
       printf("  call %s\n", node->func_name);
       printf("  push rax\n");
       return;
+    }
     case ND_COMMA:
       gen_expr(node->lhs);
       printf("  pop rax\n");

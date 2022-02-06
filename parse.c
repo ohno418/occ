@@ -435,7 +435,7 @@ Node *postfix(Token *tok, Token **rest) {
 }
 
 // primary = type identifier
-//         | identifier "(" ")"
+//         | identifier "(" (assign ("," assign)*)? ")"
 //         | identifier
 //         | number
 //         | "sizeof" "(" (identifier | type) ")"
@@ -453,12 +453,24 @@ Node *primary(Token *tok, Token **rest) {
   }
 
   // function call
-  if (tok->kind == TK_IDENT &&
-      equal(tok->next, "(") && equal(tok->next->next, ")")) {
+  if (tok->kind == TK_IDENT && equal(tok->next, "(")) {
     Node *node = new_node(ND_FUNCALL, tok);
     // didn't check if function exists
     node->func_name = strndup(tok->loc, tok->len);
-    *rest = tok->next->next->next;
+    tok = tok->next->next;
+
+    // parse arguments
+    Node head = {};
+    Node *cur = &head;
+    for (int i=0; !equal(tok, ")"); ++i) {
+      if (i != 0)
+        consume(tok, &tok, ",");
+
+      cur = cur->next = assign(tok, &tok);
+    }
+    node->args = head.next;
+
+    *rest = tok->next;
     return node;
   }
 

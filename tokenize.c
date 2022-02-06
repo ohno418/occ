@@ -57,7 +57,7 @@ Token *tokenize(char *input) {
     // identifier or keyword
     if (isalpha(*p)) {
       char *start = p;
-      for (; isalnum(*p); p++);
+      for (; isalnum(*p) || *p == '_'; p++);
       Token *tok = calloc(1, sizeof(Token));
       tok->loc = start;
       tok->len = p - start;
