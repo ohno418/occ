@@ -130,8 +130,9 @@ void gen_addr(Node *node) {
   printf("  push rax\n");
 }
 
+// TODO
 // Generate assembly code from expression nodes.
-// (Each generated code intends to leave a result of an expression on the stack top.)
+// Each generated code intends to leave its result on RAX.
 void gen_expr(Node *node) {
   switch (node->kind) {
     case ND_NUM:
