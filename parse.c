@@ -3,6 +3,17 @@
 // Currently processed function.
 static Function *current_func;
 
+// Current break/continue label.
+char *break_label = NULL;
+char *continue_label = NULL;
+
+char *new_unique_label_name() {
+  static int id = 0;
+  char *label = calloc(1, sizeof(char) * 32);
+  sprintf(label, ".L..%d", ++id);
+  return label;
+}
+
 Var *find_lvar(char *name) {
   // Search from arguments.
   for (Var *arg = current_func->args; arg; arg = arg->next) {
@@ -132,6 +143,11 @@ Node *stmt(Token *tok, Token **rest) {
     Node *node = new_node(ND_FOR, tok);
     consume(tok->next, &tok, "(");
 
+    char *pre_break_label = break_label;
+    char *pre_continue_label = continue_label;
+    node->break_label = break_label = new_unique_label_name();
+    node->continue_label = continue_label = new_unique_label_name();
+
     if (!equal(tok, ";"))
       node->init = expr(tok, &tok);
     consume(tok, &tok, ";");
@@ -145,6 +161,9 @@ Node *stmt(Token *tok, Token **rest) {
     consume(tok, &tok, ")");
 
     node->body = stmt(tok, rest);
+
+    break_label = pre_break_label;
+    continue_label = pre_continue_label;
     return node;
   }
 
@@ -152,33 +171,60 @@ Node *stmt(Token *tok, Token **rest) {
     Node *node = new_node(ND_FOR, tok);
     consume(tok->next, &tok, "(");
 
+    char *pre_break_label = break_label;
+    char *pre_continue_label = continue_label;
+    node->break_label = break_label = new_unique_label_name();
+    node->continue_label = continue_label = new_unique_label_name();
+
     node->cond = expr(tok, &tok);
     consume(tok, &tok, ")");
 
     node->body = stmt(tok, rest);
+
+    break_label = pre_break_label;
+    continue_label = pre_continue_label;
     return node;
   }
 
   if (equal(tok, "do")) {
     Node *node = new_node(ND_DO, tok);
     tok = tok->next;
+
+    char *pre_break_label = break_label;
+    char *pre_continue_label = continue_label;
+    node->break_label = break_label = new_unique_label_name();
+    node->continue_label = continue_label = new_unique_label_name();
+
     node->body = stmt(tok, &tok);
     consume(tok, &tok, "while");
     consume(tok, &tok, "(");
     node->cond = expr(tok, &tok);
     consume(tok, &tok, ")");
     consume(tok, rest, ";");
+
+    break_label = pre_break_label;
+    continue_label = pre_continue_label;
     return node;
   }
 
   if (equal(tok, "break")) {
     Node *node = new_node(ND_BREAK, tok);
+    if (!break_label) {
+       fprintf(stderr, "break out of loop\n");
+       exit(1);
+    }
+    node->break_label = break_label;
     consume(tok->next, rest, ";");
     return node;
   }
 
   if (equal(tok, "continue")) {
     Node *node = new_node(ND_CONTINUE, tok);
+    if (!continue_label) {
+      fprintf(stderr, "continue out of loop\n");
+      exit(1);
+    }
+    node->continue_label = continue_label;
     consume(tok->next, rest, ";");
     return node;
   }

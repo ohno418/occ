@@ -9,29 +9,6 @@ char *arg_regs[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 // Label index, used to identify labels.
 int label_idx = 0;
 
-// TODO: Process on parse.c
-// Nested loop structure.
-// (used by `break` and `continue` statements)
-struct Loop {
-  char *continue_label;
-  char *break_label;
-  struct Loop *outer;
-};
-
-struct Loop *current_loop = NULL;
-
-void go_inner_loop(char *continue_label, char *break_label) {
-  struct Loop *l = calloc(1, sizeof(struct Loop));
-  l->continue_label = continue_label;
-  l->break_label = break_label;
-  l->outer = current_loop;
-  current_loop = l;
-}
-
-void go_outer_loop() {
-  current_loop = current_loop->outer;
-}
-
 void gen_expr(Node *node);
 
 // Generate assembly code from statement nodes.
@@ -59,43 +36,27 @@ void gen_stmt(Node *node) {
     case ND_DO:
     {
       int cnt = ++label_idx;
-      char break_label[128];
-      char continue_label[128];
-      sprintf(break_label, ".L.for.%d.end", cnt);
-      sprintf(continue_label, ".L.for.%d.increment", cnt);
-      go_inner_loop(continue_label, break_label);
-
       if (node->init)
         gen_expr(node->init);
       printf(".L.for.%d.start:\n", cnt);
       if (node->cond) {
         gen_expr(node->cond);
         printf("  test rax, rax\n");
-        printf("  jz .L.for.%d.end\n", cnt);
+        printf("  jz %s\n", node->break_label);
       }
       gen_stmt(node->body);
-      printf("%s:\n", continue_label);
+      printf("%s:\n", node->continue_label);
       if (node->inc)
         gen_expr(node->inc);
       printf("  jmp .L.for.%d.start\n", cnt);
-      printf("%s:\n", break_label);
-
-      go_outer_loop();
+      printf("%s:\n", node->break_label);
       return;
     }
     case ND_BREAK:
-       if (!current_loop || !current_loop->break_label) {
-         fprintf(stderr, "break out of loop\n");
-         exit(1);
-       }
-       printf("  jmp %s\n", current_loop->break_label);
+       printf("  jmp %s\n", node->break_label);
        return;
     case ND_CONTINUE:
-       if (!current_loop || !current_loop->continue_label) {
-         fprintf(stderr, "continue out of loop\n");
-         exit(1);
-       }
-       printf("  jmp %s\n", current_loop->continue_label);
+       printf("  jmp %s\n", node->continue_label);
        return;
     case ND_RETURN:
       gen_expr(node->body);

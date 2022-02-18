@@ -96,6 +96,10 @@ struct Node {
   // ND_FUNCALL
   char *func_name;
   Node *args;
+
+  // ND_FOR, ND_DO, ND_BREAK, ND_CONTINUE
+  char *break_label;
+  char *continue_label;
 };
 
 typedef struct Function Function;
