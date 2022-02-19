@@ -91,7 +91,14 @@ void gen_expr(Node *node) {
       return;
     case ND_VAR:
       gen_addr(node);
-      printf("  mov rax, [rax]\n");
+      switch (node->var->ty->size) {
+        case 4:
+          printf("  mov eax, dword [rax]\n");
+          break;
+        default:
+          fprintf(stderr, "unknown size of variable: %s\n", node->tok->loc);
+          exit(1);
+      }
       return;
     case ND_ADD:
       gen_expr(node->rhs);
@@ -195,7 +202,14 @@ void gen_expr(Node *node) {
       printf("  push rax\n");
       gen_addr(node->lhs);
       printf("  pop rdi\n");
-      printf("  mov [rax], rdi\n");
+      switch (node->lhs->var->ty->size) {
+        case 4:
+          printf("  mov dword [rax], edi\n");
+          break;
+        default:
+          fprintf(stderr, "unknown size of variable: %s\n", node->tok->loc);
+          exit(1);
+      }
       printf("  mov rax, rdi\n");
       return;
     case ND_FUNCALL:
@@ -227,16 +241,18 @@ void assign_lvar_offset(Function *func) {
 
   // arguments
   for (Var *arg = func->args; arg; arg = arg->next) {
-    offset += 8;
+    offset += arg->ty->size;
     arg->offset = offset;
   }
 
   // local variables
   for (Var *v = func->lvars; v; v = v->next) {
-    offset += 8;
+    offset += v->ty->size;
     v->offset = offset;
   }
 
+  // TODO
+  offset = 16;
   printf("  sub rsp, %d\n", offset);
 }
 
@@ -245,7 +261,15 @@ void assign_args_to_mem(Var *args) {
   int i = 0;
   for (Var *arg = args; arg; arg = arg->next) {
     printf("  lea rax, [rbp - %d]\n", arg->offset);
-    printf("  mov [rax], %s\n", arg_regs[i]);
+    switch (arg->ty->size) {
+      case 4:
+        // FIXME?
+        printf("  mov dword [rax], %s\n", arg_regs[i]);
+        break;
+      default:
+        fprintf(stderr, "unknown size of variable: %s\n", arg->name);
+        exit(1);
+    }
     ++i;
   }
 }
