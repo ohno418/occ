@@ -236,6 +236,10 @@ void gen_expr(Node *node) {
   assert(0);
 }
 
+int align_to(int n, int align) {
+  return ((n - 1) / align + 1) * align;
+}
+
 // Assign offset to local variables and stack area for them.
 void assign_lvar_offset(Function *func) {
   int offset = 0;
@@ -252,9 +256,7 @@ void assign_lvar_offset(Function *func) {
     v->offset = offset;
   }
 
-  // TODO
-  offset = 16;
-  printf("  sub rsp, %d\n", offset);
+  printf("  sub rsp, %d\n", align_to(offset, 16));
 }
 
 // Assign arguments to memory according to their offsets.
