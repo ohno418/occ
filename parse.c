@@ -87,6 +87,9 @@ Node *new_binary(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
 }
 
 Type *type_name(Token *tok) {
+  if (equal(tok, "char"))
+    return ty_char();
+
   if (equal(tok, "int"))
     return ty_int();
 

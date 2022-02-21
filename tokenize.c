@@ -4,7 +4,7 @@
 // otherwise return zero.
 int is_keyword(Token *tok) {
   char *keywords[] = {"return", "if", "else", "for", "while", "do", "break", "continue",
-                      "sizeof", "int"};
+                      "sizeof", "char", "int"};
   for (int i = 0; i < sizeof(keywords) / sizeof(char*); i++) {
     char *kw = keywords[i];
     if (tok->len == strlen(kw) &&

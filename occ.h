@@ -121,7 +121,8 @@ void codegen(Function *func);
 
 /* type.c */
 typedef enum {
-  TY_INT, // int
+  TY_CHAR, // char
+  TY_INT,  // int
 } TypeKind;
 
 struct Type {
@@ -129,6 +130,7 @@ struct Type {
   int size;
 };
 
+Type *ty_char();
 Type *ty_int();
 
 /* debug.c */

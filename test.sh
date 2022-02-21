@@ -126,10 +126,14 @@ assert "int ret(int n) { return n; } int main() { return ret(123); }" "123"
 assert "int ret(int n) { return n; } int main() { int var=42; return ret(var); }" "42"
 assert "int ret(int n) { return n; } int main() { int var=24; int foo=ret(var); return foo; }" "24"
 assert "int ret_add(int a, int b) { return a+b; } int main() { return ret_add(3, 4); }" "7"
+assert "int main() { char c = 12; return c; }" "12"
+assert "char add_char(char a, char b, char c) { return a+b+c; } int main() { return add_char(1,2,3); }" "6"
 
 # sizeof
 assert "int main() { int a; return sizeof(a); }" "4"
 assert "int main() { return sizeof(int); }" "4"
+assert "int main() { char c; return sizeof(c); }" "1"
+assert "int main() { return sizeof(char); }" "1"
 
 echo OK
 exit 0

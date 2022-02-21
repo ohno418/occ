@@ -4,6 +4,7 @@
 static Function *current_func;
 
 // Registers where put arguments.
+char *arg_regs8[] = {"dil", "sil", "dl", "cl", "r8b", "r9b"};
 char *arg_regs32[] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
 char *arg_regs64[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
@@ -93,6 +94,9 @@ void gen_expr(Node *node) {
     case ND_VAR:
       gen_addr(node);
       switch (node->var->ty->size) {
+        case 1:
+          printf("  mov al, BYTE PTR [rax]\n");
+          break;
         case 4:
           printf("  mov eax, DWORD PTR [rax]\n");
           break;
@@ -204,6 +208,9 @@ void gen_expr(Node *node) {
       gen_addr(node->lhs);
       printf("  pop rdi\n");
       switch (node->lhs->var->ty->size) {
+        case 1:
+          printf("  mov BYTE PTR [rax], dil\n");
+          break;
         case 4:
           printf("  mov DWORD PTR [rax], edi\n");
           break;
@@ -265,6 +272,9 @@ void assign_args_to_mem(Var *args) {
   for (Var *arg = args; arg; arg = arg->next) {
     printf("  lea rax, [rbp - %d]\n", arg->offset);
     switch (arg->ty->size) {
+      case 1:
+        printf("  mov BYTE PTR [rax], %s\n", arg_regs8[i]);
+        break;
       case 4:
         printf("  mov DWORD PTR [rax], %s\n", arg_regs32[i]);
         break;
