@@ -4,7 +4,8 @@
 static Function *current_func;
 
 // Registers where put arguments.
-char *arg_regs[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+char *arg_regs32[] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
+char *arg_regs64[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
 // Label index, used to identify labels.
 int label_idx = 0;
@@ -93,7 +94,7 @@ void gen_expr(Node *node) {
       gen_addr(node);
       switch (node->var->ty->size) {
         case 4:
-          printf("  mov eax, dword [rax]\n");
+          printf("  mov eax, DWORD PTR [rax]\n");
           break;
         default:
           fprintf(stderr, "unknown size of variable: %s\n", node->tok->loc);
@@ -204,7 +205,7 @@ void gen_expr(Node *node) {
       printf("  pop rdi\n");
       switch (node->lhs->var->ty->size) {
         case 4:
-          printf("  mov dword [rax], edi\n");
+          printf("  mov DWORD PTR [rax], edi\n");
           break;
         default:
           fprintf(stderr, "unknown size of variable: %s\n", node->tok->loc);
@@ -217,7 +218,8 @@ void gen_expr(Node *node) {
       int i = 0;
       for (Node *arg = node->args; arg; arg = arg->next) {
         gen_expr(arg);
-        printf("  mov %s, rax\n", arg_regs[i]);
+        // TODO
+        printf("  mov %s, rax\n", arg_regs64[i]);
         ++i;
       }
       printf("  call %s\n", node->func_name);
@@ -263,8 +265,7 @@ void assign_args_to_mem(Var *args) {
     printf("  lea rax, [rbp - %d]\n", arg->offset);
     switch (arg->ty->size) {
       case 4:
-        // FIXME?
-        printf("  mov dword [rax], %s\n", arg_regs[i]);
+        printf("  mov DWORD PTR [rax], %s\n", arg_regs32[i]);
         break;
       default:
         fprintf(stderr, "unknown size of variable: %s\n", arg->name);

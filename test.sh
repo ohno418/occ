@@ -128,8 +128,8 @@ assert "int ret(int n) { return n; } int main() { int var=24; int foo=ret(var); 
 assert "int ret_add(int a, int b) { return a+b; } int main() { return ret_add(3, 4); }" "7"
 
 # sizeof
-assert "int main() { int a; return sizeof(a); }" "8"
-assert "int main() { return sizeof(int); }" "8"
+assert "int main() { int a; return sizeof(a); }" "4"
+assert "int main() { return sizeof(int); }" "4"
 
 echo OK
 exit 0
