@@ -218,7 +218,6 @@ void gen_expr(Node *node) {
       int i = 0;
       for (Node *arg = node->args; arg; arg = arg->next) {
         gen_expr(arg);
-        // TODO
         printf("  mov %s, rax\n", arg_regs64[i]);
         ++i;
       }
