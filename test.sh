@@ -128,6 +128,8 @@ assert "int ret(int n) { return n; } int main() { int var=24; int foo=ret(var); 
 assert "int ret_add(int a, int b) { return a+b; } int main() { return ret_add(3, 4); }" "7"
 assert "int main() { char c = 12; return c; }" "12"
 assert "char add_char(char a, char b, char c) { return a+b+c; } int main() { return add_char(1,2,3); }" "6"
+assert "int main() { return 'A'; }" "65"
+assert "int main() { char c='a'; return c; }" "97"
 
 # sizeof
 assert "int main() { int a; return sizeof(a); }" "4"

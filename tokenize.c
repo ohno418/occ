@@ -54,6 +54,28 @@ Token *tokenize(char *input) {
       continue;
     }
 
+    // char literal
+    if (*p == '\'') {
+      char *start = p;
+      p++;
+
+      Token *tok = calloc(1, sizeof(Token));
+      tok->kind = TK_NUM;
+      tok->loc = start;
+      tok->num = *p;
+      p++;
+
+      if (*p != '\'') {
+        fprintf(stderr, "expected \"'\": %s", p);
+        exit(1);
+      }
+      p++;
+
+      tok->len = p - start;
+      cur = cur->next = tok;
+      continue;
+    }
+
     // identifier or keyword
     if (isalpha(*p)) {
       char *start = p;
