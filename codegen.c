@@ -11,6 +11,20 @@ char *arg_regs64[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 // Label index, used to identify labels.
 int label_idx = 0;
 
+Type *type_of(Node *node) {
+  switch (node->kind) {
+    case ND_VAR:
+      return node->var->ty;
+    case ND_DEREF:
+      Type *ty;
+      for (ty = node->lhs->var->ty; ty->base; ty = ty->base);
+      return ty;
+    default:
+      fprintf(stderr, "unknown type of node\n");
+      exit(1);
+  }
+}
+
 void gen_expr(Node *node);
 
 // Generate assembly code from statement nodes.
@@ -76,12 +90,18 @@ void gen_stmt(Node *node) {
 
 // Leave an address of a lvalue on RAX.
 void gen_addr(Node *node) {
-  if (!node->var) {
-    fprintf(stderr, "not a lvalue\n");
-    exit(1);
+  switch (node->kind) {
+    case ND_VAR:
+      printf("  lea rax, [rbp - %d]\n", node->var->offset);
+      return;
+    case ND_DEREF:
+      gen_addr(node->lhs);
+      printf("  mov rax, [rax]\n");
+      return;
+    default:
+      fprintf(stderr, "not a lvalue\n");
+      exit(1);
   }
-
-  printf("  lea rax, [rbp - %d]\n", node->var->offset);
 }
 
 // Generate assembly code from expression nodes.
@@ -93,7 +113,7 @@ void gen_expr(Node *node) {
       return;
     case ND_VAR:
       gen_addr(node);
-      switch (node->var->ty->size) {
+      switch (type_of(node)->size) {
         case 1:
           printf("  mov al, BYTE PTR [rax]\n");
           break;
@@ -210,7 +230,7 @@ void gen_expr(Node *node) {
       printf("  push rax\n");
       gen_addr(node->lhs);
       printf("  pop rdi\n");
-      switch (node->lhs->var->ty->size) {
+      switch (type_of(node->lhs)->size) {
         case 1:
           printf("  mov BYTE PTR [rax], dil\n");
           break;

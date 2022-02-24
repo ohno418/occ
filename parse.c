@@ -574,7 +574,7 @@ Node *primary(Token *tok, Token **rest) {
   // dereference
   if (equal(tok, "*")) {
     Node *node = new_node(ND_DEREF, tok);
-    node->lhs = assign(tok->next, rest);
+    node->lhs = equaltity(tok->next, rest);
     return node;
   }
 
