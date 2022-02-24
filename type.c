@@ -14,3 +14,9 @@ Type *ty_char() {
 Type *ty_int() {
   return new_type(TY_INT, 4);
 }
+
+Type *ty_ptr(Type *base) {
+  Type *ty = new_type(TY_PTR, 8);
+  ty->base = base;
+  return ty;
+}

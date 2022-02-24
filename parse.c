@@ -86,14 +86,22 @@ Node *new_binary(NodeKind kind, Node *lhs, Node *rhs, Token *tok) {
   return node;
 }
 
-Type *type_name(Token *tok) {
+Type *type_name(Token *tok, Token **rest) {
+  Type *ty;
+
   if (equal(tok, "char"))
-    return ty_char();
+    ty = ty_char();
+  else if (equal(tok, "int"))
+    ty = ty_int();
+  else
+    return NULL;
 
-  if (equal(tok, "int"))
-    return ty_int();
+  // pointer
+  for (tok = tok->next; equal(tok, "*"); tok = tok->next)
+    ty = ty_ptr(ty);
 
-  return NULL;
+  *rest = tok;
+  return ty;
 }
 
 Node *stmt(Token *tok, Token **rest);
@@ -493,17 +501,18 @@ Node *postfix(Token *tok, Token **rest) {
   return node;
 }
 
-// primary = type identifier
+// primary = declaration
 //         | identifier "(" (assign ("," assign)*)? ")"
 //         | identifier
 //         | number
+//         | "&" assign
+//         | "*" assign
 //         | "sizeof" "(" (identifier | type) ")"
 //         | "(" expr ")"
 Node *primary(Token *tok, Token **rest) {
   // declaration
-  Type *ty = type_name(tok);
+  Type *ty = type_name(tok, &tok);
   if (ty) {
-    tok = tok->next;
     Var *var = register_lvar(strndup(tok->loc, tok->len), ty);
     Node *node = new_node(ND_VAR, tok);
     node->var = var;
@@ -555,6 +564,20 @@ Node *primary(Token *tok, Token **rest) {
     return node;
   }
 
+  // address-of expression
+  if (equal(tok, "&")) {
+    Node *node = new_node(ND_ADDR, tok);
+    node->lhs = assign(tok->next, rest);
+    return node;
+  }
+
+  // dereference
+  if (equal(tok, "*")) {
+    Node *node = new_node(ND_DEREF, tok);
+    node->lhs = assign(tok->next, rest);
+    return node;
+  }
+
   // sizeof
   if (equal(tok, "sizeof")) {
     consume(tok->next, &tok, "(");
@@ -567,14 +590,15 @@ Node *primary(Token *tok, Token **rest) {
         exit(1);
       }
       ty = var->ty;
+      tok = tok->next;
     } else {
-      ty = type_name(tok);
+      ty = type_name(tok, &tok);
     }
     if (!ty) {
       fprintf(stderr, "unknown operand of sizeof: %s\n", tok->loc);
       exit(1);
     }
-    consume(tok->next, rest, ")");
+    consume(tok, rest, ")");
 
     return new_num(ty->size, tok);
   }
@@ -599,12 +623,11 @@ Var *func_args(Token *tok, Token **rest) {
       consume(tok, &tok, ",");
 
     Var *arg = calloc(1, sizeof(Var));
-    arg->ty = type_name(tok);
+    arg->ty = type_name(tok, &tok);
     if (!arg->ty) {
       fprintf(stderr, "expected type name: %s\n", tok->loc);
       exit(1);
     }
-    tok = tok->next;
     arg->name = strndup(tok->loc, tok->len);
     cur = cur->next = arg;
     tok = tok->next;
@@ -619,12 +642,11 @@ Function *function(Token *tok, Token **rest) {
   current_func = func;
 
   // type
-  func->ty = type_name(tok);
+  func->ty = type_name(tok, &tok);
   if (!func->ty) {
     fprintf(stderr, "type name required for function: %s\n", tok->loc);
     exit(1);
   }
-  tok = tok->next;
 
   // name
   if (tok->kind != TK_IDENT) {

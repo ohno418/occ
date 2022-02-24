@@ -63,6 +63,8 @@ typedef enum {
   ND_EQ,        // ==
   ND_NEQ,       // !=
   ND_ASSIGN,    // =
+  ND_ADDR,      // & (with `lhs` field)
+  ND_DEREF,     // dereferencing * (with `lhs` field)
   ND_FUNCALL,   // function call
   ND_COMMA,     // comma expression
 } NodeKind;
@@ -123,15 +125,20 @@ void codegen(Function *func);
 typedef enum {
   TY_CHAR, // char
   TY_INT,  // int
+  TY_PTR,  // pointer
 } TypeKind;
 
 struct Type {
   TypeKind kind;
   int size;
+
+  // TY_PTR
+  Type *base;
 };
 
 Type *ty_char();
 Type *ty_int();
+Type *ty_ptr(Type *base);
 
 /* debug.c */
 void debug_node(Node *node);

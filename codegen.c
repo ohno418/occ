@@ -100,6 +100,9 @@ void gen_expr(Node *node) {
         case 4:
           printf("  mov eax, DWORD PTR [rax]\n");
           break;
+        case 8:
+          printf("  mov rax, QWORD PTR [rax]\n");
+          break;
         default:
           fprintf(stderr, "unknown size of variable: %s\n", node->tok->loc);
           exit(1);
@@ -214,11 +217,21 @@ void gen_expr(Node *node) {
         case 4:
           printf("  mov DWORD PTR [rax], edi\n");
           break;
+        case 8:
+          printf("  mov QWORD PTR [rax], rdi\n");
+          break;
         default:
           fprintf(stderr, "unknown size of variable: %s\n", node->tok->loc);
           exit(1);
       }
       printf("  mov rax, rdi\n");
+      return;
+    case ND_ADDR:
+      gen_addr(node->lhs);
+      return;
+    case ND_DEREF:
+      gen_expr(node->lhs);
+      printf("  mov rax, [rax]\n");
       return;
     case ND_FUNCALL:
     {
@@ -277,6 +290,9 @@ void assign_args_to_mem(Var *args) {
         break;
       case 4:
         printf("  mov DWORD PTR [rax], %s\n", arg_regs32[i]);
+        break;
+      case 8:
+        printf("  mov QWORD PTR [rax], %s\n", arg_regs64[i]);
         break;
       default:
         fprintf(stderr, "unknown size of variable: %s\n", arg->name);

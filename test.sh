@@ -130,12 +130,19 @@ assert "int main() { char c = 12; return c; }" "12"
 assert "char add_char(char a, char b, char c) { return a+b+c; } int main() { return add_char(1,2,3); }" "6"
 assert "int main() { return 'A'; }" "65"
 assert "int main() { char c='a'; return c; }" "97"
+assert "int main() { int a=42; int *p=&a; return *p; }" "42"
+# assert "int main() { int a=42; int *p=&a; *p=123; return *p; }" "123"
+# assert "int main() { int a=42; int *p=&a; *p=123; return a; }" "123"
+# assert "int change(int *ptr) { *ptr=123; } int main() { int a=42; int *p=&a; change(p); return *p; }" "123"
+# assert "int change(int *ptr) { *ptr=123; } int main() { int a=42; int *p=&a; change(p); return a; }" "123"
 
 # sizeof
 assert "int main() { int a; return sizeof(a); }" "4"
 assert "int main() { return sizeof(int); }" "4"
 assert "int main() { char c; return sizeof(c); }" "1"
 assert "int main() { return sizeof(char); }" "1"
+assert "int main() { int a=42; int *p=&a; return sizeof(p); }" "8"
+assert "int main() { return sizeof(int*); }" "8"
 
 echo OK
 exit 0
